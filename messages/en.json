@@ -1,0 +1,287 @@
+{
+  "Site": {
+    "brandShort": "Huayun",
+    "nav": {
+      "home": "Home",
+      "heritage": "Archive",
+      "map": "Map",
+      "stories": "Stories",
+      "inheritors": "Inheritors",
+      "museum": "Museum",
+      "assistant": "AI Guide"
+    },
+    "enterMuseum": "Enter Museum",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "language": "Language",
+    "switchLanguage": "中文",
+    "footerDescription": "A digital museum experience for Chinese intangible cultural heritage, connecting moving images, stories, geography and living transmission.",
+    "footerLinks": {
+      "archive": "Heritage Archive",
+      "map": "China Map Explorer",
+      "stories": "Inheritor Stories",
+      "inheritors": "Inheritor Features",
+      "museum": "Digital Museum",
+      "assistant": "AI Heritage Guide"
+    }
+  },
+  "Home": {
+    "hero": {
+      "eyebrow": "Chinese Intangible Cultural Heritage",
+      "title": "Huayun",
+      "subtitle": "Living Heritage",
+      "description": "Enter a restrained, immersive and internationally oriented digital museum of Chinese heritage through moving images, objects, voices and regional stories.",
+      "browse": "Browse Archive",
+      "featured": "Selected Exhibits",
+      "livingArchive": "Living Archive",
+      "digitalMuseum": "Digital Museum",
+      "categories": {
+        "opera": "Opera",
+        "craft": "Craft",
+        "ritual": "Ritual",
+        "oralHistory": "Oral History"
+      }
+    },
+    "intro": {
+      "eyebrow": "About Heritage",
+      "title": "Intangible heritage is living cultural memory.",
+      "description": "Chinese intangible cultural heritage lives in hands, voices, seasonal rituals, oral traditions and community life. It is not a static specimen, but a continuing practice of skill, aesthetics and emotional connection."
+    },
+    "stats": {
+      "national": "National representative items",
+      "unesco": "UNESCO-listed items",
+      "provinces": "Provinces covered",
+      "categories": "Content categories"
+    },
+    "featured": {
+      "eyebrow": "Selected Archive",
+      "title": "Selected Heritage",
+      "viewAll": "View all"
+    },
+    "categories": {
+      "eyebrow": "Categories",
+      "title": "Browse by Category"
+    },
+    "map": {
+      "eyebrow": "Geo Archive",
+      "title": "China Map Explorer",
+      "description": "Explore heritage through provinces, returning stages, kilns, silk threads and festivals to the landscapes and local lives that shaped them.",
+      "activeProvinces": "Active Provinces",
+      "heritageItems": "Heritage Items"
+    },
+    "story": {
+      "eyebrow": "Inheritor Story",
+      "title": "Inheritor Stories",
+      "read": "Read Exhibit"
+    },
+    "assistant": {
+      "eyebrow": "AI Heritage Guide",
+      "title": "AI Heritage Guide",
+      "description": "Ask about heritage history, related projects, inheritors and regions through a site-grounded AI guide.",
+      "comingSoon": "Coming soon",
+      "open": "Start conversation"
+    }
+  },
+  "MapExplorer": {
+    "interactive": "Interactive Map",
+    "hint": "Select a province marker to view local heritage items",
+    "mapLabel": "China intangible cultural heritage map explorer",
+    "heritageCount": "{count} heritage items",
+    "selectedProvince": "Selected Province",
+    "emptyProvince": "No data",
+    "itemCount": "{count} items",
+    "viewItem": "View exhibit",
+    "empty": "No province data yet.",
+    "browseRegion": "Browse this region",
+    "ranking": "Province Ranking",
+    "markerAria": "View heritage items in {province}"
+  },
+  "HeritageListPage": {
+    "meta": {
+      "defaultTitle": "Heritage Archive",
+      "categoryTitle": "Browse by Category",
+      "provinceTitle": "{province} Heritage",
+      "queryTitle": "Search: {query}",
+      "description": "Browse Peking Opera, Suzhou embroidery, Longquan celadon, Jingdezhen porcelain and molten iron fireworks."
+    },
+    "eyebrow": "Archive",
+    "title": "Heritage Archive",
+    "description": "Search representative projects by category, region and keyword, moving from stage, handcraft, folk ritual and oral tradition into more specific cultural scenes.",
+    "collectionLabel": "Huayun Collection",
+    "collectionTitle": "Collection",
+    "collectionCount": "{count} works",
+    "breadcrumbHome": "Home",
+    "breadcrumbArchive": "Heritage Archive"
+  },
+  "HeritageList": {
+    "searchPlaceholder": "Search names, regions or keywords",
+    "all": "All",
+    "allRegions": "All regions",
+    "count": "{count} items",
+    "empty": "No matching items found.",
+    "filters": "Filters",
+    "hideFilters": "Hide filters",
+    "category": "Category",
+    "region": "Region",
+    "searching": "Searching",
+    "semanticSearch": "Semantic search",
+    "collectionView": "Collection view"
+  },
+  "HeritageDetail": {
+    "fallbackTitle": "Heritage Item",
+    "back": "Back to archive",
+    "inscription": "Inscribed in {year}",
+    "videoArchive": "Video Archive",
+    "scrollPrompt": "Scroll into the exhibition story",
+    "videoChapterLabel": "Video chapter navigation",
+    "storyEyebrow": "Storytelling",
+    "storyTitle": "Enter a living tradition through its scenes",
+    "storyDescription": "Moving images, geography, craft details and human transmission bring an archive record back into a perceivable cultural scene.",
+    "chapters": {
+      "video": "Opening Film",
+      "origin": "Origins",
+      "craft": "Craft Scene",
+      "timeline": "Timeline",
+      "inheritor": "Inheritor",
+      "related": "Further Viewing"
+    },
+    "storyStats": {
+      "inscription": "Inscription Year",
+      "galleryCount": "Image Cues",
+      "timelineCount": "Historical Nodes",
+      "profile": "Profile"
+    },
+    "historyEyebrow": "History",
+    "historyTitle": "Historical Context",
+    "timelineEyebrow": "Timeline",
+    "timelineTitle": "Timeline",
+    "timelineDescription": "A few key moments show how a local practice enters public cultural memory.",
+    "inheritorEyebrow": "Inheritor",
+    "inheritorIntro": "Transmission is not static preservation; it continues through practice, narration and renewal.",
+    "relatedEyebrow": "Related",
+    "relatedTitle": "Related Heritage",
+    "relatedDescription": "Continue exploring regional, technical and performative traditions that resonate with this cultural practice.",
+    "viewAll": "Browse all",
+    "breadcrumbHome": "Home",
+    "breadcrumbArchive": "Heritage Archive",
+    "consultationAvailable": "Consultation for commissions, exhibitions and brand collaborations",
+    "consultationAction": "Consultation",
+    "consultationTitle": "Cooperation Enquiry",
+    "consultationForItem": "Enquire about {name}",
+    "wechatService": "WeChat Service",
+    "enterpriseCooperation": "Enterprise Cooperation",
+    "contactEmail": "Email",
+    "contactPhone": "Telephone",
+    "closeConsultation": "Close consultation",
+    "makingEyebrow": "Making Process",
+    "makingTitle": "Making Process",
+    "commercialInheritorEyebrow": "The Maker",
+    "commercialInheritorTitle": "Inheritor",
+    "futureWorksEyebrow": "Future Works",
+    "futureWorksTitle": "Future Works",
+    "comingSoon": "Coming Soon",
+    "futureWorkCollection": "Collectible Works",
+    "futureWorkCustom": "Custom Collaboration",
+    "futureWorkCultural": "Cultural Editions"
+  },
+  "Gallery": {
+    "eyebrow": "Gallery",
+    "title": "Image Gallery"
+  },
+  "InheritorsPage": {
+    "metaTitle": "Inheritor Features",
+    "metaDescription": "Browse Chinese intangible heritage inheritors, representative works, interview videos and associated heritage projects.",
+    "eyebrow": "Inheritor Archive",
+    "title": "Inheritor Features",
+    "description": "Enter heritage scenes through practice, narration and creation, and see how living traditions continue in the present.",
+    "count": "{count} inheritors",
+    "viewProfile": "View profile",
+    "empty": "No inheritor data yet. Add inheritor profiles in the content admin."
+  },
+  "InheritorDetail": {
+    "fallbackTitle": "Inheritor Feature",
+    "back": "Back to inheritors",
+    "eyebrow": "Inheritor",
+    "heritageEyebrow": "Belonging Heritage",
+    "heritageTitle": "Associated Heritage Project",
+    "heritageDescription": "This inheritor's representative practice is closely connected to the associated heritage project, whose detail page includes history, imagery, timeline and related exhibits.",
+    "viewHeritage": "View heritage project",
+    "worksEyebrow": "Representative Works",
+    "worksTitle": "Representative Works",
+    "worksDescription": "Use the associated heritage project as a representative work entry into technique, moving image and regional culture.",
+    "viewWork": "Open work",
+    "interviewEyebrow": "Interview",
+    "interviewTitle": "Interview Video",
+    "interviewDescription": "Watch the inheritor's practice scenes, narration and technical details through video.",
+    "interviewEmpty": "No interview video has been configured for this inheritor yet.",
+    "relatedEyebrow": "Related",
+    "relatedTitle": "Related Heritage",
+    "viewAll": "Browse all"
+  },
+  "AdminPage": {
+    "metaTitle": "Content Admin",
+    "metaDescription": "Manage heritage items, categories and media assets.",
+    "eyebrow": "Content Management",
+    "title": "Content Admin",
+    "description": "Manage heritage items, categories, images and video assets. Write operations require the Supabase service role and Admin Key."
+  },
+  "NotFound": {
+    "title": "This exhibit was not found",
+    "description": "This exhibition record is not currently available in the archive.",
+    "back": "Back to archive"
+  },
+  "MuseumPage": {
+    "metaTitle": "Digital Museum",
+    "metaDescription": "Enter Huayun's digital museum for Chinese intangible heritage, featuring curated topics, annual recommendations and curatorial stories.",
+    "eyebrow": "Digital Museum",
+    "title": "Digital Museum",
+    "description": "A curatorial entrance that reorganizes heritage films, objects, regions and human stories into a quiet, luminous contemporary museum experience.",
+    "primaryAction": "Browse archive",
+    "secondaryAction": "Inheritor features",
+    "stats": {
+      "exhibits": "Exhibits",
+      "topics": "Featured Topics",
+      "regions": "Regions"
+    },
+    "featuredEyebrow": "Featured Topics",
+    "featuredTitle": "Featured Topics",
+    "featuredDescription": "Opera, craft, traditional techniques, folk rituals and oral literature are organized as expandable digital exhibition lines.",
+    "topicCountLabel": "exhibits",
+    "viewTopic": "Enter topic",
+    "annualEyebrow": "Annual Selection",
+    "annualTitle": "Annual Recommendations",
+    "annualDescription": "Recently highlighted exhibits are arranged by inscription year and content depth, showing how living heritage enters public memory.",
+    "yearLabel": "Inscription Year",
+    "viewExhibit": "View exhibit",
+    "storyEyebrow": "Curatorial Stories",
+    "storyTitle": "Curatorial Stories",
+    "storyDescription": "Short editorial narratives connect images, historical fragments, local life and ongoing practice by inheritors.",
+    "curatorialNote": "Curatorial Note",
+    "readStory": "Read story",
+    "empty": "No museum content is available yet. Add published heritage items in the content admin.",
+    "breadcrumbHome": "Home",
+    "breadcrumbMuseum": "Digital Museum"
+  },
+  "AssistantPage": {
+    "metaTitle": "AI Heritage Guide",
+    "metaDescription": "Ask Huayun's AI heritage guide about Chinese intangible heritage, related projects, inheritors, history and regions.",
+    "eyebrow": "AI Heritage Guide",
+    "title": "AI Heritage Guide",
+    "description": "A site-grounded assistant for exploring Chinese intangible cultural heritage through history, projects, inheritors and regional clues.",
+    "panelTitle": "Ask from the archive",
+    "panelDescription": "The guide retrieves Huayun website content first, then uses OpenAI to compose a concise museum-style answer when configured.",
+    "chatTitle": "Heritage conversation",
+    "welcome": "Hello, I can answer questions about Huayun's heritage archive and recommend related projects, inheritors and regions.",
+    "placeholder": "Ask about Peking Opera, Suzhou embroidery, inheritors or regional heritage...",
+    "send": "Send",
+    "thinking": "Searching the archive...",
+    "error": "The assistant is temporarily unavailable. Please try again later.",
+    "suggestions": {
+      "history": "What is the historical background of Peking Opera?",
+      "inheritor": "Recommend inheritors related to Suzhou embroidery.",
+      "region": "Which heritage items are related to Jiangsu?"
+    },
+    "breadcrumbHome": "Home",
+    "breadcrumbAssistant": "AI Heritage Guide"
+  }
+}

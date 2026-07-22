@@ -1,0 +1,287 @@
+{
+  "Site": {
+    "brandShort": "华韵",
+    "nav": {
+      "home": "首页",
+      "heritage": "非遗名录",
+      "map": "地图探索",
+      "stories": "传承故事",
+      "inheritors": "传承人",
+      "museum": "数字展馆",
+      "assistant": "AI助手"
+    },
+    "enterMuseum": "进入展厅",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "language": "语言",
+    "switchLanguage": "English",
+    "footerDescription": "以现代网页技术呈现非遗项目的影像、故事、地域和传承线索，连接传统文化与当代数字展陈。",
+    "footerLinks": {
+      "archive": "非遗名录",
+      "map": "中国地图探索",
+      "stories": "传承人故事",
+      "inheritors": "传承人专题",
+      "museum": "数字展馆",
+      "assistant": "AI非遗助手"
+    }
+  },
+  "Home": {
+    "hero": {
+      "eyebrow": "Chinese Intangible Cultural Heritage",
+      "title": "华韵",
+      "subtitle": "中国非遗",
+      "description": "在影像、器物、声腔与地方故事中，进入一个克制、沉浸、面向世界的中国非遗数字博物馆。",
+      "browse": "浏览非遗名录",
+      "featured": "精选展陈",
+      "livingArchive": "Living Archive",
+      "digitalMuseum": "Digital Museum",
+      "categories": {
+        "opera": "Opera",
+        "craft": "Craft",
+        "ritual": "Ritual",
+        "oralHistory": "Oral History"
+      }
+    },
+    "intro": {
+      "eyebrow": "About Heritage",
+      "title": "非遗，是活着的文化记忆。",
+      "description": "中国非物质文化遗产存在于人的手、声腔、节令、口述和共同体生活之中。它不是静止的标本，而是持续发生的技艺、审美与情感连接。"
+    },
+    "stats": {
+      "national": "国家级代表性项目",
+      "unesco": "联合国教科文组织名录项目",
+      "provinces": "当前覆盖省份",
+      "categories": "当前内容分类"
+    },
+    "featured": {
+      "eyebrow": "Selected Archive",
+      "title": "精选非遗卡片",
+      "viewAll": "查看全部"
+    },
+    "categories": {
+      "eyebrow": "Categories",
+      "title": "分类浏览"
+    },
+    "map": {
+      "eyebrow": "Geo Archive",
+      "title": "中国地图探索",
+      "description": "以省份为线索，把舞台、窑火、丝线与节庆重新放回山川、城市和地方生活之中。",
+      "activeProvinces": "Active Provinces",
+      "heritageItems": "Heritage Items"
+    },
+    "story": {
+      "eyebrow": "Inheritor Story",
+      "title": "传承人故事",
+      "read": "阅读展陈"
+    },
+    "assistant": {
+      "eyebrow": "AI Heritage Guide",
+      "title": "AI 非遗助手",
+      "description": "围绕非遗历史、相关项目、传承人和地区线索进行提问，由站内内容优先支撑回答。",
+      "comingSoon": "敬请期待",
+      "open": "开始对话"
+    }
+  },
+  "MapExplorer": {
+    "interactive": "Interactive Map",
+    "hint": "点击省份标记查看当地非遗项目",
+    "mapLabel": "中国非遗地图探索",
+    "heritageCount": "{count} 项非遗",
+    "selectedProvince": "Selected Province",
+    "emptyProvince": "暂无数据",
+    "itemCount": "{count} 项",
+    "viewItem": "查看展陈",
+    "empty": "暂无省份数据。",
+    "browseRegion": "按地区浏览",
+    "ranking": "Province Ranking",
+    "markerAria": "查看{province}非遗项目"
+  },
+  "HeritageListPage": {
+    "meta": {
+      "defaultTitle": "非遗名录",
+      "categoryTitle": "分类浏览",
+      "provinceTitle": "{province}非遗",
+      "queryTitle": "搜索：{query}",
+      "description": "浏览京剧、苏绣、龙泉青瓷、景德镇陶瓷、打铁花等中国非物质文化遗产项目。"
+    },
+    "eyebrow": "Archive",
+    "title": "非遗名录",
+    "description": "以分类、地区与关键词检索代表性项目，从舞台、手作、民俗与口述传统中进入更具体的文化现场。",
+    "collectionLabel": "Collection",
+    "collectionTitle": "华韵收藏",
+    "collectionCount": "馆藏 {count} 项",
+    "breadcrumbHome": "首页",
+    "breadcrumbArchive": "非遗名录"
+  },
+  "HeritageList": {
+    "searchPlaceholder": "搜索名称、地区、关键词",
+    "all": "全部",
+    "allRegions": "全部地区",
+    "count": "{count} 个项目",
+    "empty": "没有找到匹配项目。",
+    "filters": "筛选",
+    "hideFilters": "收起筛选",
+    "category": "分类",
+    "region": "地区",
+    "searching": "检索中",
+    "semanticSearch": "智能搜索",
+    "collectionView": "馆藏浏览"
+  },
+  "HeritageDetail": {
+    "fallbackTitle": "非遗项目",
+    "back": "返回名录",
+    "inscription": "{year} 入选代表作名录",
+    "videoArchive": "影像档案",
+    "scrollPrompt": "向下进入展陈叙事",
+    "videoChapterLabel": "视频章节导航",
+    "storyEyebrow": "Storytelling",
+    "storyTitle": "从现场进入一项活态传统",
+    "storyDescription": "以影像、地域、工艺细节与人的传承为线索，把一项非遗从档案重新带回可感知的文化现场。",
+    "chapters": {
+      "video": "影像开场",
+      "origin": "历史源流",
+      "craft": "技艺现场",
+      "timeline": "时间线索",
+      "inheritor": "传承人",
+      "related": "延伸观看"
+    },
+    "storyStats": {
+      "inscription": "入选年份",
+      "galleryCount": "图像线索",
+      "timelineCount": "历史节点",
+      "profile": "人物档案"
+    },
+    "historyEyebrow": "History",
+    "historyTitle": "历史介绍",
+    "timelineEyebrow": "Timeline",
+    "timelineTitle": "时间轴",
+    "timelineDescription": "通过几个关键节点，观察一项技艺如何从地方生活进入公共记忆。",
+    "inheritorEyebrow": "Inheritor",
+    "inheritorIntro": "传承不是静态保存，而是人在一次次练习、讲述与再创造中延续传统。",
+    "relatedEyebrow": "Related",
+    "relatedTitle": "推荐相关非遗",
+    "relatedDescription": "继续浏览与这项文化实践相互映照的地域、技艺与舞台传统。",
+    "viewAll": "浏览全部",
+    "breadcrumbHome": "首页",
+    "breadcrumbArchive": "非遗名录",
+    "consultationAvailable": "支持定制、展览与品牌合作咨询",
+    "consultationAction": "咨询合作",
+    "consultationTitle": "合作咨询",
+    "consultationForItem": "咨询{name}相关合作",
+    "wechatService": "微信客服",
+    "enterpriseCooperation": "企业合作",
+    "contactEmail": "邮箱",
+    "contactPhone": "电话",
+    "closeConsultation": "关闭合作咨询",
+    "makingEyebrow": "Making Process",
+    "makingTitle": "制作过程",
+    "commercialInheritorEyebrow": "The Maker",
+    "commercialInheritorTitle": "传承人",
+    "futureWorksEyebrow": "Future Works",
+    "futureWorksTitle": "未来作品",
+    "comingSoon": "即将开放",
+    "futureWorkCollection": "典藏作品",
+    "futureWorkCustom": "定制合作",
+    "futureWorkCultural": "文化衍生"
+  },
+  "Gallery": {
+    "eyebrow": "Gallery",
+    "title": "图片画廊"
+  },
+  "InheritorsPage": {
+    "metaTitle": "传承人专题",
+    "metaDescription": "浏览中国非遗传承人、代表作品、采访视频与所属非遗项目。",
+    "eyebrow": "Inheritor Archive",
+    "title": "传承人专题",
+    "description": "从人的练习、讲述与创作进入非遗现场，理解一项传统如何在当代继续生长。",
+    "count": "{count} 位传承人",
+    "viewProfile": "查看专题",
+    "empty": "暂无传承人数据。请在内容后台补充传承人资料。"
+  },
+  "InheritorDetail": {
+    "fallbackTitle": "传承人专题",
+    "back": "返回传承人专题",
+    "eyebrow": "Inheritor",
+    "heritageEyebrow": "Belonging Heritage",
+    "heritageTitle": "所属非遗项目",
+    "heritageDescription": "该传承人的代表性实践与此非遗项目紧密相连，项目详情页包含历史、图像、时间线与相关展陈。",
+    "viewHeritage": "查看所属项目",
+    "worksEyebrow": "Representative Works",
+    "worksTitle": "代表作品",
+    "worksDescription": "以其所属非遗项目作为代表性作品入口，进入技艺、影像与地方文化的完整展陈。",
+    "viewWork": "进入作品",
+    "interviewEyebrow": "Interview",
+    "interviewTitle": "采访视频",
+    "interviewDescription": "通过影像观看传承人的实践场景、讲述方式与技艺细节。",
+    "interviewEmpty": "该传承人暂未配置采访视频。",
+    "relatedEyebrow": "Related",
+    "relatedTitle": "相关非遗项目",
+    "viewAll": "浏览全部"
+  },
+  "AdminPage": {
+    "metaTitle": "内容后台",
+    "metaDescription": "管理中国非遗项目、分类与媒体素材。",
+    "eyebrow": "Content Management",
+    "title": "内容后台",
+    "description": "管理非遗项目、分类、图像与视频素材。写入操作需要 Supabase service role 与 Admin Key。"
+  },
+  "NotFound": {
+    "title": "未找到这件藏品",
+    "description": "这条展陈记录暂时不在当前名录中。",
+    "back": "返回非遗名录"
+  },
+  "MuseumPage": {
+    "metaTitle": "数字展馆",
+    "metaDescription": "进入华韵中国非遗数字展馆，浏览精选专题、年度推荐与策展故事。",
+    "eyebrow": "Digital Museum",
+    "title": "数字展馆",
+    "description": "以策展视角重新组织非遗影像、器物、地域与人物线索，让每一次浏览都像进入一座安静而有光的当代博物馆。",
+    "primaryAction": "浏览非遗名录",
+    "secondaryAction": "传承人专题",
+    "stats": {
+      "exhibits": "展陈项目",
+      "topics": "精选专题",
+      "regions": "覆盖地区"
+    },
+    "featuredEyebrow": "Featured Topics",
+    "featuredTitle": "精选专题",
+    "featuredDescription": "从戏曲、工艺、技艺、民俗与民间文学切入，把分散的项目整理成可持续扩展的数字展线。",
+    "topicCountLabel": "项展陈",
+    "viewTopic": "进入专题",
+    "annualEyebrow": "Annual Selection",
+    "annualTitle": "年度推荐",
+    "annualDescription": "按入选年份与内容完整度精选近期展陈，呈现不同地区非遗在当代公共记忆中的位置。",
+    "yearLabel": "入选年份",
+    "viewExhibit": "查看展陈",
+    "storyEyebrow": "Curatorial Stories",
+    "storyTitle": "策展故事",
+    "storyDescription": "以图像、文字与历史片段形成短篇叙事，连接技艺现场、地方生活与传承人的持续实践。",
+    "curatorialNote": "策展札记",
+    "readStory": "阅读故事",
+    "empty": "暂无展馆内容。请先在内容后台补充已发布的非遗项目。",
+    "breadcrumbHome": "首页",
+    "breadcrumbMuseum": "数字展馆"
+  },
+  "AssistantPage": {
+    "metaTitle": "AI非遗助手",
+    "metaDescription": "向华韵 AI 非遗助手提问，了解中国非遗项目、历史背景、相关传承人和地区线索。",
+    "eyebrow": "AI Heritage Guide",
+    "title": "AI非遗助手",
+    "description": "一个优先检索华韵站内内容的非遗导览助手，用于理解历史背景、发现相关项目、传承人和地区线索。",
+    "panelTitle": "从馆藏中提问",
+    "panelDescription": "助手会优先检索华韵站内内容；配置 OpenAI 后，将基于检索结果生成克制清晰的博物馆式回答。",
+    "chatTitle": "非遗对话",
+    "welcome": "你好，我可以围绕华韵非遗档案回答问题，并推荐相关非遗项目、传承人和地区。",
+    "placeholder": "询问京剧、苏绣、传承人或某个地区的非遗线索...",
+    "send": "发送",
+    "thinking": "正在检索馆藏...",
+    "error": "助手暂时不可用，请稍后再试。",
+    "suggestions": {
+      "history": "京剧的历史背景是什么？",
+      "inheritor": "推荐与苏绣相关的传承人。",
+      "region": "江苏有哪些相关非遗项目？"
+    },
+    "breadcrumbHome": "首页",
+    "breadcrumbAssistant": "AI非遗助手"
+  }
+}

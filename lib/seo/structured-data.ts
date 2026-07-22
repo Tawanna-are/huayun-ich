@@ -1,0 +1,109 @@
+import { siteConfig } from "@/lib/constants";
+import { defaultLocale, getLocalizedPath, type AppLocale } from "@/i18n/routing";
+import { absoluteUrl, getSiteLocaleConfig } from "@/lib/metadata";
+import type { HeritageItem } from "@/lib/types/heritage";
+
+type JsonLd = Record<string, unknown>;
+
+export function createOrganizationJsonLd(): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteConfig.name,
+    alternateName: siteConfig.englishName,
+    url: siteConfig.url,
+    logo: absoluteUrl(siteConfig.ogImage)
+  };
+}
+
+const itemListText = {
+  zh: {
+    name: "中国非遗名录",
+    description: "中国非物质文化遗产代表性项目浏览列表。"
+  },
+  en: {
+    name: "Chinese Heritage Archive",
+    description: "Representative Chinese intangible cultural heritage items."
+  }
+} satisfies Record<AppLocale, { name: string; description: string }>;
+
+export function createWebsiteJsonLd(locale: AppLocale = defaultLocale): JsonLd {
+  const localeConfig = getSiteLocaleConfig(locale);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: localeConfig.name,
+    alternateName: siteConfig.englishName,
+    url: absoluteUrl(getLocalizedPath("/", locale)),
+    description: localeConfig.description,
+    inLanguage: localeConfig.language,
+    publisher: {
+      "@type": "Organization",
+      name: localeConfig.name
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${absoluteUrl(getLocalizedPath("/heritage", locale))}?query={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
+  };
+}
+
+export function createItemListJsonLd(items: HeritageItem[], locale: AppLocale = defaultLocale): JsonLd {
+  const text = itemListText[locale];
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: text.name,
+    description: text.description,
+    numberOfItems: items.length,
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: absoluteUrl(getLocalizedPath(`/heritage/${item.slug}`, locale)),
+      name: locale === "en" ? item.englishName || item.name : item.name
+    }))
+  };
+}
+
+export function createCreativeWorkJsonLd(item: HeritageItem, locale: AppLocale = defaultLocale): JsonLd {
+  const localeConfig = getSiteLocaleConfig(locale);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: locale === "en" ? item.englishName || item.name : item.name,
+    alternateName: locale === "en" ? item.name : item.englishName,
+    description: item.summary,
+    image: absoluteUrl(item.heroImage),
+    url: absoluteUrl(getLocalizedPath(`/heritage/${item.slug}`, locale)),
+    inLanguage: localeConfig.language,
+    about: item.categoryName,
+    keywords: item.tags.join(", "),
+    spatialCoverage: item.region,
+    datePublished: item.inscriptionYear ? `${item.inscriptionYear}` : undefined,
+    contributor: {
+      "@type": "Person",
+      name: item.inheritor.name,
+      description: item.inheritor.title
+    }
+  };
+}
+
+export function createBreadcrumbJsonLd(
+  items: Array<{ name: string; path: string }>,
+  locale: AppLocale = defaultLocale
+): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(getLocalizedPath(item.path, locale))
+    }))
+  };
+}

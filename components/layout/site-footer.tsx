@@ -1,0 +1,69 @@
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
+import { ArrowUpRight, Landmark } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
+import { defaultLocale, isAppLocale, type AppLocale } from "@/i18n/routing";
+import { siteConfig } from "@/lib/constants";
+
+export function SiteFooter() {
+  const pathname = usePathname();
+  const locale = useLocale();
+  const currentLocale: AppLocale = isAppLocale(locale) ? locale : defaultLocale;
+  const t = useTranslations("Site");
+  const localizedSite = siteConfig.localized[currentLocale];
+
+  if (pathname === "/") {
+    return null;
+  }
+
+  return (
+    <footer className="border-t border-pine/10 bg-rice py-12 text-ink">
+      <div className="museum-container grid gap-10 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
+        <div>
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-md border border-pine/18 bg-paper shadow-goldline">
+              <Landmark className="size-5 text-pine" />
+            </span>
+            <span className="serif-title text-xl">{localizedSite.name}</span>
+          </div>
+          <p className="mt-5 max-w-md text-sm leading-7 text-ink/58">
+            {t("footerDescription")}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm text-cinnabar">Explore</p>
+          <div className="mt-4 grid gap-3 text-sm text-ink/64">
+            <Link href="/heritage" className="hover:text-cinnabar">
+              {t("footerLinks.archive")}
+            </Link>
+            <Link href="/museum" className="hover:text-cinnabar">
+              {t("footerLinks.museum")}
+            </Link>
+            <Link href="/assistant" className="hover:text-cinnabar">
+              {t("footerLinks.assistant")}
+            </Link>
+            <Link href="/inheritors" className="hover:text-cinnabar">
+              {t("footerLinks.inheritors")}
+            </Link>
+          </div>
+        </div>
+        <div>
+          <p className="text-sm text-cinnabar">Build</p>
+          <a
+            href="https://supabase.com"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-flex items-center gap-2 text-sm text-ink/64 hover:text-cinnabar"
+          >
+            Supabase
+            <ArrowUpRight className="size-4" />
+          </a>
+        </div>
+      </div>
+      <div className="museum-container mt-10 border-t border-pine/10 pt-6 text-xs text-ink/42">
+        © 2026 {localizedSite.name}. Digital museum.
+      </div>
+    </footer>
+  );
+}

@@ -1,0 +1,357 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import {
+  filterHeritageItems,
+  groupHeritageByProvince,
+  mapCategoryRow,
+  mapHeritageItemRow
+} from "@/lib/content/heritage-repository";
+import type { CategoryRow, HeritageItemSelectRow, HeritageMediaRow, MediaAssetRow } from "@/lib/types/database";
+
+const categoryRow: CategoryRow = {
+  id: "cat-opera",
+  slug: "traditional-opera",
+  name: "Traditional Opera",
+  english_name: "Opera",
+  summary: "Stage traditions",
+  color: "#B22222",
+  sort_order: 10,
+  created_at: "2026-01-01T00:00:00Z"
+};
+
+const baseRow: HeritageItemSelectRow = {
+  id: "heritage-jingju",
+  category_id: "cat-opera",
+  slug: "jingju",
+  name: "Jingju",
+  english_name: "Peking Opera",
+  summary: "A highly stylized stage tradition.",
+  region: "Beijing",
+  province: "Beijing",
+  city: "Beijing",
+  inscription_year: 2010,
+  history: ["Formed in the Qing dynasty."],
+  timeline: [{ year: "1790", title: "Troupes arrived", description: "The stage language began to merge." }],
+  tags: ["opera", "stage"],
+  related_slugs: ["kunqu"],
+  latitude: 39.9042,
+  longitude: 116.4074,
+  map_x: 68,
+  map_y: 31,
+  sort_order: 10,
+  published: true,
+  featured: true,
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-01T00:00:00Z",
+  category: categoryRow,
+  heritage_media: [
+    {
+      id: "media-cover",
+      heritage_item_id: "heritage-jingju",
+      media_type: "image",
+      role: "cover",
+      url: "/assets/jingju.png",
+      alt: "Jingju cover",
+      caption: "Cover image",
+      file_name: null,
+      file_size: null,
+      mime_type: null,
+      storage_path: null,
+      thumbnail_url: null,
+      thumbnail_storage_path: null,
+      original_file_name: null,
+      width: null,
+      height: null,
+      sort_order: 0,
+      created_at: "2026-01-01T00:00:00Z"
+    },
+    {
+      id: "media-hero",
+      heritage_item_id: "heritage-jingju",
+      media_type: "image",
+      role: "hero",
+      url: "/assets/jingju-hero.png",
+      alt: "Jingju hero",
+      caption: "Hero image",
+      file_name: null,
+      file_size: null,
+      mime_type: null,
+      storage_path: null,
+      thumbnail_url: null,
+      thumbnail_storage_path: null,
+      original_file_name: null,
+      width: null,
+      height: null,
+      sort_order: 1,
+      created_at: "2026-01-01T00:00:00Z"
+    },
+    {
+      id: "media-gallery",
+      heritage_item_id: "heritage-jingju",
+      media_type: "image",
+      role: "gallery",
+      url: "/assets/jingju-detail.png",
+      alt: "Jingju detail",
+      caption: "Detail image",
+      file_name: null,
+      file_size: null,
+      mime_type: null,
+      storage_path: null,
+      thumbnail_url: null,
+      thumbnail_storage_path: null,
+      original_file_name: null,
+      width: null,
+      height: null,
+      sort_order: 2,
+      created_at: "2026-01-01T00:00:00Z"
+    },
+    {
+      id: "media-video",
+      heritage_item_id: "heritage-jingju",
+      media_type: "video",
+      role: "video",
+      url: "/video.mp4",
+      alt: "Jingju video",
+      caption: "Video archive",
+      file_name: null,
+      file_size: null,
+      mime_type: null,
+      storage_path: null,
+      thumbnail_url: null,
+      thumbnail_storage_path: null,
+      original_file_name: null,
+      width: null,
+      height: null,
+      sort_order: 3,
+      created_at: "2026-01-01T00:00:00Z"
+    }
+  ],
+  media_assets: null,
+  inheritors: [
+    {
+      id: "inheritor-1",
+      heritage_item_id: "heritage-jingju",
+      name: "Mei school group",
+      title: "Representative inheritor group",
+      bio: "Keeps the repertoire alive.",
+      image_url: "/assets/inheritor-opera.png",
+      sort_order: 0,
+      created_at: "2026-01-01T00:00:00Z"
+    }
+  ]
+};
+
+describe("Supabase heritage repository mapping", () => {
+  it("hides Yue embroidery and Kunqu from every public repository entry point", () => {
+    const repository = readFileSync("lib/content/heritage-repository.ts", "utf8");
+
+    expect(repository).toContain('new Set(["yue-embroidery", "kunqu"])');
+    expect(repository).toContain("isPublicHeritageSlug(item.slug)");
+    expect(repository).toContain("isPublicHeritageSlug(item.slug as string)");
+    expect(repository).toContain("if (!isPublicHeritageSlug(slug))");
+  });
+  it("maps category rows into UI category objects", () => {
+    expect(mapCategoryRow(categoryRow)).toEqual({
+      slug: "traditional-opera",
+      name: "Traditional Opera",
+      englishName: "Opera",
+      summary: "Stage traditions",
+      color: "#B22222"
+    });
+  });
+
+  it("maps plural-table Supabase rows into the existing UI heritage shape", () => {
+    const item = mapHeritageItemRow(baseRow);
+
+    expect(item.slug).toBe("jingju");
+    expect(item.featured).toBe(true);
+    expect(item.categoryName).toBe("Traditional Opera");
+    expect(item.image).toBe("/assets/jingju.png");
+    expect(item.heroImage).toBe("/assets/jingju-hero.png");
+    expect(item.videoUrl).toBe("/video.mp4");
+    expect(item.gallery).toHaveLength(1);
+    expect(item.timeline[0]?.year).toBe("1790");
+    expect(item.inheritor.name).toBe("Mei school group");
+    expect(item.relatedSlugs).toEqual(["kunqu"]);
+  });
+
+  it("uses Cover, then Hero, then the placeholder for collection cards", () => {
+    const coverAndHero = mapHeritageItemRow(baseRow);
+    const heroOnly = mapHeritageItemRow({
+      ...baseRow,
+      heritage_media: [heritageImage("hero-only", "hero", "/assets/hero-only.webp", 0)]
+    });
+    const galleryOnly = mapHeritageItemRow({
+      ...baseRow,
+      heritage_media: [heritageImage("gallery-only", "gallery", "/assets/gallery-only.webp", 0)]
+    });
+
+    expect(coverAndHero.image).toBe("/assets/jingju.png");
+    expect(heroOnly.image).toBe("/assets/hero-only.webp");
+    expect(galleryOnly.image).toBe("/assets/hero-museum.png");
+  });
+
+  it("uses Hero, then Cover, then the placeholder for the detail hero", () => {
+    const coverOnly = mapHeritageItemRow({
+      ...baseRow,
+      heritage_media: [heritageImage("cover-only", "cover", "/assets/cover-only.webp", 0)]
+    });
+
+    expect(coverOnly.heroImage).toBe("/assets/cover-only.webp");
+  });
+
+  it("prioritizes media_assets so newly uploaded project images and videos auto-render on detail pages", () => {
+    const mediaAssets: MediaAssetRow[] = [
+      mediaAssetRow({
+        id: "asset-finished",
+        title: "Finished work",
+        file_type: "image",
+        asset_role: "cover",
+        file_url: "https://cdn.example.com/suxiu/finished.webp",
+        thumbnail_url: "https://cdn.example.com/suxiu/finished-thumb.webp",
+        sort_order: 0
+      }),
+      mediaAssetRow({
+        id: "asset-process",
+        title: "Making process",
+        file_type: "image",
+        asset_role: "gallery",
+        file_url: "https://cdn.example.com/suxiu/process.webp",
+        thumbnail_url: "https://cdn.example.com/suxiu/process-thumb.webp",
+        sort_order: 10
+      }),
+      mediaAssetRow({
+        id: "asset-detail",
+        title: "Close detail",
+        file_type: "image",
+        asset_role: "gallery",
+        file_url: "https://cdn.example.com/suxiu/detail.webp",
+        thumbnail_url: "https://cdn.example.com/suxiu/detail-thumb.webp",
+        sort_order: 20
+      }),
+      mediaAssetRow({
+        id: "asset-documentary",
+        title: "Documentary",
+        file_type: "video",
+        asset_role: "main_video",
+        file_url: "https://cdn.example.com/suxiu/documentary.mp4",
+        thumbnail_url: "https://cdn.example.com/suxiu/documentary-poster.webp",
+        sort_order: 30
+      }),
+      mediaAssetRow({
+        id: "asset-interview",
+        title: "Inheritor interview",
+        file_type: "video",
+        asset_role: "video",
+        file_url: "https://cdn.example.com/suxiu/interview.mp4",
+        thumbnail_url: "https://cdn.example.com/suxiu/interview-poster.webp",
+        sort_order: 40
+      })
+    ];
+    const item = mapHeritageItemRow({
+      ...baseRow,
+      id: "heritage-suxiu",
+      slug: "suzhou-embroidery",
+      name: "Suzhou Embroidery",
+      english_name: "Suzhou Embroidery",
+      media_assets: mediaAssets
+    });
+
+    expect(item.image).toBe("https://cdn.example.com/suxiu/finished.webp");
+    expect(item.heroImage).toBe("https://cdn.example.com/suxiu/finished.webp");
+    expect(item.videoPoster).toBe("https://cdn.example.com/suxiu/documentary-poster.webp");
+    expect(item.videoUrl).toBe("https://cdn.example.com/suxiu/documentary.mp4");
+    expect(item.gallery).toEqual([
+      {
+        src: "https://cdn.example.com/suxiu/process.webp",
+        alt: "Making process",
+        caption: "Making process"
+      },
+      {
+        src: "https://cdn.example.com/suxiu/detail.webp",
+        alt: "Close detail",
+        caption: "Close detail"
+      }
+    ]);
+    expect(item.videos).toEqual([
+      {
+        title: "Documentary",
+        url: "https://cdn.example.com/suxiu/documentary.mp4",
+        poster: "https://cdn.example.com/suxiu/documentary-poster.webp"
+      },
+      {
+        title: "Inheritor interview",
+        url: "https://cdn.example.com/suxiu/interview.mp4",
+        poster: "https://cdn.example.com/suxiu/interview-poster.webp"
+      }
+    ]);
+  });
+
+  it("filters and groups mapped database content by category, province, and query", () => {
+    const items = [
+      mapHeritageItemRow(baseRow),
+      mapHeritageItemRow({
+        ...baseRow,
+        id: "heritage-suxiu",
+        slug: "suzhou-embroidery",
+        name: "Suzhou Embroidery",
+        english_name: "Suzhou Embroidery",
+        region: "Suzhou",
+        province: "Jiangsu",
+        city: "Suzhou",
+        category: {
+          ...categoryRow,
+          id: "cat-craft",
+          slug: "traditional-craft",
+          name: "Traditional Craft",
+          english_name: "Craft"
+        }
+      })
+    ];
+
+    expect(filterHeritageItems(items, { query: "embroidery", category: "traditional-craft" })).toHaveLength(1);
+    expect(filterHeritageItems(items, { province: "Beijing" })[0]?.slug).toBe("jingju");
+    expect(groupHeritageByProvince(items).map((group) => group.province)).toEqual(["Beijing", "Jiangsu"]);
+  });
+});
+
+function mediaAssetRow(patch: Partial<MediaAssetRow> & Pick<MediaAssetRow, "id" | "title" | "file_type" | "file_url">): MediaAssetRow {
+  return {
+    thumbnail_url: null,
+    file_size: null,
+    duration: null,
+    heritage_id: "heritage-suxiu",
+    asset_role: "gallery",
+    alt: null,
+    caption: null,
+    mime_type: null,
+    storage_path: null,
+    thumbnail_storage_path: null,
+    sort_order: 0,
+    created_at: "2026-06-07T00:00:00.000Z",
+    ...patch
+  };
+}
+
+function heritageImage(id: string, role: HeritageMediaRow["role"], url: string, sortOrder: number): HeritageMediaRow {
+  return {
+    id,
+    heritage_item_id: baseRow.id,
+    media_type: "image",
+    role,
+    url,
+    alt: id,
+    caption: id,
+    file_name: null,
+    file_size: null,
+    mime_type: "image/webp",
+    storage_path: null,
+    thumbnail_url: null,
+    thumbnail_storage_path: null,
+    original_file_name: null,
+    width: null,
+    height: null,
+    sort_order: sortOrder,
+    created_at: "2026-01-01T00:00:00Z"
+  };
+}

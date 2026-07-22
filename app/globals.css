@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 48 62% 96%;
+  --foreground: 164 17% 16%;
+  --card: 48 78% 98%;
+  --card-foreground: 164 17% 16%;
+  --primary: 164 24% 37%;
+  --primary-foreground: 48 62% 96%;
+  --secondary: 154 19% 61%;
+  --secondary-foreground: 164 17% 16%;
+  --muted: 150 22% 93%;
+  --muted-foreground: 164 10% 42%;
+  --accent: 7 43% 49%;
+  --accent-foreground: 48 62% 96%;
+  --border: 156 18% 78%;
+  --input: 150 22% 93%;
+  --ring: 164 24% 37%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(140, 169, 154, 0.16), transparent 24rem),
+    linear-gradient(180deg, rgba(255, 253, 247, 0.98), rgba(238, 245, 241, 0.9) 42rem, rgba(251, 248, 239, 1)),
+    #fbf8ef;
+  color: #23312d;
+  font-family:
+    "HarmonyOS Sans SC",
+    "MiSans",
+    "Alibaba PuHuiTi",
+    "PingFang SC",
+    "Microsoft YaHei UI",
+    "Microsoft YaHei",
+    "Noto Sans SC",
+    sans-serif;
+  letter-spacing: 0;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  content: "";
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(35, 49, 45, 0.045) 0, rgba(35, 49, 45, 0.045) 1px, transparent 1px, transparent 11px),
+    radial-gradient(circle at 28% 18%, rgba(184, 80, 66, 0.06), transparent 20rem);
+}
+
+::selection {
+  color: #fffdf7;
+  background: rgba(184, 80, 66, 0.78);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fbf8ef;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(54, 88, 78, 0.36);
+  border: 2px solid #fbf8ef;
+}
+
+.museum-container {
+  width: min(1180px, calc(100vw - 32px));
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .museum-container {
+    width: min(1180px, calc(100vw - 64px));
+  }
+}
+
+.serif-title {
+  font-family:
+    "STYuanti",
+    "Yuanti SC",
+    "YouYuan",
+    "HarmonyOS Sans SC",
+    "Microsoft YaHei UI",
+    "PingFang SC",
+    sans-serif;
+}
+
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(54, 88, 78, 0.38), rgba(184, 80, 66, 0.32), transparent);
+}
+
+.paper-panel {
+  color: #23312d;
+  background:
+    linear-gradient(135deg, rgba(255, 253, 247, 0.92), rgba(231, 240, 238, 0.62)),
+    #fffdf7;
+}
+
+.ink-panel {
+  background:
+    linear-gradient(135deg, rgba(255, 253, 247, 0.12), rgba(140, 169, 154, 0.08)),
+    rgba(35, 49, 45, 0.72);
+}
+
+.image-mask {
+  mask-image: linear-gradient(180deg, transparent 0, black 10%, black 88%, transparent 100%);
+}
+
+.page-enter {
+  min-height: 100vh;
+}
+
+.css-reveal {
+  animation: fadeUp 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lineGrow {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes heroImageDrift {
+  from {
+    transform: scale(1.04) translate3d(-1.4%, -0.8%, 0);
+  }
+  to {
+    transform: scale(1.1) translate3d(1.2%, 0.9%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
