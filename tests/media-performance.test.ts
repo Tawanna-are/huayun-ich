@@ -35,7 +35,7 @@ describe("media performance pipeline", () => {
     const panelSource = readSource("components/admin/video-upload-panel.tsx");
     const proxySource = readSource("app/api/admin/media/tus/[[...path]]/route.ts");
 
-    expect(panelSource).toContain("chunkSize: 6 * 1024 * 1024");
+    expect(panelSource).toContain("chunkSize: 4 * 1024 * 1024");
     expect(panelSource).toContain("cacheControl: getStorageCacheControlForMimeType(file.type)");
     expect(panelSource).not.toContain('cacheControl: "3600"');
     expect(proxySource).toContain('"upload-metadata"');

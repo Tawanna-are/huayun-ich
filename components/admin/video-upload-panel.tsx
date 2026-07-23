@@ -208,7 +208,7 @@ function uploadWithTus({
   return new Promise<void>((resolve, reject) => {
     const upload = new tus.Upload(file, {
       endpoint: "/api/admin/media/tus",
-      chunkSize: 6 * 1024 * 1024,
+      chunkSize: 4 * 1024 * 1024,
       retryDelays: [0, 3000, 5000, 10000],
       removeFingerprintOnSuccess: true,
       headers: {
