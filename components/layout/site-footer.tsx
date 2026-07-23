@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Landmark } from "lucide-react";
-import { Link, usePathname } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { defaultLocale, isAppLocale, type AppLocale } from "@/i18n/routing";
 import { siteConfig } from "@/lib/constants";
 
@@ -19,8 +19,8 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-pine/10 bg-rice py-12 text-ink">
-      <div className="museum-container grid gap-10 md:grid-cols-[1.2fr_0.8fr]">
-        <div>
+      <div className="museum-container">
+        <div className="max-w-xl">
           <div className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-md border border-pine/18 bg-paper shadow-goldline">
               <Landmark className="size-5 text-pine" />
@@ -30,23 +30,6 @@ export function SiteFooter() {
           <p className="mt-5 max-w-md text-sm leading-7 text-ink/58">
             {t("footerDescription")}
           </p>
-        </div>
-        <div>
-          <p className="text-sm text-cinnabar">Explore</p>
-          <div className="mt-4 grid gap-3 text-sm text-ink/64">
-            <Link href="/heritage" className="hover:text-cinnabar">
-              {t("footerLinks.archive")}
-            </Link>
-            <Link href="/museum" className="hover:text-cinnabar">
-              {t("footerLinks.museum")}
-            </Link>
-            <Link href="/assistant" className="hover:text-cinnabar">
-              {t("footerLinks.assistant")}
-            </Link>
-            <Link href="/inheritors" className="hover:text-cinnabar">
-              {t("footerLinks.inheritors")}
-            </Link>
-          </div>
         </div>
       </div>
       <div className="museum-container mt-10 border-t border-pine/10 pt-6 text-xs text-ink/42">
