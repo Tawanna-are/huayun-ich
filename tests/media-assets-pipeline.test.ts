@@ -27,6 +27,14 @@ describe("media assets content pipeline", () => {
     expect(helperSource).toContain("heritage_id: input.heritageId");
   });
 
+  it("revalidates localized heritage pages after a media upload", () => {
+    const uploadRouteSource = readSource("app/api/admin/media/route.ts");
+
+    expect(uploadRouteSource).toContain('import { revalidatePath } from "next/cache"');
+    expect(uploadRouteSource).toContain("revalidateHeritageMediaPages");
+    expect(uploadRouteSource).toContain('revalidatePath(`/${locale}/heritage/${slug}`)');
+  });
+
   it("syncs primary media fields from the heritage editor into media_assets", () => {
     const createRouteSource = readSource("app/api/admin/heritage/route.ts");
     const updateRouteSource = readSource("app/api/admin/heritage/[id]/route.ts");

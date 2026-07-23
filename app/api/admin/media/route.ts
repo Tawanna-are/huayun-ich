@@ -1,4 +1,6 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   buildThumbnailStoragePath,
   getImageUploadDimensions,
@@ -29,6 +31,19 @@ function readNumber(body: Record<string, unknown>, key: string) {
   }
 
   return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+async function revalidateHeritageMediaPages(supabase: SupabaseClient, heritageId: string) {
+  const { data } = await supabase.from("heritage_items").select("slug").eq("id", heritageId).maybeSingle();
+  const slug = typeof data?.slug === "string" ? data.slug : "";
+
+  if (!slug) {
+    return;
+  }
+
+  for (const locale of ["zh", "en"] as const) {
+    revalidatePath(`/${locale}/heritage/${slug}`);
+  }
 }
 
 async function registerResumableVideo(body: Record<string, unknown>) {
@@ -94,6 +109,8 @@ async function registerResumableVideo(body: Record<string, unknown>) {
     caption,
     sortOrder: 0
   });
+
+  await revalidateHeritageMediaPages(supabase, heritageId);
 
   return NextResponse.json({ url, path: storagePath, fileName });
 }
@@ -227,6 +244,8 @@ export async function POST(request: Request) {
       caption,
       sortOrder: 0
     });
+
+    await revalidateHeritageMediaPages(supabase, heritageId);
 
     return NextResponse.json({ url: publicUrl.publicUrl, path, fileName });
   } catch (error) {
