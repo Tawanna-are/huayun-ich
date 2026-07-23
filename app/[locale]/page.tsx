@@ -28,7 +28,7 @@ export default async function HomePage({ params }: HomePageProps) {
       <JsonLd data={createWebsiteJsonLd(currentLocale)} />
       <JsonLd data={createOrganizationJsonLd()} />
       <Suspense fallback={<HeroSection />}>
-        <HomeCmsContent itemsPromise={itemsPromise} />
+        <HomeCmsContent itemsPromise={itemsPromise} locale={currentLocale} />
       </Suspense>
     </PageTransition>
   );

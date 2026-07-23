@@ -63,6 +63,21 @@ describe("modern heritage explorer homepage", () => {
     expect(header).toContain("localeMeta[alternateLocale].label");
   });
 
+  it("provides complete English copy for the homepage", () => {
+    const header = readFileSync("components/home/home-header.tsx", "utf8");
+    const explorer = readFileSync("components/home/heritage-explorer-hero.tsx", "utf8");
+    const contact = readFileSync("components/home/home-contact-entry.tsx", "utf8");
+
+    expect(header).toContain("Huayun Heritage");
+    expect(header).toContain("Heritage Projects");
+    expect(explorer).toContain("Let China's ancient culture");
+    expect(explorer).toContain("be seen by the world");
+    expect(explorer).toContain("locale: AppLocale");
+    expect(contact).toContain("Connect tradition with today");
+    expect(contact).toContain("Contact us");
+    expect(contact).toContain("locale: AppLocale");
+  });
+
   it("preserves the inner-page header", () => {
     const siteHeader = readFileSync("components/layout/site-header.tsx", "utf8");
     expect(siteHeader).toContain('pathname === "/"');
