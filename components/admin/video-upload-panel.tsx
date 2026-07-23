@@ -16,6 +16,7 @@ import {
   buildVideoPosterStoragePath,
   buildVideoStoragePath,
   detectVideoFileCodec,
+  findMatchingPreviousVideoUpload,
   isSupportedVideoUpload
 } from "@/lib/admin/video-upload";
 import type { AppLocale } from "@/i18n/routing";
@@ -231,8 +232,10 @@ function uploadWithTus({
     upload
       .findPreviousUploads()
       .then((previousUploads) => {
-        if (previousUploads.length > 0) {
-          upload.resumeFromPreviousUpload(previousUploads[0]);
+        const matchingUpload = findMatchingPreviousVideoUpload(previousUploads, storagePath);
+
+        if (matchingUpload) {
+          upload.resumeFromPreviousUpload(matchingUpload);
         }
 
         upload.start();

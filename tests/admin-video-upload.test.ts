@@ -4,6 +4,7 @@ import {
   buildVideoPosterStoragePath,
   buildVideoStoragePath,
   detectVideoCodec,
+  findMatchingPreviousVideoUpload,
   getVideoUploadDimensions,
   isSupportedVideoUpload
 } from "@/lib/admin/video-upload";
@@ -16,6 +17,16 @@ describe("admin video upload helpers", () => {
     expect(detectVideoCodec(bytes("hvc1"))).toBe("hevc");
     expect(detectVideoCodec(bytes("hev1"))).toBe("hevc");
     expect(detectVideoCodec(bytes("mp4v"))).toBe("unknown");
+  });
+
+  it("only resumes a TUS upload created for the same storage path", () => {
+    const uploads = [
+      { uploadUrl: "https://upload/old", metadata: { objectName: "project/videos/old.mp4" } },
+      { uploadUrl: "https://upload/current", metadata: { objectName: "project/videos/current.mp4" } }
+    ];
+
+    expect(findMatchingPreviousVideoUpload(uploads, "project/videos/current.mp4")?.uploadUrl).toBe("https://upload/current");
+    expect(findMatchingPreviousVideoUpload(uploads, "project/videos/missing.mp4")).toBeUndefined();
   });
 
   it("accepts MP4 and MOV video uploads", () => {

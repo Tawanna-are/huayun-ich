@@ -19,6 +19,14 @@ export type VideoUploadDimensionsInput = {
 
 export type BrowserVideoCodec = "h264" | "hevc" | "unknown";
 
+type PreviousVideoUpload = {
+  metadata?: Record<string, string>;
+};
+
+export function findMatchingPreviousVideoUpload<T extends PreviousVideoUpload>(uploads: T[], storagePath: string) {
+  return uploads.find((upload) => upload.metadata?.objectName === storagePath);
+}
+
 export function detectVideoCodec(buffer: ArrayBuffer): BrowserVideoCodec {
   const marker = new TextDecoder("latin1").decode(buffer);
 
