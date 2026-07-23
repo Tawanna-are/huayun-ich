@@ -15,6 +15,7 @@ import {
   buildSupabaseStoragePublicUrl,
   buildVideoPosterStoragePath,
   buildVideoStoragePath,
+  detectVideoFileCodec,
   isSupportedVideoUpload
 } from "@/lib/admin/video-upload";
 import type { AppLocale } from "@/i18n/routing";
@@ -52,6 +53,8 @@ const copy = {
     clear: "清空",
     project: "目标非遗项目",
     unsupported: "仅支持 MP4、MOV 视频。",
+    incompatibleCodec: "该视频使用 H.265/HEVC 编码，浏览器可能只有声音没有画面。请先转换为 H.264 + AAC 的 MP4 文件。",
+    unknownCodec: "无法确认视频编码。请转换为 H.264 + AAC 的 MP4 文件后再上传。",
     selectProject: "请先选择目标非遗项目。",
     ready: "等待上传",
     generatingPoster: "生成视频封面",
@@ -69,6 +72,8 @@ const copy = {
     clear: "Clear",
     project: "Target heritage item",
     unsupported: "Only MP4 and MOV videos are supported.",
+    incompatibleCodec: "This video uses H.265/HEVC, which may play audio without video in browsers. Convert it to an H.264 + AAC MP4 first.",
+    unknownCodec: "The video codec could not be verified. Convert it to an H.264 + AAC MP4 before uploading.",
     selectProject: "Select a heritage item before uploading.",
     ready: "Ready",
     generatingPoster: "Generating poster",
@@ -254,38 +259,52 @@ export function VideoUploadPanel({
     setQueue((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
   }
 
-  function addFiles(files: FileList | File[]) {
+  async function addFiles(files: FileList | File[]) {
     const incomingFiles = Array.from(files);
-    const validItems = incomingFiles
-      .filter(isSupportedVideoUpload)
-      .map((file) => ({
+    const validItems: VideoQueueItem[] = [];
+    const invalidItems: VideoQueueItem[] = [];
+
+    for (const file of incomingFiles) {
+      if (!isSupportedVideoUpload(file)) {
+        invalidItems.push({
+          id: `error-${crypto.randomUUID()}`,
+          file,
+          status: "error",
+          progress: 0,
+          message: t.unsupported
+        });
+        continue;
+      }
+
+      const codec = await detectVideoFileCodec(file);
+
+      if (codec !== "h264") {
+        invalidItems.push({
+          id: `error-${crypto.randomUUID()}`,
+          file,
+          status: "error",
+          progress: 0,
+          message: codec === "hevc" ? t.incompatibleCodec : t.unknownCodec
+        });
+        continue;
+      }
+
+      validItems.push({
         id: `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,
         file,
         status: "queued" as const,
         progress: 0,
         message: t.ready
-      }));
-
-    setQueue((current) => [...current, ...validItems]);
-
-    if (validItems.length !== incomingFiles.length) {
-      setQueue((current) => [
-        ...current,
-        {
-          id: `error-${crypto.randomUUID()}`,
-          file: new File([], t.unsupported, { type: "text/plain" }),
-          status: "error",
-          progress: 0,
-          message: t.unsupported
-        }
-      ]);
+      });
     }
+
+    setQueue((current) => [...current, ...validItems, ...invalidItems]);
   }
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setIsDragging(false);
-    addFiles(event.dataTransfer.files);
+    void addFiles(event.dataTransfer.files);
   }
 
   async function uploadVideoItem(item: VideoQueueItem) {
@@ -439,7 +458,7 @@ export function VideoUploadPanel({
                   className="sr-only"
                   onChange={(event) => {
                     if (event.target.files) {
-                      addFiles(event.target.files);
+                      void addFiles(event.target.files);
                       event.target.value = "";
                     }
                   }}

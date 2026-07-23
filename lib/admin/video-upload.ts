@@ -17,6 +17,35 @@ export type VideoUploadDimensionsInput = {
   height?: FormDataEntryValue | string | null;
 };
 
+export type BrowserVideoCodec = "h264" | "hevc" | "unknown";
+
+export function detectVideoCodec(buffer: ArrayBuffer): BrowserVideoCodec {
+  const marker = new TextDecoder("latin1").decode(buffer);
+
+  if (marker.includes("hvc1") || marker.includes("hev1")) {
+    return "hevc";
+  }
+
+  if (marker.includes("avc1") || marker.includes("avc3")) {
+    return "h264";
+  }
+
+  return "unknown";
+}
+
+export async function detectVideoFileCodec(file: Blob): Promise<BrowserVideoCodec> {
+  const chunkSize = 8 * 1024 * 1024;
+  const head = await file.slice(0, Math.min(file.size, chunkSize)).arrayBuffer();
+  const headCodec = detectVideoCodec(head);
+
+  if (headCodec !== "unknown" || file.size <= chunkSize) {
+    return headCodec;
+  }
+
+  const tail = await file.slice(Math.max(0, file.size - chunkSize), file.size).arrayBuffer();
+  return detectVideoCodec(tail);
+}
+
 export function isSupportedVideoUpload(file: VideoUploadLike) {
   const normalizedType = file.type.toLowerCase();
   const normalizedName = file.name.toLowerCase();

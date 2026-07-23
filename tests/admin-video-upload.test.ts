@@ -3,11 +3,21 @@ import {
   buildSupabaseStoragePublicUrl,
   buildVideoPosterStoragePath,
   buildVideoStoragePath,
+  detectVideoCodec,
   getVideoUploadDimensions,
   isSupportedVideoUpload
 } from "@/lib/admin/video-upload";
 
 describe("admin video upload helpers", () => {
+  it("detects browser-compatible H.264 and rejects HEVC codec markers", () => {
+    const bytes = (value: string) => new TextEncoder().encode(`....ftyp....${value}....moov`).buffer;
+
+    expect(detectVideoCodec(bytes("avc1"))).toBe("h264");
+    expect(detectVideoCodec(bytes("hvc1"))).toBe("hevc");
+    expect(detectVideoCodec(bytes("hev1"))).toBe("hevc");
+    expect(detectVideoCodec(bytes("mp4v"))).toBe("unknown");
+  });
+
   it("accepts MP4 and MOV video uploads", () => {
     expect(isSupportedVideoUpload({ name: "archive.mp4", type: "video/mp4" })).toBe(true);
     expect(isSupportedVideoUpload({ name: "archive.mov", type: "video/quicktime" })).toBe(true);

@@ -53,6 +53,6 @@ describe("Feishu sync admin integration", () => {
     expect(docs).toContain("每 5 分钟");
     expect(docs).toContain("图片附件");
     expect(vercel).toContain("/api/cron/feishu-sync");
-    expect(vercel).toContain("*/5 * * * *");
+    expect(vercel).toContain("0 2 * * *");
   });
 });
