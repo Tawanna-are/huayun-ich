@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { Menu, Phone, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import type { AppLocale } from "@/i18n/routing";
 
 type MobileNavItem = {
   label: string;
   href: string;
+  locale?: AppLocale;
 };
 
 export function HomeMobileMenu({ items }: { items: MobileNavItem[] }) {
@@ -33,6 +35,7 @@ export function HomeMobileMenu({ items }: { items: MobileNavItem[] }) {
             <Link
               key={`mobile-${item.label}`}
               href={item.href}
+              locale={item.locale}
               className="rounded-2xl px-4 py-3 text-sm text-[#293630] transition hover:bg-[#edf1ed]"
               onClick={() => setOpen(false)}
             >

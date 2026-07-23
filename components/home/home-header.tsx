@@ -1,6 +1,10 @@
+"use client";
+
+import { useLocale } from "next-intl";
 import { Phone } from "lucide-react";
 import { HomeMobileMenu } from "@/components/home/home-mobile-menu";
 import { Link } from "@/i18n/navigation";
+import { getAlternateLocale, localeMeta, type AppLocale } from "@/i18n/routing";
 
 const primaryNav = [
   { label: "首页", href: "/" },
@@ -9,6 +13,9 @@ const primaryNav = [
 ];
 
 export function HomeHeader() {
+  const locale = useLocale() as AppLocale;
+  const alternateLocale = getAlternateLocale(locale);
+
   return (
     <header className="relative z-40 bg-[#f7f5f0] px-5 [background-image:repeating-linear-gradient(0deg,rgba(67,76,70,0.015)_0,rgba(67,76,70,0.015)_1px,transparent_1px,transparent_5px)] lg:px-12">
       <div className="relative mx-auto grid min-h-[90px] max-w-[1344px] grid-cols-[1fr_auto] items-center gap-6 lg:grid-cols-[250px_1fr_auto]">
@@ -38,9 +45,23 @@ export function HomeHeader() {
             <Phone className="size-4" />
             联系我们
           </Link>
+          <Link
+            href="/"
+            locale={alternateLocale}
+            className="transition hover:text-[#a44a3d]"
+          >
+            {localeMeta[alternateLocale].label}
+          </Link>
         </div>
 
-        <HomeMobileMenu items={[...primaryNav, { label: "注册", href: "/login" }, { label: "登录", href: "/login" }]} />
+        <HomeMobileMenu
+          items={[
+            ...primaryNav,
+            { label: "注册", href: "/login" },
+            { label: "登录", href: "/login" },
+            { label: localeMeta[alternateLocale].label, href: "/", locale: alternateLocale }
+          ]}
+        />
       </div>
     </header>
   );

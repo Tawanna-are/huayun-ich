@@ -58,6 +58,9 @@ describe("modern heritage explorer homepage", () => {
     expect(header).not.toContain("传承故事");
     expect(header).not.toContain("/inheritors");
     expect(header).toContain("HomeMobileMenu");
+    expect(header).toContain("getAlternateLocale");
+    expect(header).toContain("locale={alternateLocale}");
+    expect(header).toContain("localeMeta[alternateLocale].label");
   });
 
   it("preserves the inner-page header", () => {
