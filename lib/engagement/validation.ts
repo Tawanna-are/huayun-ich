@@ -17,6 +17,8 @@ export type ContactSubmissionValidationResult =
   | { ok: true; value: ContactSubmissionValue }
   | { ok: false; error: string };
 
+export type CommentValidationResult = { ok: true; value: string } | { ok: false; error: "invalid_comment" };
+
 function asRecord(input: unknown): Record<string, unknown> | null {
   return input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : null;
 }
@@ -62,4 +64,11 @@ export function validateContactSubmission(input: unknown): ContactSubmissionVali
       heritageItemId: heritageItemId || null
     }
   };
+}
+
+export function validateComment(input: unknown): CommentValidationResult {
+  const value = text(input);
+  return value.length >= 2 && value.length <= 800
+    ? { ok: true, value }
+    : { ok: false, error: "invalid_comment" };
 }

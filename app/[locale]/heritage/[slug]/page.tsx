@@ -6,6 +6,7 @@ import { ConsultationProvider, ConsultationTrigger } from "@/components/heritage
 import { DetailHero } from "@/components/heritage/detail-hero";
 import { HeritageVideoArchive } from "@/components/heritage/heritage-video-archive";
 import { HeritageLikeButton } from "@/components/heritage/heritage-like-button";
+import { HeritageComments } from "@/components/heritage/heritage-comments";
 import { PageTransition } from "@/components/motion/page-transition";
 import { Reveal } from "@/components/motion/reveal";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -161,6 +162,8 @@ export default async function HeritageDetailPage({ params }: PageProps) {
               </Reveal>
             </div>
           </section>
+
+          <HeritageComments itemId={item.id} />
 
           {commercialContact.hasChannels ? (
             <section data-section="consultation-cooperation" className="bg-[#102c28] py-16 text-[#f8f4e9] md:py-24">
