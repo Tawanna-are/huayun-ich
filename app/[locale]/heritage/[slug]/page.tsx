@@ -5,6 +5,7 @@ import { CraftMediaGallery } from "@/components/heritage/craft-media-gallery";
 import { ConsultationProvider, ConsultationTrigger } from "@/components/heritage/consultation-panel";
 import { DetailHero } from "@/components/heritage/detail-hero";
 import { HeritageVideoArchive } from "@/components/heritage/heritage-video-archive";
+import { HeritageLikeButton } from "@/components/heritage/heritage-like-button";
 import { PageTransition } from "@/components/motion/page-transition";
 import { Reveal } from "@/components/motion/reveal";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -153,7 +154,10 @@ export default async function HeritageDetailPage({ params }: PageProps) {
                   <div className="bg-[#fffefa] px-5 py-6"><dt className="text-[11px] text-[#7a847e]">{copy.regionLabel}</dt><dd className="mt-2 text-base">{item.region}</dd></div>
                   <div className="bg-[#fffefa] px-5 py-6"><dt className="text-[11px] text-[#7a847e]">{copy.categoryLabel}</dt><dd className="mt-2 text-base">{item.categoryName}</dd></div>
                 </dl>
-                <div className="mt-6"><FavoriteButton itemId={item.id} /></div>
+                <div className="mt-6 flex flex-wrap items-start gap-3">
+                  <FavoriteButton itemId={item.id} />
+                  <HeritageLikeButton itemId={item.id} />
+                </div>
               </Reveal>
             </div>
           </section>
