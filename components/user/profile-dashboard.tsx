@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocale } from "next-intl";
 import type { User } from "@supabase/supabase-js";
-import { ArrowUpRight, Clock, Heart, Languages, LogOut, Sparkles, Tags, UserCircle } from "lucide-react";
+import { ArrowUpRight, Clock, Heart, Languages, LogOut, MessageSquare, Send, Sparkles, Tags, UserCircle } from "lucide-react";
 import { HeritageCard } from "@/components/heritage/heritage-card";
 import { InheritorCard } from "@/components/inheritors/inheritor-card";
 import { FavoriteOfflineCache } from "@/components/pwa/favorite-offline-cache";
@@ -14,7 +14,15 @@ import { FavoriteButton } from "@/components/user/favorite-button";
 import { Link } from "@/i18n/navigation";
 import { defaultLocale, isAppLocale, type AppLocale } from "@/i18n/routing";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
-import type { UserBrowsingHistoryRow, UserFavoriteRow, UserPreferenceRow } from "@/lib/types/database";
+import type {
+  ContactSubmissionRow,
+  ContactSubmissionStatus,
+  HeritageCommentRow,
+  HeritageCommentStatus,
+  UserBrowsingHistoryRow,
+  UserFavoriteRow,
+  UserPreferenceRow
+} from "@/lib/types/database";
 import type { HeritageItem } from "@/lib/types/heritage";
 import type { InheritorProfile } from "@/lib/types/inheritor";
 import type { MuseumFeaturedTopic } from "@/lib/types/museum";
@@ -31,6 +39,8 @@ type ProfileDashboardProps = {
 type FavoriteSummary = Pick<UserFavoriteRow, "heritage_item_id" | "target_type" | "target_id" | "created_at">;
 type HistorySummary = Pick<UserBrowsingHistoryRow, "heritage_item_id" | "viewed_at">;
 type PreferenceSummary = Pick<UserPreferenceRow, "preferred_locale" | "interest_tags"> | null;
+type CommentSummary = Pick<HeritageCommentRow, "id" | "heritage_item_id" | "body" | "status" | "created_at">;
+type SubmissionSummary = Pick<ContactSubmissionRow, "id" | "heritage_item_id" | "kind" | "message" | "status" | "created_at">;
 
 const copy: Record<
   AppLocale,
@@ -51,6 +61,12 @@ const copy: Record<
     emptyFavorites: string;
     emptyHistory: string;
     emptyRecommendations: string;
+    comments: string;
+    applications: string;
+    emptyComments: string;
+    emptyApplications: string;
+    commentStatuses: Record<HeritageCommentStatus, string>;
+    submissionStatuses: Record<ContactSubmissionStatus, string>;
     heritageFavorites: string;
     inheritorFavorites: string;
     museumTopicFavorites: string;
@@ -83,6 +99,12 @@ const copy: Record<
     emptyFavorites: "\u8fd8\u6ca1\u6709\u6536\u85cf\u9879\u76ee\u3002",
     emptyHistory: "\u8fd8\u6ca1\u6709\u6d4f\u89c8\u8bb0\u5f55\u3002",
     emptyRecommendations: "\u6682\u65f6\u6ca1\u6709\u53ef\u63a8\u8350\u7684\u5185\u5bb9\u3002",
+    comments: "\u6211\u7684\u8bc4\u8bba",
+    applications: "\u652f\u6301\u4e0e\u5408\u4f5c",
+    emptyComments: "\u8fd8\u6ca1\u6709\u63d0\u4ea4\u8bc4\u8bba\u3002",
+    emptyApplications: "\u8fd8\u6ca1\u6709\u5173\u8054\u5230\u8d26\u53f7\u7684\u7533\u8bf7\u3002",
+    commentStatuses: { pending: "\u7b49\u5f85\u5ba1\u6838", approved: "\u5df2\u901a\u8fc7", rejected: "\u672a\u901a\u8fc7" },
+    submissionStatuses: { new: "\u65b0\u63d0\u4ea4", in_progress: "\u5904\u7406\u4e2d", resolved: "\u5df2\u5b8c\u6210" },
     heritageFavorites: "\u975e\u9057\u9879\u76ee",
     inheritorFavorites: "\u4f20\u627f\u4eba",
     museumTopicFavorites: "\u5c55\u89c8\u4e13\u9898",
@@ -114,6 +136,12 @@ const copy: Record<
     emptyFavorites: "No saved items yet.",
     emptyHistory: "No browsing history yet.",
     emptyRecommendations: "No recommendations available yet.",
+    comments: "My Comments",
+    applications: "Support & Cooperation",
+    emptyComments: "No comments submitted yet.",
+    emptyApplications: "No account-linked requests yet.",
+    commentStatuses: { pending: "Awaiting review", approved: "Approved", rejected: "Not approved" },
+    submissionStatuses: { new: "New", in_progress: "In progress", resolved: "Resolved" },
     heritageFavorites: "Heritage Items",
     inheritorFavorites: "Inheritors",
     museumTopicFavorites: "Exhibition Topics",
@@ -221,6 +249,8 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [favorites, setFavorites] = useState<FavoriteSummary[]>([]);
   const [history, setHistory] = useState<HistorySummary[]>([]);
+  const [comments, setComments] = useState<CommentSummary[]>([]);
+  const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
   const [preferredLocale, setPreferredLocale] = useState<AppLocale>(locale);
   const [interestTags, setInterestTags] = useState<string[]>([]);
   const [status, setStatus] = useState("");
@@ -278,7 +308,7 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
         return;
       }
 
-      const [favoriteResult, historyResult, preferenceResult] = await Promise.all([
+      const [favoriteResult, historyResult, preferenceResult, commentResult, submissionResult] = await Promise.all([
         supabase
           .from("user_favorites")
           .select("heritage_item_id, target_type, target_id, created_at")
@@ -294,7 +324,19 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
           .from("user_preferences")
           .select("preferred_locale, interest_tags")
           .eq("user_id", currentUser.id)
-          .maybeSingle()
+          .maybeSingle(),
+        supabase
+          .from("heritage_comments")
+          .select("id, heritage_item_id, body, status, created_at")
+          .eq("user_id", currentUser.id)
+          .order("created_at", { ascending: false })
+          .limit(30),
+        supabase
+          .from("contact_submissions")
+          .select("id, heritage_item_id, kind, message, status, created_at")
+          .eq("user_id", currentUser.id)
+          .order("created_at", { ascending: false })
+          .limit(30)
       ]);
 
       if (favoriteResult.error) {
@@ -309,8 +351,13 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
         throw preferenceResult.error;
       }
 
+      if (commentResult.error) throw commentResult.error;
+      if (submissionResult.error) throw submissionResult.error;
+
       setFavorites((favoriteResult.data ?? []) as FavoriteSummary[]);
       setHistory((historyResult.data ?? []) as HistorySummary[]);
+      setComments((commentResult.data ?? []) as CommentSummary[]);
+      setSubmissions((submissionResult.data ?? []) as SubmissionSummary[]);
       setPreferredLocale(normalizePreferredLocale((preferenceResult.data as PreferenceSummary)?.preferred_locale));
       setInterestTags(normalizeInterestTags((preferenceResult.data as PreferenceSummary)?.interest_tags));
     } catch (profileError) {
@@ -402,6 +449,8 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
     setUser(null);
     setFavorites([]);
     setHistory([]);
+    setComments([]);
+    setSubmissions([]);
     setInterestTags([]);
   }
 
@@ -450,12 +499,26 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
           </Button>
         </div>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
           <Card>
             <CardContent>
               <Heart className="size-5 text-museumGold" />
               <p className="mt-4 text-sm text-rice/48">{text.favorites}</p>
               <p className="serif-title mt-1 text-4xl text-rice">{favoriteCount}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent>
+              <MessageSquare className="size-5 text-museumGold" />
+              <p className="mt-4 text-sm text-rice/48">{text.comments}</p>
+              <p className="serif-title mt-1 text-4xl text-rice">{comments.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent>
+              <Send className="size-5 text-museumGold" />
+              <p className="mt-4 text-sm text-rice/48">{text.applications}</p>
+              <p className="serif-title mt-1 text-4xl text-rice">{submissions.length}</p>
             </CardContent>
           </Card>
           <Card>
@@ -579,6 +642,56 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
                 <CardContent className="text-rice/58">{text.emptyFavorites}</CardContent>
               </Card>
             )}
+          </section>
+
+          <section>
+            <div className="mb-5 flex items-center gap-3">
+              <MessageSquare className="size-5 text-museumGold" />
+              <h2 className="serif-title text-3xl font-normal">{text.comments}</h2>
+            </div>
+            {comments.length ? (
+              <div className="grid gap-3">
+                {comments.map((comment) => {
+                  const item = itemById.get(comment.heritage_item_id);
+                  return (
+                    <Card key={comment.id}>
+                      <CardContent>
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-rice/48">
+                          <span>{item ? (locale === "en" ? item.englishName || item.name : item.name) : "-"}</span>
+                          <span className="text-museumGold">{text.commentStatuses[comment.status]}</span>
+                        </div>
+                        <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-rice/72">{comment.body}</p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : <Card><CardContent className="text-rice/58">{text.emptyComments}</CardContent></Card>}
+          </section>
+
+          <section>
+            <div className="mb-5 flex items-center gap-3">
+              <Send className="size-5 text-museumGold" />
+              <h2 className="serif-title text-3xl font-normal">{text.applications}</h2>
+            </div>
+            {submissions.length ? (
+              <div className="grid gap-3">
+                {submissions.map((submission) => {
+                  const item = submission.heritage_item_id ? itemById.get(submission.heritage_item_id) : null;
+                  return (
+                    <Card key={submission.id}>
+                      <CardContent>
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-rice/48">
+                          <span>{item ? (locale === "en" ? item.englishName || item.name : item.name) : submission.kind}</span>
+                          <span className="text-museumGold">{text.submissionStatuses[submission.status]}</span>
+                        </div>
+                        <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-rice/72">{submission.message}</p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : <Card><CardContent className="text-rice/58">{text.emptyApplications}</CardContent></Card>}
           </section>
 
           <section>
