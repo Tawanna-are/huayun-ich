@@ -1,10 +1,12 @@
 "use client";
 
 import { useLocale } from "next-intl";
+import { useEffect, useState } from "react";
 import { Phone } from "lucide-react";
 import { HomeMobileMenu } from "@/components/home/home-mobile-menu";
 import { Link } from "@/i18n/navigation";
 import { getAlternateLocale, localeMeta, type AppLocale } from "@/i18n/routing";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 const copy = {
   zh: {
@@ -14,6 +16,7 @@ const copy = {
     projects: "非遗项目",
     register: "注册",
     login: "登录",
+    profile: "个人中心",
     contact: "联系我们",
     navigation: "首页导航"
   },
@@ -24,6 +27,7 @@ const copy = {
     projects: "Heritage Projects",
     register: "Register",
     login: "Sign in",
+    profile: "Profile",
     contact: "Contact us",
     navigation: "Home navigation"
   }
@@ -31,6 +35,7 @@ const copy = {
 
 export function HomeHeader() {
   const locale = useLocale() as AppLocale;
+  const [authenticated, setAuthenticated] = useState(false);
   const alternateLocale = getAlternateLocale(locale);
   const t = copy[locale];
   const primaryNav = [
@@ -38,6 +43,32 @@ export function HomeHeader() {
     { label: t.culture, href: "/museum" },
     { label: t.projects, href: "/heritage" }
   ];
+  const accountNav = authenticated
+    ? [{ label: t.profile, href: "/profile" }]
+    : [
+        { label: t.register, href: "/login" },
+        { label: t.login, href: "/login" }
+      ];
+
+  useEffect(() => {
+    let active = true;
+    const supabase = createBrowserSupabaseClient();
+
+    void supabase.auth.getUser().then(({ data }) => {
+      if (active) setAuthenticated(Boolean(data.user));
+    });
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) setAuthenticated(Boolean(session?.user));
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <header className="relative z-40 bg-[#f7f5f0] px-5 [background-image:repeating-linear-gradient(0deg,rgba(67,76,70,0.015)_0,rgba(67,76,70,0.015)_1px,transparent_1px,transparent_5px)] lg:px-12">
@@ -55,12 +86,11 @@ export function HomeHeader() {
         </nav>
 
         <div className="hidden items-center gap-5 text-sm text-[#59635e] lg:flex">
-          <Link href="/login" className="transition hover:text-[#a44a3d]">
-            {t.register}
-          </Link>
-          <Link href="/login" className="transition hover:text-[#a44a3d]">
-            {t.login}
-          </Link>
+          {accountNav.map((item) => (
+            <Link key={item.label} href={item.href} className="transition hover:text-[#a44a3d]">
+              {item.label}
+            </Link>
+          ))}
           <Link
             href="#contact"
             className="inline-flex items-center gap-2 rounded-full bg-[#24483c] px-5 py-3 text-white transition hover:bg-[#19382f]"
@@ -80,8 +110,7 @@ export function HomeHeader() {
         <HomeMobileMenu
           items={[
             ...primaryNav,
-            { label: t.register, href: "/login" },
-            { label: t.login, href: "/login" },
+            ...accountNav,
             { label: localeMeta[alternateLocale].label, href: "/", locale: alternateLocale }
           ]}
         />
