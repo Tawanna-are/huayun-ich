@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ContactApplicationForm } from "@/components/contact/contact-application-form";
 import { CraftMediaGallery } from "@/components/heritage/craft-media-gallery";
-import { ConsultationProvider, ConsultationTrigger } from "@/components/heritage/consultation-panel";
 import { DetailHero } from "@/components/heritage/detail-hero";
 import { HeritageVideoArchive } from "@/components/heritage/heritage-video-archive";
 import { HeritageLikeButton } from "@/components/heritage/heritage-like-button";
@@ -14,7 +14,6 @@ import { BrowsingHistoryTracker } from "@/components/user/browsing-history-track
 import { FavoriteButton } from "@/components/user/favorite-button";
 import { defaultLocale, isAppLocale, routing, type AppLocale } from "@/i18n/routing";
 import { getHeritageBySlug, getHeritageSlugs } from "@/lib/content/heritage-repository";
-import { commercialContact } from "@/lib/config/commercial-contact";
 import { createMetadata } from "@/lib/metadata";
 import { createBreadcrumbJsonLd, createCreativeWorkJsonLd } from "@/lib/seo/structured-data";
 
@@ -105,24 +104,7 @@ export default async function HeritageDetailPage({ params }: PageProps) {
         { name: displayTitle, path: `/heritage/${item.slug}` }
       ], currentLocale)} />
 
-      <ConsultationProvider
-        contact={commercialContact}
-        itemId={item.id}
-        slug={item.slug}
-        itemName={displayTitle}
-        labels={{
-          action: t("consultationAction"),
-          available: t("consultationAvailable"),
-          title: t("consultationTitle"),
-          forItem: t("consultationForItem", { name: displayTitle }),
-          wechatService: t("wechatService"),
-          enterpriseCooperation: t("enterpriseCooperation"),
-          email: t("contactEmail"),
-          phone: t("contactPhone"),
-          close: t("closeConsultation")
-        }}
-      >
-        <article className="bg-[#f4f1ea] text-[#18231e]">
+      <article className="bg-[#f4f1ea] text-[#18231e]">
           <BrowsingHistoryTracker itemId={item.id} />
           <DetailHero
             item={item}
@@ -165,21 +147,18 @@ export default async function HeritageDetailPage({ params }: PageProps) {
 
           <HeritageComments itemId={item.id} />
 
-          {commercialContact.hasChannels ? (
-            <section data-section="consultation-cooperation" className="bg-[#102c28] py-16 text-[#f8f4e9] md:py-24">
-              <div className="museum-container flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+          <section data-section="consultation-cooperation" className="bg-[#102c28] py-16 text-[#f8f4e9] md:py-24">
+              <div className="museum-container grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
                 <Reveal>
                   <p className="text-[11px] uppercase text-[#d3bea0]">{copy.consultationEyebrow}</p>
                   <h2 className="serif-title mt-2 text-3xl font-normal md:text-5xl">{copy.consultationTitle}</h2>
                 </Reveal>
                 <Reveal delay={0.06}>
-                  <ConsultationTrigger entryPoint="detail-footer" />
+                  <ContactApplicationForm locale={currentLocale} defaultKind="supporter" heritageItemId={item.id} heritageItemName={displayTitle} />
                 </Reveal>
               </div>
-            </section>
-          ) : null}
-        </article>
-      </ConsultationProvider>
+          </section>
+      </article>
     </PageTransition>
   );
 }
