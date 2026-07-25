@@ -115,7 +115,9 @@ export function CraftMediaGallery({ images, itemName, eyebrow, title, descriptio
           <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 backdrop-blur md:px-10">
             <p className="max-w-[75%] truncate text-sm text-white/70">{selectedImage.caption}</p>
             <div className="flex shrink-0 items-center gap-3">
-              {actions}
+              <div className="flex items-center gap-3 [&_button]:border-white/35 [&_button]:bg-black/35 [&_button]:text-white [&_button:hover]:border-white/60 [&_button:hover]:bg-white/15 [&_button:hover]:text-white">
+                {actions}
+              </div>
               <button ref={closeButtonRef} type="button" onClick={() => setSelectedImage(null)} className="grid size-10 place-items-center rounded-full border border-white/20 transition hover:bg-white/10" aria-label={closeLabel} title={closeLabel}><X className="size-5" aria-hidden="true" /></button>
             </div>
           </div>
