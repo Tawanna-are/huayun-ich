@@ -174,7 +174,13 @@ export function LoginForm() {
         <form className="grid gap-4" onSubmit={handleEmailAuth}>
           <label className="grid gap-2 text-sm text-rice/70">
             {text.email}
-            <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+            <Input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="text-rice caret-rice placeholder:text-rice/35"
+              required
+            />
           </label>
           <label className="grid gap-2 text-sm text-rice/70">
             {text.password}
@@ -182,6 +188,7 @@ export function LoginForm() {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              className="text-rice caret-rice placeholder:text-rice/35"
               minLength={6}
               required
             />
