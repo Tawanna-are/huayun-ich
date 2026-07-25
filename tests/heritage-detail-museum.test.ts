@@ -72,7 +72,8 @@ describe("heritage digital museum detail page", () => {
     expect(gallery).toContain("previousOverflow");
     expect(gallery).toContain("group-focus-within");
     expect(gallery).toContain("motion-reduce:transition-none");
-    expect(gallery).toContain("keepDialogFocus");
+    expect(gallery).toContain("closeButtonRef.current?.focus()");
+    expect(gallery).toContain("lastTriggerRef.current?.focus()");
   });
 
   it("presents CMS history events as a museum timeline card rail", () => {
