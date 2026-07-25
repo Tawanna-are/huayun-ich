@@ -128,6 +128,12 @@ export default async function HeritageDetailPage({ params }: PageProps) {
             title={copy.galleryTitle}
             description={copy.galleryDescription}
             closeLabel={copy.closePreview}
+            actions={
+              <>
+                <FavoriteButton itemId={item.id} />
+                <HeritageLikeButton itemId={item.id} />
+              </>
+            }
           />
 
           {hasVideo ? <HeritageVideoArchive item={item} eyebrow={copy.videoEyebrow} title={copy.videoTitle} description={copy.videoDescription} /> : null}

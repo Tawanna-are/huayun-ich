@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Maximize2, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Reveal } from "@/components/motion/reveal";
 import type { HeritageGalleryImage } from "@/lib/types/heritage";
 
@@ -13,9 +13,10 @@ type CraftMediaGalleryProps = {
   title: string;
   description: string;
   closeLabel: string;
+  actions?: ReactNode;
 };
 
-export function CraftMediaGallery({ images, itemName, eyebrow, title, description, closeLabel }: CraftMediaGalleryProps) {
+export function CraftMediaGallery({ images, itemName, eyebrow, title, description, closeLabel, actions }: CraftMediaGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<HeritageGalleryImage | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -32,23 +33,14 @@ export function CraftMediaGallery({ images, itemName, eyebrow, title, descriptio
       setSelectedImage(null);
     }
 
-    function keepDialogFocus(event: KeyboardEvent) {
-      if (event.key === "Tab") {
-        event.preventDefault();
-        closeButtonRef.current?.focus();
-      }
-    }
-
     if (!dialog.open) dialog.showModal();
     closeButtonRef.current?.focus();
     document.body.style.overflow = "hidden";
     dialog.addEventListener("cancel", closeOnCancel);
-    dialog.addEventListener("keydown", keepDialogFocus);
 
     return () => {
       document.body.style.overflow = previousOverflow;
       dialog.removeEventListener("cancel", closeOnCancel);
-      dialog.removeEventListener("keydown", keepDialogFocus);
       if (dialog.open) dialog.close();
       lastTriggerRef.current?.focus();
     };
@@ -120,9 +112,12 @@ export function CraftMediaGallery({ images, itemName, eyebrow, title, descriptio
           <div className="pointer-events-none relative flex h-full items-center justify-center px-4 py-20 md:px-10">
             <div className="relative h-full w-full max-w-6xl"><Image src={selectedImage.src} alt={selectedImage.alt || itemName} fill sizes="100vw" className="object-contain" /></div>
           </div>
-          <div className="absolute inset-x-0 top-0 flex items-center justify-between border-b border-white/10 px-5 py-4 backdrop-blur md:px-10">
+          <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 backdrop-blur md:px-10">
             <p className="max-w-[75%] truncate text-sm text-white/70">{selectedImage.caption}</p>
-            <button ref={closeButtonRef} type="button" onClick={() => setSelectedImage(null)} className="grid size-10 place-items-center rounded-full border border-white/20 transition hover:bg-white/10" aria-label={closeLabel} title={closeLabel}><X className="size-5" aria-hidden="true" /></button>
+            <div className="flex shrink-0 items-center gap-3">
+              {actions}
+              <button ref={closeButtonRef} type="button" onClick={() => setSelectedImage(null)} className="grid size-10 place-items-center rounded-full border border-white/20 transition hover:bg-white/10" aria-label={closeLabel} title={closeLabel}><X className="size-5" aria-hidden="true" /></button>
+            </div>
           </div>
         </dialog>
       ) : null}
