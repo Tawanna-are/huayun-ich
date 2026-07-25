@@ -62,7 +62,11 @@ export function DetailHero({
               <h1 className="serif-title text-[46px] font-normal leading-[1.02] text-white [overflow-wrap:anywhere] sm:text-6xl md:text-7xl lg:text-[96px]">
                 {title}
               </h1>
-              {actions ? <div className="flex shrink-0 flex-wrap items-center gap-3 pb-1">{actions}</div> : null}
+              {actions ? (
+                <div className="flex shrink-0 flex-wrap items-center gap-3 pb-1 [&_button]:border-white/45 [&_button]:bg-black/30 [&_button]:text-white [&_button:hover]:border-white/70 [&_button:hover]:bg-white/15 [&_button:hover]:text-white">
+                  {actions}
+                </div>
+              ) : null}
             </div>
             {subtitle ? <p className="mt-3 text-xs uppercase text-white/50 sm:text-sm">{subtitle}</p> : null}
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg sm:leading-9">{item.summary}</p>
