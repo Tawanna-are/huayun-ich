@@ -86,7 +86,7 @@ const baseRow: HeritageItemSelectRow = {
       created_at: "2026-01-01T00:00:00Z"
     },
     {
-      id: "media-gallery",
+      id: "22222222-2222-4222-8222-222222222222",
       heritage_item_id: "heritage-jingju",
       media_type: "image",
       role: "gallery",
@@ -170,7 +170,10 @@ describe("Supabase heritage repository mapping", () => {
     expect(item.heroImage).toBe("/assets/jingju-hero.png");
     expect(item.videoUrl).toBe("/video.mp4");
     expect(item.gallery).toHaveLength(1);
-    expect(item.gallery[0]?.id).toBe("media-gallery");
+    expect(item.gallery[0]).toMatchObject({
+      id: "22222222-2222-4222-8222-222222222222",
+      src: "/assets/jingju-detail.png"
+    });
     expect(item.timeline[0]?.year).toBe("1790");
     expect(item.inheritor.name).toBe("Mei school group");
     expect(item.relatedSlugs).toEqual(["kunqu"]);
