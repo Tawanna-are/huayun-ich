@@ -13,7 +13,7 @@ const copy = {
   en: { like: "Like", liked: "Liked", unavailable: "Likes are temporarily unavailable" }
 } as const;
 
-export function HeritageLikeButton({ itemId }: { itemId: string }) {
+export function HeritageLikeButton({ itemId, className }: { itemId: string; className?: string }) {
   const router = useRouter();
   const rawLocale = useLocale();
   const locale = isAppLocale(rawLocale) ? rawLocale : defaultLocale;
@@ -98,7 +98,7 @@ export function HeritageLikeButton({ itemId }: { itemId: string }) {
 
   return (
     <div>
-      <Button type="button" variant={liked ? "secondary" : "outline"} onClick={toggleLike} disabled={loading} aria-pressed={liked}>
+      <Button type="button" variant={liked ? "secondary" : "outline"} className={className} onClick={toggleLike} disabled={loading} aria-pressed={liked}>
         <Heart className={liked ? "fill-current" : ""} />
         {liked ? text.liked : text.like} {count}
       </Button>

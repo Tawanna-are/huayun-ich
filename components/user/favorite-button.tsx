@@ -8,15 +8,17 @@ import { useRouter } from "@/i18n/navigation";
 import { defaultLocale, isAppLocale } from "@/i18n/routing";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import type { UserFavoriteTargetType } from "@/lib/types/database";
+import { cn } from "@/lib/utils";
 
 type FavoriteButtonProps = {
   itemId?: string;
   targetType?: UserFavoriteTargetType;
   targetId?: string;
   compact?: boolean;
+  className?: string;
 };
 
-export function FavoriteButton({ itemId, targetType = "heritage", targetId, compact = false }: FavoriteButtonProps) {
+export function FavoriteButton({ itemId, targetType = "heritage", targetId, compact = false, className }: FavoriteButtonProps) {
   const router = useRouter();
   const rawLocale = useLocale();
   const locale = isAppLocale(rawLocale) ? rawLocale : defaultLocale;
@@ -148,12 +150,12 @@ export function FavoriteButton({ itemId, targetType = "heritage", targetId, comp
       type="button"
       variant={favoriteId ? "secondary" : "outline"}
       size={compact ? "sm" : "default"}
-      className={compactClassName}
+      className={cn(compactClassName, className)}
       onClick={toggleFavorite}
       disabled={loading || !resolvedTargetId}
       aria-label={label}
     >
-      <Heart className={favoriteId ? "fill-ink" : ""} />
+      <Heart className={favoriteId ? "fill-current" : ""} />
       {compact ? <span className="sr-only">{label}</span> : label}
     </Button>
   );

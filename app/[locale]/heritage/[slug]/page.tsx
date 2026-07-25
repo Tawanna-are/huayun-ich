@@ -94,6 +94,7 @@ export default async function HeritageDetailPage({ params }: PageProps) {
   const displayTitle = currentLocale === "en" ? item.englishName || item.name : item.name;
   const displaySubtitle = currentLocale === "en" ? item.name : item.englishName;
   const hasVideo = Boolean(item.videoUrl || item.videos?.length);
+  const heroActionClassName = "border-white/45 bg-black/35 text-white hover:border-white/70 hover:bg-white/15 hover:text-white";
 
   return (
     <PageTransition>
@@ -115,8 +116,8 @@ export default async function HeritageDetailPage({ params }: PageProps) {
             currentLabel={displayTitle}
             actions={
               <>
-                <FavoriteButton itemId={item.id} />
-                <HeritageLikeButton itemId={item.id} />
+                <FavoriteButton itemId={item.id} className={heroActionClassName} />
+                <HeritageLikeButton itemId={item.id} className={heroActionClassName} />
               </>
             }
           />
@@ -130,8 +131,8 @@ export default async function HeritageDetailPage({ params }: PageProps) {
             closeLabel={copy.closePreview}
             actions={
               <>
-                <FavoriteButton itemId={item.id} />
-                <HeritageLikeButton itemId={item.id} />
+                <FavoriteButton itemId={item.id} className={heroActionClassName} />
+                <HeritageLikeButton itemId={item.id} className={heroActionClassName} />
               </>
             }
           />
