@@ -174,7 +174,7 @@ create table if not exists public.user_favorites (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   heritage_item_id uuid references public.heritage_items(id) on delete cascade,
-  target_type text not null default 'heritage' check (target_type in ('heritage', 'inheritor', 'museum_topic')),
+  target_type text not null default 'heritage' check (target_type in ('heritage', 'inheritor', 'museum_topic', 'heritage_image')),
   target_id text not null,
   created_at timestamptz not null default now(),
   unique (user_id, target_type, target_id)
@@ -194,6 +194,15 @@ create table if not exists public.heritage_likes (
   heritage_item_id uuid not null references public.heritage_items(id) on delete cascade,
   created_at timestamptz not null default now(),
   unique (user_id, heritage_item_id)
+);
+
+create table if not exists public.heritage_image_likes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  heritage_item_id uuid not null references public.heritage_items(id) on delete cascade,
+  image_id uuid not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, image_id)
 );
 
 create table if not exists public.heritage_comments (
@@ -248,7 +257,7 @@ alter table public.user_favorites
 
 alter table public.user_favorites
   add constraint user_favorites_target_type_check
-  check (target_type in ('heritage', 'inheritor', 'museum_topic'));
+  check (target_type in ('heritage', 'inheritor', 'museum_topic', 'heritage_image'));
 
 create index if not exists categories_sort_idx on public.categories(sort_order);
 create index if not exists heritage_items_category_idx on public.heritage_items(category_id);
@@ -274,6 +283,8 @@ create index if not exists user_favorites_target_idx
   on public.user_favorites(user_id, target_type, created_at desc);
 create index if not exists user_browsing_history_user_idx on public.user_browsing_history(user_id, viewed_at desc);
 create index if not exists heritage_likes_item_idx on public.heritage_likes(heritage_item_id, created_at desc);
+create index if not exists heritage_image_likes_image_idx on public.heritage_image_likes(image_id, created_at desc);
+create index if not exists heritage_image_likes_item_idx on public.heritage_image_likes(heritage_item_id, created_at desc);
 create index if not exists heritage_comments_item_status_idx on public.heritage_comments(heritage_item_id, status, created_at desc);
 create index if not exists heritage_comments_user_idx on public.heritage_comments(user_id, created_at desc);
 create index if not exists contact_submissions_status_idx on public.contact_submissions(status, created_at desc);
@@ -329,6 +340,7 @@ alter table public.user_preferences enable row level security;
 alter table public.user_favorites enable row level security;
 alter table public.user_browsing_history enable row level security;
 alter table public.heritage_likes enable row level security;
+alter table public.heritage_image_likes enable row level security;
 alter table public.heritage_comments enable row level security;
 alter table public.contact_submissions enable row level security;
 
@@ -402,6 +414,17 @@ create policy "Users manage own browsing history"
 drop policy if exists "Users manage own likes" on public.heritage_likes;
 create policy "Users manage own likes"
   on public.heritage_likes for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Public read heritage image likes" on public.heritage_image_likes;
+create policy "Public read heritage image likes"
+  on public.heritage_image_likes for select
+  using (true);
+
+drop policy if exists "Users manage own heritage image likes" on public.heritage_image_likes;
+create policy "Users manage own heritage image likes"
+  on public.heritage_image_likes for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 

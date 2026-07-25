@@ -127,7 +127,7 @@ export type UserPreferenceRow = {
   updated_at: string;
 };
 
-export type UserFavoriteTargetType = "heritage" | "inheritor" | "museum_topic";
+export type UserFavoriteTargetType = "heritage" | "inheritor" | "museum_topic" | "heritage_image";
 
 export type UserFavoriteRow = {
   id: string;
@@ -149,6 +149,14 @@ export type HeritageLikeRow = {
   id: string;
   user_id: string;
   heritage_item_id: string;
+  created_at: string;
+};
+
+export type HeritageImageLikeRow = {
+  id: string;
+  user_id: string;
+  heritage_item_id: string;
+  image_id: string;
   created_at: string;
 };
 
