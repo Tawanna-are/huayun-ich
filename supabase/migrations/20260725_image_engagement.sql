@@ -21,13 +21,7 @@ create index if not exists heritage_image_likes_item_idx
 
 alter table public.heritage_image_likes enable row level security;
 
+drop policy if exists "Public read image likes" on public.heritage_image_likes;
+drop policy if exists "Users manage own image likes" on public.heritage_image_likes;
 drop policy if exists "Public read heritage image likes" on public.heritage_image_likes;
-create policy "Public read heritage image likes"
-  on public.heritage_image_likes for select
-  using (true);
-
 drop policy if exists "Users manage own heritage image likes" on public.heritage_image_likes;
-create policy "Users manage own heritage image likes"
-  on public.heritage_image_likes for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);

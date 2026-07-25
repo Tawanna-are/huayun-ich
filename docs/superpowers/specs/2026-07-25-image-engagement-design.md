@@ -41,6 +41,7 @@
 - `created_at timestamptz`。
 - `(user_id, image_id)` 唯一约束。
 - 为 `image_id`、`heritage_item_id` 建立索引并启用 RLS。
+- 图片点赞表不向客户端开放；读取和写入均经服务器 API 的 service-role 客户端，RLS 不创建 anon 或 authenticated 策略。
 
 ## 接口设计
 
@@ -49,6 +50,7 @@
 - `GET ?heritageItemId=&imageId=` 返回 `count`、`liked`、`authenticated`。
 - `POST` 接收 `heritageItemId`、`imageId`、`liked`。
 - GET 允许游客读取数量；POST 必须携带有效登录令牌。
+- GET 只返回聚合点赞数量和当前用户的点赞状态，不直接暴露图片点赞记录。
 - 校验两个 UUID，并验证图片确实属于该项目，拒绝伪造关联。
 
 图片收藏继续使用 Supabase 客户端和现有 RLS，由扩展后的 `FavoriteButton` 写入 `user_favorites`。

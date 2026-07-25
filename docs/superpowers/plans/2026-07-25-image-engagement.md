@@ -98,6 +98,8 @@ Expected: FAIL because the migration does not exist.
 
 The migration must replace the existing favorite target check and create image likes:
 
+`heritage_image_likes` is not exposed to clients. Keep RLS enabled and remove any image-like policies without recreating them, so only the server API's service-role client can read or write the table. The GET endpoint returns only an aggregate count and the current user's like status.
+
 ```sql
 alter table public.user_favorites
   drop constraint if exists user_favorites_target_type_check;
@@ -123,14 +125,7 @@ create index if not exists heritage_image_likes_item_idx
 alter table public.heritage_image_likes enable row level security;
 
 drop policy if exists "Public read image likes" on public.heritage_image_likes;
-create policy "Public read image likes"
-  on public.heritage_image_likes for select using (true);
-
 drop policy if exists "Users manage own image likes" on public.heritage_image_likes;
-create policy "Users manage own image likes"
-  on public.heritage_image_likes for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
 ```
 
 Mirror the statements in `supabase/schema.sql` and extend the TypeScript union:

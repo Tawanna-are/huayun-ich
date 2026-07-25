@@ -14,10 +14,12 @@ describe("image engagement schema", () => {
     expect(sql).toContain("alter table public.heritage_image_likes enable row level security");
     expect(sql).toContain("heritage_image_likes_image_idx");
     expect(sql).toContain("heritage_image_likes_item_idx");
-    expect(sql).toContain("Public read heritage image likes");
-    expect(sql).toContain("Users manage own heritage image likes");
-    expect(sql).toMatch(/using\s*\(auth\.uid\(\)\s*=\s*user_id\)/i);
-    expect(sql).toMatch(/with check\s*\(auth\.uid\(\)\s*=\s*user_id\)/i);
+    expect(sql).toContain('drop policy if exists "Public read image likes"');
+    expect(sql).toContain('drop policy if exists "Users manage own image likes"');
+    expect(sql).not.toContain('create policy "Public read image likes"');
+    expect(sql).not.toContain('create policy "Users manage own image likes"');
+    expect(sql).not.toContain('create policy "Public read heritage image likes"');
+    expect(sql).not.toContain('create policy "Users manage own heritage image likes"');
   });
 
   it("keeps the canonical schema and database row types aligned", () => {
@@ -26,6 +28,9 @@ describe("image engagement schema", () => {
 
     expect(schema).toContain("create table if not exists public.heritage_image_likes");
     expect(schema).toMatch(/unique\s*\(user_id,\s*image_id\)/i);
+    expect(schema).toContain("alter table public.heritage_image_likes enable row level security");
+    expect(schema).not.toContain('create policy "Public read heritage image likes"');
+    expect(schema).not.toContain('create policy "Users manage own heritage image likes"');
     expect(schema).toContain("'heritage_image'");
     expect(types).toContain('"heritage_image"');
     expect(types).toContain("HeritageImageLikeRow");
