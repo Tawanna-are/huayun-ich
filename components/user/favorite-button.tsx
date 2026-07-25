@@ -16,9 +16,10 @@ type FavoriteButtonProps = {
   targetId?: string;
   compact?: boolean;
   className?: string;
+  onChange?: (favorite: boolean) => void;
 };
 
-export function FavoriteButton({ itemId, targetType = "heritage", targetId, compact = false, className }: FavoriteButtonProps) {
+export function FavoriteButton({ itemId, targetType = "heritage", targetId, compact = false, className, onChange }: FavoriteButtonProps) {
   const router = useRouter();
   const rawLocale = useLocale();
   const locale = isAppLocale(rawLocale) ? rawLocale : defaultLocale;
@@ -119,6 +120,7 @@ export function FavoriteButton({ itemId, targetType = "heritage", targetId, comp
         }
 
         setFavoriteId(null);
+        onChange?.(false);
         return;
       }
 
@@ -126,7 +128,10 @@ export function FavoriteButton({ itemId, targetType = "heritage", targetId, comp
         .from("user_favorites")
         .insert({
           user_id: userId,
-          heritage_item_id: targetType === "heritage" ? resolvedTargetId : null,
+          heritage_item_id:
+            targetType === "heritage" || targetType === "heritage_image"
+              ? itemId ?? null
+              : null,
           target_type: targetType,
           target_id: resolvedTargetId
         })
@@ -138,6 +143,7 @@ export function FavoriteButton({ itemId, targetType = "heritage", targetId, comp
       }
 
       setFavoriteId((data as { id: string }).id);
+      onChange?.(true);
     } catch (error) {
       console.error("Failed to toggle favorite:", error instanceof Error ? error.message : error);
     } finally {
