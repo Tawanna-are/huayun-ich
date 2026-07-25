@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { HeritageAdminClient } from "@/components/admin/heritage-admin-client";
+import { EngagementAdminClient } from "@/components/admin/engagement-admin-client";
 import { PageTransition } from "@/components/motion/page-transition";
 import { defaultLocale, isAppLocale, type AppLocale } from "@/i18n/routing";
 import { getAdminHeritageRows, getCategories, getHeritageItems } from "@/lib/content/heritage-repository";
@@ -53,6 +54,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
         </div>
       </section>
       <HeritageAdminClient locale={currentLocale} items={items} categories={categories} adminRows={adminRows} />
+      <EngagementAdminClient locale={currentLocale} />
     </PageTransition>
   );
 }

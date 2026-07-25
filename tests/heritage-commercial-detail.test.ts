@@ -19,7 +19,7 @@ describe("heritage commercial detail", () => {
   it("composes commercial sections from the existing heritage item", () => {
     const page = readFileSync(pagePath, "utf8");
 
-    for (const component of ["DetailHero", "CraftMediaGallery", "HeritageVideoArchive", "ConsultationProvider", "ConsultationTrigger"]) {
+    for (const component of ["DetailHero", "CraftMediaGallery", "HeritageVideoArchive", "ContactApplicationForm"]) {
       expect(page).toContain(component);
     }
     expect(page).toContain("item.gallery");

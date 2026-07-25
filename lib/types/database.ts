@@ -145,6 +145,43 @@ export type UserBrowsingHistoryRow = {
   viewed_at: string;
 };
 
+export type HeritageLikeRow = {
+  id: string;
+  user_id: string;
+  heritage_item_id: string;
+  created_at: string;
+};
+
+export type HeritageCommentStatus = "pending" | "approved" | "rejected";
+
+export type HeritageCommentRow = {
+  id: string;
+  heritage_item_id: string;
+  user_id: string;
+  body: string;
+  status: HeritageCommentStatus;
+  created_at: string;
+  updated_at: string;
+  moderated_at: string | null;
+};
+
+export type ContactSubmissionKind = "general" | "supporter" | "cooperation" | "licensing";
+export type ContactSubmissionStatus = "new" | "in_progress" | "resolved";
+
+export type ContactSubmissionRow = {
+  id: string;
+  user_id: string | null;
+  heritage_item_id: string | null;
+  kind: ContactSubmissionKind;
+  name: string;
+  email: string;
+  organization: string | null;
+  message: string;
+  status: ContactSubmissionStatus;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ImportJobType = "heritage" | "media";
 export type ImportJobStatus = "pending" | "processing" | "completed" | "failed";
 
