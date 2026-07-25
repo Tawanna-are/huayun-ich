@@ -236,6 +236,7 @@ export function mapHeritageItemRow(row: HeritageItemSelectRow): HeritageItem {
     })),
     history: row.history ?? [],
     gallery: galleryImages.map((image) => ({
+      id: image.id,
       src: image.url,
       alt: image.alt ?? row.name,
       caption: image.caption ?? row.name

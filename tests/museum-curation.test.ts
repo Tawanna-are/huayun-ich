@@ -21,7 +21,7 @@ function makeItem(overrides: Partial<HeritageItem> = {}): HeritageItem {
     videoPoster: "/assets/jingju-hero.png",
     videoUrl: "/assets/jingju.mp4",
     history: ["宫廷与民间戏曲融合。", "现代剧场继续重塑经典。"],
-    gallery: [{ src: "/assets/jingju-gallery.png", alt: "京剧身段", caption: "舞台身段与脸谱。" }],
+    gallery: [{ id: "jingju-gallery", src: "/assets/jingju-gallery.png", alt: "京剧身段", caption: "舞台身段与脸谱。" }],
     timeline: [{ year: "2010", title: "入选名录", description: "进入代表作名录。" }],
     inheritor: {
       name: "梅派传承群体",

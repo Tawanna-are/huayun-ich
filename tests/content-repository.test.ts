@@ -170,6 +170,7 @@ describe("Supabase heritage repository mapping", () => {
     expect(item.heroImage).toBe("/assets/jingju-hero.png");
     expect(item.videoUrl).toBe("/video.mp4");
     expect(item.gallery).toHaveLength(1);
+    expect(item.gallery[0]?.id).toBe("media-gallery");
     expect(item.timeline[0]?.year).toBe("1790");
     expect(item.inheritor.name).toBe("Mei school group");
     expect(item.relatedSlugs).toEqual(["kunqu"]);
@@ -263,11 +264,13 @@ describe("Supabase heritage repository mapping", () => {
     expect(item.videoUrl).toBe("https://cdn.example.com/suxiu/documentary.mp4");
     expect(item.gallery).toEqual([
       {
+        id: "asset-process",
         src: "https://cdn.example.com/suxiu/process.webp",
         alt: "Making process",
         caption: "Making process"
       },
       {
+        id: "asset-detail",
         src: "https://cdn.example.com/suxiu/detail.webp",
         alt: "Close detail",
         caption: "Close detail"

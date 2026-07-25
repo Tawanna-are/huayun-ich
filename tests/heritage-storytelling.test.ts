@@ -21,7 +21,7 @@ const heritageItem: HeritageItem = {
   videoUrl: "/assets/jingju.mp4",
   history: ["宫廷与民间戏曲融合。", "现代剧场继续重塑经典。"],
   gallery: [
-    { src: "/assets/jingju-1.png", alt: "脸谱", caption: "脸谱、行当与舞台身段。" }
+    { id: "jingju-gallery-1", src: "/assets/jingju-1.png", alt: "脸谱", caption: "脸谱、行当与舞台身段。" }
   ],
   timeline: [
     { year: "1790", title: "徽班进京", description: "戏曲声腔开始交汇。" },

@@ -20,6 +20,7 @@ export type HeritageTimelineEvent = {
 };
 
 export type HeritageGalleryImage = {
+  id: string;
   src: string;
   alt: string;
   caption: string;
