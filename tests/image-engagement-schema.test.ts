@@ -41,6 +41,35 @@ describe("image engagement schema", () => {
     expect(sql).toMatch(/return query[\s\S]*count\(\*\)[\s\S]*heritage_image_likes/i);
   });
 
+  it("deletes a like by its unique user and image identity after image reassignment", () => {
+    for (const path of [migrationPath, "supabase/schema.sql"]) {
+      const sql = readFileSync(path, "utf8");
+      const setRpc = sql.match(
+        /create or replace function public\.set_heritage_image_like_state[\s\S]*?\$function\$;/i
+      )?.[0];
+      const deletion = setRpc?.match(/delete from public\.heritage_image_likes[\s\S]*?;/i)?.[0];
+
+      expect(deletion, `${path} must define the image-like deletion`).toBeDefined();
+      expect(deletion).toMatch(/image_like\.user_id\s*=\s*p_user_id/i);
+      expect(deletion).toMatch(/image_like\.image_id\s*=\s*p_image_id/i);
+      expect(deletion).not.toMatch(/heritage_item_id/i);
+    }
+  });
+
+  it("locks the published item and matching media row before mutating likes", () => {
+    for (const path of [migrationPath, "supabase/schema.sql"]) {
+      const sql = readFileSync(path, "utf8");
+      const setRpc = sql.match(
+        /create or replace function public\.set_heritage_image_like_state[\s\S]*?\$function\$;/i
+      )?.[0];
+
+      expect(setRpc, `${path} must define the image-like mutation RPC`).toBeDefined();
+      expect(setRpc).toMatch(/from public\.heritage_items item[^;]*item\.published\s*=\s*true[^;]*for update\s*;/i);
+      expect(setRpc).toMatch(/from public\.media_assets asset[^;]*asset\.file_type\s*=\s*'image'[^;]*for update\s*;/i);
+      expect(setRpc).toMatch(/from public\.heritage_media media[^;]*media\.media_type\s*=\s*'image'[^;]*for update\s*;/i);
+    }
+  });
+
   it("keeps the canonical schema and database row types aligned", () => {
     const schema = readFileSync("supabase/schema.sql", "utf8");
     const types = readFileSync("lib/types/database.ts", "utf8");

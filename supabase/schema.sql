@@ -491,32 +491,40 @@ security definer
 set search_path = pg_catalog, public
 as $function$
 declare
-  image_exists boolean;
+  item_exists boolean := false;
+  image_exists boolean := false;
 begin
-  select exists (
-    select 1
-    from public.heritage_items item
-    where item.id = p_item_id
-      and item.published = true
-      and (
-        exists (
-          select 1
-          from public.media_assets asset
-          where asset.id = p_image_id
-            and asset.heritage_id = p_item_id
-            and asset.file_type = 'image'
-        )
-        or exists (
-          select 1
-          from public.heritage_media media
-          where media.id = p_image_id
-            and media.heritage_item_id = p_item_id
-            and media.media_type = 'image'
-        )
-      )
-  ) into image_exists;
+  select true
+  into item_exists
+  from public.heritage_items item
+  where item.id = p_item_id
+    and item.published = true
+  for update;
 
-  if not image_exists then
+  if item_exists is not true then
+    return query select false, false, 0::bigint;
+    return;
+  end if;
+
+  select true
+  into image_exists
+  from public.media_assets asset
+  where asset.id = p_image_id
+    and asset.heritage_id = p_item_id
+    and asset.file_type = 'image'
+  for update;
+
+  if image_exists is not true then
+    select true
+    into image_exists
+    from public.heritage_media media
+    where media.id = p_image_id
+      and media.heritage_item_id = p_item_id
+      and media.media_type = 'image'
+    for update;
+  end if;
+
+  if image_exists is not true then
     return query select false, false, 0::bigint;
     return;
   end if;
@@ -533,7 +541,6 @@ begin
   else
     delete from public.heritage_image_likes image_like
     where image_like.user_id = p_user_id
-      and image_like.heritage_item_id = p_item_id
       and image_like.image_id = p_image_id;
   end if;
 
