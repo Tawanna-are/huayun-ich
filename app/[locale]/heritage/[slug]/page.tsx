@@ -113,6 +113,12 @@ export default async function HeritageDetailPage({ params }: PageProps) {
             breadcrumbHome={t("breadcrumbHome")}
             breadcrumbArchive={t("breadcrumbArchive")}
             currentLabel={displayTitle}
+            actions={
+              <>
+                <FavoriteButton itemId={item.id} />
+                <HeritageLikeButton itemId={item.id} />
+              </>
+            }
           />
 
           <CraftMediaGallery
@@ -137,10 +143,6 @@ export default async function HeritageDetailPage({ params }: PageProps) {
                   <div className="bg-[#fffefa] px-5 py-6"><dt className="text-[11px] text-[#7a847e]">{copy.regionLabel}</dt><dd className="mt-2 text-base">{item.region}</dd></div>
                   <div className="bg-[#fffefa] px-5 py-6"><dt className="text-[11px] text-[#7a847e]">{copy.categoryLabel}</dt><dd className="mt-2 text-base">{item.categoryName}</dd></div>
                 </dl>
-                <div className="mt-6 flex flex-wrap items-start gap-3">
-                  <FavoriteButton itemId={item.id} />
-                  <HeritageLikeButton itemId={item.id} />
-                </div>
               </Reveal>
             </div>
           </section>

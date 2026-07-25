@@ -11,6 +11,7 @@ type DetailHeroProps = {
   breadcrumbHome: string;
   breadcrumbArchive: string;
   currentLabel: string;
+  actions?: ReactNode;
   consultationAvailable?: string;
   consultationAction?: ReactNode;
 };
@@ -22,6 +23,7 @@ export function DetailHero({
   breadcrumbHome,
   breadcrumbArchive,
   currentLabel,
+  actions,
   consultationAvailable,
   consultationAction
 }: DetailHeroProps) {
@@ -56,9 +58,12 @@ export function DetailHero({
               <span className="h-3 w-px bg-white/35" />
               <span>{item.region}</span>
             </div>
-            <h1 className="serif-title text-[46px] font-normal leading-[1.02] text-white [overflow-wrap:anywhere] sm:text-6xl md:text-7xl lg:text-[96px]">
-              {title}
-            </h1>
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <h1 className="serif-title text-[46px] font-normal leading-[1.02] text-white [overflow-wrap:anywhere] sm:text-6xl md:text-7xl lg:text-[96px]">
+                {title}
+              </h1>
+              {actions ? <div className="flex shrink-0 flex-wrap items-center gap-3 pb-1">{actions}</div> : null}
+            </div>
             {subtitle ? <p className="mt-3 text-xs uppercase text-white/50 sm:text-sm">{subtitle}</p> : null}
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-lg sm:leading-9">{item.summary}</p>
             {consultationAction ? (
