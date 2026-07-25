@@ -5,104 +5,76 @@ const HERITAGE_ID = "11111111-1111-4111-8111-111111111111";
 const IMAGE_ID = "22222222-2222-4222-8222-222222222222";
 const USER_ID = "33333333-3333-4333-8333-333333333333";
 
-type QueryResult = { data?: unknown; count?: number | null; error?: unknown };
+type AuthResult = {
+  data: { user: { id: string } | null };
+  error: unknown;
+};
 
-class Query {
-  filters: Array<[string, unknown]> = [];
-  mutation: "select" | "upsert" | "delete" = "select";
-  upsertValues?: unknown;
-  upsertOptions?: unknown;
+type RpcResult = {
+  data: Array<{ exists: boolean; liked: boolean; count: number }> | null;
+  error: unknown;
+};
 
-  constructor(
-    readonly table: string,
-    private readonly resolve: (query: Query) => QueryResult
-  ) {}
-
-  select() {
-    this.mutation = "select";
-    return this;
-  }
-
-  upsert(values: unknown, options: unknown) {
-    this.mutation = "upsert";
-    this.upsertValues = values;
-    this.upsertOptions = options;
-    return this;
-  }
-
-  delete() {
-    this.mutation = "delete";
-    return this;
-  }
-
-  eq(column: string, value: unknown) {
-    this.filters.push([column, value]);
-    return this;
-  }
-
-  maybeSingle() {
-    return Promise.resolve(this.resolve(this));
-  }
-
-  then<TResult1 = QueryResult, TResult2 = never>(
-    onfulfilled?: ((value: QueryResult) => TResult1 | PromiseLike<TResult1>) | null,
-    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
-  ) {
-    return Promise.resolve(this.resolve(this)).then(onfulfilled, onrejected);
-  }
-}
-
-let resolver: (query: Query) => QueryResult;
-let queries: Query[];
-let authUser: { id: string } | null;
-
+let authResult: AuthResult;
+let rpcResult: RpcResult;
+const rateLimitRequest = vi.fn((): Response | null => null);
 const admin = {
-  auth: {
-    getUser: vi.fn(async () => ({ data: { user: authUser } }))
-  },
-  from: vi.fn((table: string) => {
-    const query = new Query(table, resolver);
-    queries.push(query);
-    return query;
-  })
+  auth: { getUser: vi.fn(async (): Promise<AuthResult> => authResult) },
+  rpc: vi.fn(async (): Promise<RpcResult> => rpcResult)
 };
 
 vi.mock("@/lib/supabase/admin", () => ({
   createSupabaseAdminClient: vi.fn(async () => admin)
 }));
 
+vi.mock("@/lib/security/rate-limit", () => ({ rateLimitRequest }));
+
+function getRequest(token?: string) {
+  return new Request(`http://localhost/api/engagement/image-likes?heritageItemId=${HERITAGE_ID}&imageId=${IMAGE_ID}`, {
+    headers: token ? { authorization: `Bearer ${token}` } : undefined
+  });
+}
+
+function postRequest(payload: unknown, token = "valid-token") {
+  return new Request("http://localhost/api/engagement/image-likes", {
+    method: "POST",
+    headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+}
+
 function responseBody(response: Response) {
   return response.json() as Promise<Record<string, unknown>>;
 }
 
-function hasFilters(query: Query, filters: Array<[string, unknown]>) {
-  return filters.every(([column, value]) =>
-    query.filters.some(([actualColumn, actualValue]) => actualColumn === column && actualValue === value)
-  );
-}
-
 describe("heritage image likes API", () => {
   beforeEach(() => {
-    queries = [];
-    authUser = null;
-    resolver = (query) => {
-      if (query.table === "media_assets") return { data: { id: IMAGE_ID }, error: null };
-      if (query.table === "heritage_image_likes" && query.filters.some(([key]) => key === "user_id")) {
-        return { data: null, error: null };
-      }
-      if (query.table === "heritage_image_likes") return { count: 0, error: null };
-      return { data: null, error: null };
-    };
+    authResult = { data: { user: null }, error: null };
+    rpcResult = { data: [{ exists: true, liked: false, count: 0 }], error: null };
     vi.clearAllMocks();
+    rateLimitRequest.mockReturnValue(null);
   });
 
-  it("defines the route and queries heritage_image_likes through the admin client", () => {
+  it("uses one service-role RPC per request and no direct table queries", () => {
     const route = readFileSync("app/api/engagement/image-likes/route.ts", "utf8");
 
     expect(route).toContain("createSupabaseAdminClient");
-    expect(route).toContain('from("heritage_image_likes")');
-    expect(route).toMatch(/export async function GET/);
-    expect(route).toMatch(/export async function POST/);
+    expect(route).toContain('rpc("get_heritage_image_like_state"');
+    expect(route).toContain('rpc("set_heritage_image_like_state"');
+    expect(route).not.toContain('.from("heritage_image_likes")');
+    expect(route).not.toContain('.from("media_assets")');
+    expect(route).not.toContain('.from("heritage_media")');
+  });
+
+  it("rate limits GET before validating UUID parameters", async () => {
+    const limited = new Response(null, { status: 429 });
+    rateLimitRequest.mockReturnValue(limited);
+    const { GET } = await import("@/app/api/engagement/image-likes/route");
+    const response = await GET(new Request("http://localhost/api/engagement/image-likes?heritageItemId=bad&imageId=bad"));
+
+    expect(response).toBe(limited);
+    expect(rateLimitRequest).toHaveBeenCalledWith(expect.any(Request), "heritage-image-likes:get", 120);
+    expect(admin.rpc).not.toHaveBeenCalled();
   });
 
   it("rejects invalid GET UUID parameters", async () => {
@@ -110,178 +82,150 @@ describe("heritage image likes API", () => {
     const response = await GET(new Request(`http://localhost/api/engagement/image-likes?heritageItemId=nope&imageId=${IMAGE_ID}`));
 
     expect(response.status).toBe(400);
-    expect(admin.from).not.toHaveBeenCalled();
+    expect(admin.rpc).not.toHaveBeenCalled();
   });
 
-  it("returns count, liked and authenticated for an authenticated GET", async () => {
-    authUser = { id: USER_ID };
-    resolver = (query) => {
-      if (query.table === "media_assets") return { data: { id: IMAGE_ID }, error: null };
-      if (query.table === "heritage_image_likes" && hasFilters(query, [["user_id", USER_ID]])) {
-        return { data: { id: "like-id" }, error: null };
-      }
-      if (query.table === "heritage_image_likes") return { count: 7, error: null };
-      return { data: null, error: null };
-    };
-
+  it("returns state from one GET RPC for an authenticated user", async () => {
+    authResult = { data: { user: { id: USER_ID } }, error: null };
+    rpcResult = { data: [{ exists: true, liked: true, count: 7 }], error: null };
     const { GET } = await import("@/app/api/engagement/image-likes/route");
-    const response = await GET(
-      new Request(`http://localhost/api/engagement/image-likes?heritageItemId=${HERITAGE_ID}&imageId=${IMAGE_ID}`, {
-        headers: { authorization: "Bearer valid-token" }
-      })
-    );
+    const response = await GET(getRequest("valid-token"));
 
     expect(response.status).toBe(200);
     await expect(responseBody(response)).resolves.toEqual({ count: 7, liked: true, authenticated: true });
-    const likeQueries = queries.filter((query) => query.table === "heritage_image_likes");
-    expect(likeQueries).toHaveLength(2);
-    expect(likeQueries.every((query) => hasFilters(query, [["image_id", IMAGE_ID]]))).toBe(true);
-    const assetQuery = queries.find((query) => query.table === "media_assets");
-    expect(assetQuery && hasFilters(assetQuery, [["id", IMAGE_ID], ["heritage_id", HERITAGE_ID], ["file_type", "image"]])).toBe(true);
+    expect(admin.rpc).toHaveBeenCalledTimes(1);
+    expect(admin.rpc).toHaveBeenCalledWith("get_heritage_image_like_state", {
+      p_item_id: HERITAGE_ID,
+      p_image_id: IMAGE_ID,
+      p_user_id: USER_ID
+    });
   });
 
-  it("accepts an image belonging through heritage_media when media_assets has no match", async () => {
-    resolver = (query) => {
-      if (query.table === "media_assets") return { data: null, error: null };
-      if (query.table === "heritage_media") return { data: { id: IMAGE_ID }, error: null };
-      if (query.table === "heritage_image_likes") return { count: 2, error: null };
-      return { data: null, error: null };
-    };
-
+  it("treats invalid GET credentials as an anonymous request", async () => {
+    authResult = { data: { user: null }, error: { status: 401, message: "expired" } };
+    rpcResult = { data: [{ exists: true, liked: false, count: 3 }], error: null };
     const { GET } = await import("@/app/api/engagement/image-likes/route");
-    const response = await GET(
-      new Request(`http://localhost/api/engagement/image-likes?heritageItemId=${HERITAGE_ID}&imageId=${IMAGE_ID}`)
-    );
+    const response = await GET(getRequest("expired-token"));
 
     expect(response.status).toBe(200);
-    await expect(responseBody(response)).resolves.toEqual({ count: 2, liked: false, authenticated: false });
-    const legacyQuery = queries.find((query) => query.table === "heritage_media");
-    expect(legacyQuery && hasFilters(legacyQuery, [["id", IMAGE_ID], ["heritage_item_id", HERITAGE_ID], ["media_type", "image"]])).toBe(true);
+    await expect(responseBody(response)).resolves.toEqual({ count: 3, liked: false, authenticated: false });
+    expect(admin.rpc).toHaveBeenCalledWith("get_heritage_image_like_state", expect.objectContaining({ p_user_id: null }));
   });
 
-  it("returns 404 when the image does not belong to the heritage item", async () => {
-    resolver = (query) =>
-      query.table === "media_assets" || query.table === "heritage_media"
-        ? { data: null, error: null }
-        : { count: 0, error: null };
+  it.each([{ status: 503, message: "auth unavailable" }, { message: "network unavailable" }])(
+    "returns 503 for a GET auth service failure %#",
+    async (error) => {
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+      authResult = { data: { user: null }, error };
+      const { GET } = await import("@/app/api/engagement/image-likes/route");
+      const response = await GET(getRequest("token"));
 
+      expect(response.status).toBe(503);
+      expect(admin.rpc).not.toHaveBeenCalled();
+      consoleError.mockRestore();
+    }
+  );
+
+  it("returns 404 when the RPC hides an unpublished or unrelated image", async () => {
+    rpcResult = { data: [{ exists: false, liked: false, count: 0 }], error: null };
     const { GET } = await import("@/app/api/engagement/image-likes/route");
-    const response = await GET(
-      new Request(`http://localhost/api/engagement/image-likes?heritageItemId=${HERITAGE_ID}&imageId=${IMAGE_ID}`)
-    );
+    const response = await GET(getRequest());
 
     expect(response.status).toBe(404);
     await expect(responseBody(response)).resolves.toEqual({ error: "image_not_found" });
   });
 
-  it("returns 503 instead of treating a media source query error as not found", async () => {
+  it("does not leak RPC errors", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    resolver = (query) => {
-      if (query.table === "media_assets") return { data: null, error: { message: "database details" } };
-      if (query.table === "heritage_media") return { data: null, error: null };
-      return { count: 0, error: null };
-    };
-
+    rpcResult = { data: null, error: { message: "private database details" } };
     const { GET } = await import("@/app/api/engagement/image-likes/route");
-    const response = await GET(
-      new Request(`http://localhost/api/engagement/image-likes?heritageItemId=${HERITAGE_ID}&imageId=${IMAGE_ID}`)
-    );
+    const response = await GET(getRequest());
 
     expect(response.status).toBe(503);
-    expect(JSON.stringify(await responseBody(response))).not.toContain("database details");
+    expect(JSON.stringify(await responseBody(response))).not.toContain("private database details");
     consoleError.mockRestore();
   });
 
-  it("requires authentication before processing POST", async () => {
+  it("rate limits POST and checks for a bearer token before parsing JSON", async () => {
     const { POST } = await import("@/app/api/engagement/image-likes/route");
-    const response = await POST(
-      new Request("http://localhost/api/engagement/image-likes", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ heritageItemId: HERITAGE_ID, imageId: IMAGE_ID, liked: true })
-      })
-    );
+    const limited = new Response(null, { status: 429 });
+    const json = vi.fn(async () => {
+      throw new Error("body parsed");
+    });
+    rateLimitRequest.mockReturnValue(limited);
+    const limitedResponse = await POST({ headers: new Headers(), json } as unknown as Request);
 
-    expect(response.status).toBe(401);
-    await expect(responseBody(response)).resolves.toEqual({ error: "authentication_required" });
+    expect(limitedResponse).toBe(limited);
+    expect(rateLimitRequest).toHaveBeenCalledWith(expect.anything(), "heritage-image-likes:post", 20);
+    expect(json).not.toHaveBeenCalled();
+
+    rateLimitRequest.mockReturnValue(null);
+    const noTokenResponse = await POST({ headers: new Headers(), json } as unknown as Request);
+    expect(noTokenResponse.status).toBe(401);
+    expect(json).not.toHaveBeenCalled();
   });
 
-  it("rejects invalid POST JSON, UUIDs and liked values", async () => {
+  it("rejects invalid JSON, payload shapes, UUIDs and liked values", async () => {
     const { POST } = await import("@/app/api/engagement/image-likes/route");
-    const invalidJson = await POST(new Request("http://localhost/api/engagement/image-likes", { method: "POST", body: "{" }));
-    const invalidPayload = await POST(
+    const invalidJson = await POST(
       new Request("http://localhost/api/engagement/image-likes", {
         method: "POST",
-        body: JSON.stringify({ heritageItemId: HERITAGE_ID, imageId: "bad-id", liked: "yes" })
+        headers: { authorization: "Bearer token" },
+        body: "{"
       })
     );
-
     expect(invalidJson.status).toBe(400);
-    expect(invalidPayload.status).toBe(400);
-  });
 
-  it("rejects non-object POST payloads before accessing the admin client", async () => {
-    const { POST } = await import("@/app/api/engagement/image-likes/route");
-
-    for (const payload of [null, [], "invalid", 1, true]) {
-      const response = await POST(
-        new Request("http://localhost/api/engagement/image-likes", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(payload)
-        })
-      );
-
+    for (const payload of [null, [], "invalid", 1, true, { heritageItemId: HERITAGE_ID, imageId: "bad", liked: "yes" }]) {
+      const response = await POST(postRequest(payload));
       expect(response.status).toBe(400);
     }
-    expect(admin.from).not.toHaveBeenCalled();
+    expect(admin.rpc).not.toHaveBeenCalled();
   });
 
-  it("upserts an authenticated image like and returns an image-scoped count", async () => {
-    authUser = { id: USER_ID };
-    resolver = (query) => {
-      if (query.table === "media_assets") return { data: { id: IMAGE_ID }, error: null };
-      if (query.mutation === "upsert") return { error: null };
-      if (query.table === "heritage_image_likes") return { count: 4, error: null };
-      return { data: null, error: null };
-    };
-
+  it("returns 401 for invalid POST credentials without calling the mutation RPC", async () => {
+    authResult = { data: { user: null }, error: { status: 401, message: "expired" } };
     const { POST } = await import("@/app/api/engagement/image-likes/route");
-    const response = await POST(
-      new Request("http://localhost/api/engagement/image-likes", {
-        method: "POST",
-        headers: { authorization: "Bearer valid-token", "content-type": "application/json" },
-        body: JSON.stringify({ heritageItemId: HERITAGE_ID, imageId: IMAGE_ID, liked: true })
-      })
-    );
+    const response = await POST(postRequest({ heritageItemId: HERITAGE_ID, imageId: IMAGE_ID, liked: true }));
+
+    expect(response.status).toBe(401);
+    expect(admin.rpc).not.toHaveBeenCalled();
+  });
+
+  it("returns 503 for a POST auth service failure", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    authResult = { data: { user: null }, error: { status: 500, message: "auth unavailable" } };
+    const { POST } = await import("@/app/api/engagement/image-likes/route");
+    const response = await POST(postRequest({ heritageItemId: HERITAGE_ID, imageId: IMAGE_ID, liked: true }));
+
+    expect(response.status).toBe(503);
+    expect(admin.rpc).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it("atomically mutates and counts through one POST RPC", async () => {
+    authResult = { data: { user: { id: USER_ID } }, error: null };
+    rpcResult = { data: [{ exists: true, liked: true, count: 4 }], error: null };
+    const { POST } = await import("@/app/api/engagement/image-likes/route");
+    const response = await POST(postRequest({ heritageItemId: HERITAGE_ID, imageId: IMAGE_ID, liked: true }));
 
     expect(response.status).toBe(200);
     await expect(responseBody(response)).resolves.toEqual({ liked: true, count: 4 });
-    const mutation = queries.find((query) => query.mutation === "upsert");
-    expect(mutation?.upsertValues).toEqual({ user_id: USER_ID, heritage_item_id: HERITAGE_ID, image_id: IMAGE_ID });
-    expect(mutation?.upsertOptions).toEqual({ onConflict: "user_id,image_id", ignoreDuplicates: true });
+    expect(admin.rpc).toHaveBeenCalledTimes(1);
+    expect(admin.rpc).toHaveBeenCalledWith("set_heritage_image_like_state", {
+      p_item_id: HERITAGE_ID,
+      p_image_id: IMAGE_ID,
+      p_user_id: USER_ID,
+      p_liked: true
+    });
   });
 
-  it("deletes an authenticated image like by user and image", async () => {
-    authUser = { id: USER_ID };
-    resolver = (query) => {
-      if (query.table === "media_assets") return { data: { id: IMAGE_ID }, error: null };
-      if (query.mutation === "delete") return { error: null };
-      if (query.table === "heritage_image_likes") return { count: 1, error: null };
-      return { data: null, error: null };
-    };
-
+  it("returns 404 without exposing state when POST targets unpublished content", async () => {
+    authResult = { data: { user: { id: USER_ID } }, error: null };
+    rpcResult = { data: [{ exists: false, liked: false, count: 0 }], error: null };
     const { POST } = await import("@/app/api/engagement/image-likes/route");
-    const response = await POST(
-      new Request("http://localhost/api/engagement/image-likes", {
-        method: "POST",
-        headers: { authorization: "Bearer valid-token", "content-type": "application/json" },
-        body: JSON.stringify({ heritageItemId: HERITAGE_ID, imageId: IMAGE_ID, liked: false })
-      })
-    );
+    const response = await POST(postRequest({ heritageItemId: HERITAGE_ID, imageId: IMAGE_ID, liked: false }));
 
-    expect(response.status).toBe(200);
-    const mutation = queries.find((query) => query.mutation === "delete");
-    expect(mutation && hasFilters(mutation, [["user_id", USER_ID], ["image_id", IMAGE_ID]])).toBe(true);
+    expect(response.status).toBe(404);
   });
 });

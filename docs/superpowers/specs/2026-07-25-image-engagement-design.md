@@ -42,6 +42,9 @@
 - `(user_id, image_id)` 唯一约束。
 - 为 `image_id`、`heritage_item_id` 建立索引并启用 RLS。
 - 图片点赞表不向客户端开放；读取和写入均经服务器 API 的 service-role 客户端，RLS 不创建 anon 或 authenticated 策略。
+- 图片点赞状态由 `get_heritage_image_like_state` 和 `set_heritage_image_like_state` 两个 `SECURITY DEFINER` RPC 提供；撤销 `public`、`anon`、`authenticated` 的执行权限，仅授予 `service_role`。
+- RPC 仅承认已发布项目中的图片，并同时兼容 `media_assets` 与 `heritage_media` 两套图片来源；未发布项目与伪造图片归属统一表现为不存在。
+- `set_heritage_image_like_state` 在单个数据库事务中完成归属校验、点赞写入或删除及最新计数，避免 mutation 成功但计数读取失败或读到中间状态。
 
 ## 接口设计
 
@@ -52,6 +55,9 @@
 - GET 允许游客读取数量；POST 必须携带有效登录令牌。
 - GET 只返回聚合点赞数量和当前用户的点赞状态，不直接暴露图片点赞记录。
 - 校验两个 UUID，并验证图片确实属于该项目，拒绝伪造关联。
+- GET 和 POST 各调用一次对应 RPC；POST 不在路由中拆分 mutation 与 count 查询。
+- GET 使用较高读取限额，POST 使用较低写入限额；POST 在解析正文前先限流并检查 Bearer token。
+- 无效或过期凭据在 GET 中降级为游客、在 POST 中返回 401；鉴权服务网络或 5xx 故障返回 503。
 
 图片收藏继续使用 Supabase 客户端和现有 RLS，由扩展后的 `FavoriteButton` 写入 `user_favorites`。
 

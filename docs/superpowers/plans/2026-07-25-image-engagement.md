@@ -4,7 +4,7 @@
 
 **Goal:** Add independent favorites and authenticated likes for every heritage gallery image, with synchronized gallery/modal controls and a personal-center image collection.
 
-**Architecture:** Carry stable media UUIDs from the content repository into `HeritageGalleryImage`. Reuse `user_favorites` for image favorites, add a dedicated `heritage_image_likes` table and API for image likes, and compose both behaviors in a focused `HeritageImageActions` client component. Keep existing project-level engagement unchanged.
+**Architecture:** Carry stable media UUIDs from the content repository into `HeritageGalleryImage`. Reuse `user_favorites` for image favorites, add a dedicated `heritage_image_likes` table and service-role-only RPC API for image likes, and compose both behaviors in a focused `HeritageImageActions` client component. The RPCs enforce published-item visibility and image ownership; the mutation RPC updates the like and returns its count atomically. Keep existing project-level engagement unchanged.
 
 **Tech Stack:** Next.js 15 App Router, React, TypeScript, Supabase/Postgres RLS, Tailwind CSS, Vitest.
 
@@ -98,7 +98,7 @@ Expected: FAIL because the migration does not exist.
 
 The migration must replace the existing favorite target check and create image likes:
 
-`heritage_image_likes` is not exposed to clients. Keep RLS enabled and remove any image-like policies without recreating them, so only the server API's service-role client can read or write the table. The GET endpoint returns only an aggregate count and the current user's like status.
+`heritage_image_likes` is not exposed to clients. Keep RLS enabled and remove any image-like policies without recreating them. Add idempotent `SECURITY DEFINER` state and mutation RPCs with a fixed search path, revoke execution from `public`, `anon`, and `authenticated`, and grant it only to `service_role`. Both RPCs validate that the heritage item is published and that the image belongs through `media_assets` or `heritage_media`. The mutation RPC performs validation, upsert/delete, and count in one transaction.
 
 ```sql
 alter table public.user_favorites
@@ -159,13 +159,14 @@ git commit -m "feat: add image engagement schema"
 
 - [ ] **Step 1: Write failing route contract tests**
 
-Assert the route validates `heritageItemId` and `imageId`, reads `heritage_image_likes`, verifies the image belongs to the item, and returns `authentication_required` for unauthenticated POST requests.
+Assert the route validates `heritageItemId` and `imageId`, rate limits reads and writes, calls exactly one state/mutation RPC, maps unpublished or unrelated images to 404, and returns `authentication_required` for unauthenticated POST requests. Invalid credentials downgrade GET to anonymous and return 401 for POST; authentication service failures return 503.
 
 ```ts
-expect(source).toContain('from("heritage_image_likes")');
+expect(source).toContain('rpc("get_heritage_image_like_state"');
+expect(source).toContain('rpc("set_heritage_image_like_state"');
+expect(source).toContain("rateLimitRequest");
 expect(source).toContain("authentication_required");
-expect(source).toContain("image_belongs_to_item");
-expect(source).toContain("authenticated: Boolean(userId)");
+expect(source).not.toContain('.from("heritage_image_likes")');
 ```
 
 - [ ] **Step 2: Run the route test and confirm failure**
@@ -176,21 +177,24 @@ Expected: FAIL because the route does not exist.
 
 - [ ] **Step 3: Implement GET and POST**
 
-Use the existing `createSupabaseAdminClient` and bearer-token pattern from `app/api/engagement/likes/route.ts`. Add a helper that confirms the UUID pair exists in either current media source:
+Use the existing `createSupabaseAdminClient` and bearer-token pattern from `app/api/engagement/likes/route.ts`. Keep table access, published-item visibility, and both media-source checks inside the service-role-only RPCs:
 
 ```ts
-async function imageBelongsToItem(admin, heritageItemId: string, imageId: string) {
-  const [asset, legacy] = await Promise.all([
-    admin.from("media_assets").select("id").eq("id", imageId).eq("heritage_id", heritageItemId).eq("file_type", "image").maybeSingle(),
-    admin.from("heritage_media").select("id").eq("id", imageId).eq("heritage_item_id", heritageItemId).eq("media_type", "image").maybeSingle()
-  ]);
-  if (asset.error) throw asset.error;
-  if (legacy.error) throw legacy.error;
-  return Boolean(asset.data || legacy.data);
-}
+await admin.rpc("get_heritage_image_like_state", {
+  p_item_id: heritageItemId,
+  p_image_id: imageId,
+  p_user_id: userId
+});
+
+await admin.rpc("set_heritage_image_like_state", {
+  p_item_id: heritageItemId,
+  p_image_id: imageId,
+  p_user_id: user.id,
+  p_liked: payload.liked
+});
 ```
 
-GET returns `{ count, liked, authenticated }`. POST upserts or deletes `(user_id, image_id)` and returns `{ liked, count }`.
+GET returns `{ count, liked, authenticated }`. POST returns the atomic mutation result `{ liked, count }`. An RPC `exists=false` result maps to 404.
 
 - [ ] **Step 4: Run route tests**
 
