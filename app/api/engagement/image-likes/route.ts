@@ -90,13 +90,18 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let payload: { heritageItemId?: unknown; imageId?: unknown; liked?: unknown };
+  let rawPayload: unknown;
   try {
-    payload = (await request.json()) as typeof payload;
+    rawPayload = (await request.json()) as unknown;
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
+  if (rawPayload === null || typeof rawPayload !== "object" || Array.isArray(rawPayload)) {
+    return NextResponse.json({ error: "invalid_image_like" }, { status: 400 });
+  }
+
+  const payload = rawPayload as Record<string, unknown>;
   const heritageItemId = typeof payload.heritageItemId === "string" ? payload.heritageItemId.trim() : "";
   const imageId = typeof payload.imageId === "string" ? payload.imageId.trim() : "";
   if (!uuidPattern.test(heritageItemId) || !uuidPattern.test(imageId) || typeof payload.liked !== "boolean") {

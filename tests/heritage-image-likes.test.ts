@@ -220,6 +220,23 @@ describe("heritage image likes API", () => {
     expect(invalidPayload.status).toBe(400);
   });
 
+  it("rejects non-object POST payloads before accessing the admin client", async () => {
+    const { POST } = await import("@/app/api/engagement/image-likes/route");
+
+    for (const payload of [null, [], "invalid", 1, true]) {
+      const response = await POST(
+        new Request("http://localhost/api/engagement/image-likes", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload)
+        })
+      );
+
+      expect(response.status).toBe(400);
+    }
+    expect(admin.from).not.toHaveBeenCalled();
+  });
+
   it("upserts an authenticated image like and returns an image-scoped count", async () => {
     authUser = { id: USER_ID };
     resolver = (query) => {
