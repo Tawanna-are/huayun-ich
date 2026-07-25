@@ -126,6 +126,8 @@ alter table public.heritage_image_likes enable row level security;
 
 drop policy if exists "Public read image likes" on public.heritage_image_likes;
 drop policy if exists "Users manage own image likes" on public.heritage_image_likes;
+drop policy if exists "Public read heritage image likes" on public.heritage_image_likes;
+drop policy if exists "Users manage own heritage image likes" on public.heritage_image_likes;
 ```
 
 Mirror the statements in `supabase/schema.sql` and extend the TypeScript union:
