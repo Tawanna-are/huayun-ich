@@ -493,7 +493,12 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
             <p className="mt-4 max-w-2xl text-rice/62">{text.description}</p>
             <p className="mt-3 text-sm text-rice/42">{user.email}</p>
           </div>
-          <Button type="button" variant="outline" onClick={signOut}>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-rice/45 bg-transparent text-rice hover:border-rice/70 hover:bg-rice/10 hover:text-rice"
+            onClick={signOut}
+          >
             <LogOut className="size-4" />
             {text.signOut}
           </Button>
