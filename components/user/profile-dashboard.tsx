@@ -68,6 +68,7 @@ const copy: Record<
     commentStatuses: Record<HeritageCommentStatus, string>;
     submissionStatuses: Record<ContactSubmissionStatus, string>;
     heritageFavorites: string;
+    imageFavoritesLabel: string;
     inheritorFavorites: string;
     museumTopicFavorites: string;
     viewDetails: string;
@@ -106,6 +107,7 @@ const copy: Record<
     commentStatuses: { pending: "\u7b49\u5f85\u5ba1\u6838", approved: "\u5df2\u901a\u8fc7", rejected: "\u672a\u901a\u8fc7" },
     submissionStatuses: { new: "\u65b0\u63d0\u4ea4", in_progress: "\u5904\u7406\u4e2d", resolved: "\u5df2\u5b8c\u6210" },
     heritageFavorites: "\u975e\u9057\u9879\u76ee",
+    imageFavoritesLabel: "\u56fe\u7247\u6536\u85cf",
     inheritorFavorites: "\u4f20\u627f\u4eba",
     museumTopicFavorites: "\u5c55\u89c8\u4e13\u9898",
     viewDetails: "\u67e5\u770b\u6863\u6848",
@@ -143,6 +145,7 @@ const copy: Record<
     commentStatuses: { pending: "Awaiting review", approved: "Approved", rejected: "Not approved" },
     submissionStatuses: { new: "New", in_progress: "In progress", resolved: "Resolved" },
     heritageFavorites: "Heritage Items",
+    imageFavoritesLabel: "Saved Images",
     inheritorFavorites: "Inheritors",
     museumTopicFavorites: "Exhibition Topics",
     viewDetails: "View archive",
@@ -177,6 +180,16 @@ function rowsToInheritorFavorites(rows: FavoriteSummary[], inheritorById: Map<st
     .filter((row) => row.target_type === "inheritor")
     .map((row) => inheritorById.get(row.target_id))
     .filter((profile): profile is InheritorProfile => Boolean(profile));
+}
+
+function rowsToImageFavorites(
+  rows: FavoriteSummary[],
+  imageById: Map<string, { image: HeritageItem["gallery"][number]; item: HeritageItem }>
+) {
+  return rows
+    .filter((row) => row.target_type === "heritage_image")
+    .map((row) => imageById.get(row.target_id))
+    .filter((entry): entry is { image: HeritageItem["gallery"][number]; item: HeritageItem } => Boolean(entry));
 }
 
 function rowsToMuseumTopicFavorites(rows: FavoriteSummary[], topicById: Map<string, MuseumFeaturedTopic>) {
@@ -242,6 +255,51 @@ function MuseumTopicFavoriteCard({
   );
 }
 
+function ImageFavoriteCard({
+  image,
+  item,
+  locale,
+  viewLabel
+}: {
+  image: HeritageItem["gallery"][number];
+  item: HeritageItem;
+  locale: AppLocale;
+  viewLabel: string;
+}) {
+  const itemName = locale === "en" ? item.englishName || item.name : item.name;
+  const imageName = image.caption || image.alt || itemName;
+
+  return (
+    <article className="group relative overflow-hidden rounded-lg border border-museumGold/18 bg-rice/[0.045] shadow-goldline">
+      <div className="absolute right-4 top-4 z-30">
+        <FavoriteButton itemId={item.id} targetType="heritage_image" targetId={image.id} compact />
+      </div>
+      <Link href={`/heritage/${item.slug}`} className="block h-full">
+        <div className="relative aspect-[4/3] overflow-hidden bg-rice/5">
+          <Image
+            src={image.src}
+            alt={image.alt || imageName}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+        </div>
+        <div className="p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h3 className="line-clamp-2 text-base text-rice">{imageName}</h3>
+              <p className="mt-2 text-xs text-museumGold/72">{itemName}</p>
+            </div>
+            <ArrowUpRight className="size-5 shrink-0 text-museumGold transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </div>
+          <span className="mt-4 block text-sm text-museumGold">{viewLabel}</span>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
 export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDashboardProps) {
   const rawLocale = useLocale();
   const locale = isAppLocale(rawLocale) ? rawLocale : defaultLocale;
@@ -256,6 +314,10 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const itemById = useMemo(() => new Map<string, HeritageItem>(items.map((item) => [item.id, item])), [items]);
+  const imageById = useMemo(
+    () => new Map(items.flatMap((item) => item.gallery.map((image) => [image.id, { image, item }] as const))),
+    [items]
+  );
   const availableInterestTags = useMemo(
     () =>
       Array.from(new Set(items.flatMap((item) => item.tags.map((tag) => tag.trim()).filter(Boolean)))).slice(0, 18),
@@ -270,6 +332,7 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
     [museumTopics]
   );
   const favoriteItems = useMemo(() => rowsToHeritageFavorites(favorites, itemById), [favorites, itemById]);
+  const imageFavorites = useMemo(() => rowsToImageFavorites(favorites, imageById), [favorites, imageById]);
   const favoriteInheritors = useMemo(
     () => rowsToInheritorFavorites(favorites, inheritorById),
     [favorites, inheritorById]
@@ -278,7 +341,7 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
     () => rowsToMuseumTopicFavorites(favorites, museumTopicById),
     [favorites, museumTopicById]
   );
-  const favoriteCount = favoriteItems.length + favoriteInheritors.length + favoriteMuseumTopics.length;
+  const favoriteCount = favoriteItems.length + imageFavorites.length + favoriteInheritors.length + favoriteMuseumTopics.length;
   const historyItems = useMemo(() => rowsToItems(history, itemById), [history, itemById]);
   const recommendedItems = useMemo(
     () =>
@@ -619,6 +682,19 @@ export function ProfileDashboard({ items, inheritors, museumTopics }: ProfileDas
                   <FavoriteGroup title={text.heritageFavorites}>
                     {favoriteItems.map((item) => (
                       <HeritageCard key={item.slug} item={item} compact />
+                    ))}
+                  </FavoriteGroup>
+                ) : null}
+                {imageFavorites.length ? (
+                  <FavoriteGroup title={text.imageFavoritesLabel}>
+                    {imageFavorites.map(({ image, item }) => (
+                      <ImageFavoriteCard
+                        key={image.id}
+                        image={image}
+                        item={item}
+                        locale={locale}
+                        viewLabel={text.viewDetails}
+                      />
                     ))}
                   </FavoriteGroup>
                 ) : null}
