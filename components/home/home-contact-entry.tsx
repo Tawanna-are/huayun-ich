@@ -8,7 +8,7 @@ const copy = {
     description: "普通咨询、传承支持、项目合作与内容授权均可在这里提交。"
   },
   en: {
-    eyebrow: "Connect with heritage",
+    eyebrow: "Contact us",
     title: "Connect tradition with today",
     description: "Submit general inquiries, heritage support, project cooperation or content licensing requests here."
   }
