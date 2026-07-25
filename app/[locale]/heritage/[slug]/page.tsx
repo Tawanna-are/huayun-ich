@@ -124,17 +124,12 @@ export default async function HeritageDetailPage({ params }: PageProps) {
 
           <CraftMediaGallery
             images={item.gallery}
+            heritageItemId={item.id}
             itemName={item.name}
             eyebrow={copy.galleryEyebrow}
             title={copy.galleryTitle}
             description={copy.galleryDescription}
             closeLabel={copy.closePreview}
-            actions={
-              <>
-                <FavoriteButton itemId={item.id} className={heroActionClassName} />
-                <HeritageLikeButton itemId={item.id} className={heroActionClassName} />
-              </>
-            }
           />
 
           {hasVideo ? <HeritageVideoArchive item={item} eyebrow={copy.videoEyebrow} title={copy.videoTitle} description={copy.videoDescription} /> : null}

@@ -2,6 +2,19 @@ import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("heritage detail media experience", () => {
+  it("places independent actions beside every gallery caption and in the preview", () => {
+    const gallerySource = readFileSync("components/heritage/craft-media-gallery.tsx", "utf8");
+    const pageSource = readFileSync("app/[locale]/heritage/[slug]/page.tsx", "utf8");
+
+    expect(gallerySource).toContain("HeritageImageActions");
+    expect(gallerySource).toContain("heritageItemId");
+    expect(gallerySource).toContain("imageId={primaryImage.id}");
+    expect(gallerySource).toContain("imageId={image.id}");
+    expect(gallerySource).toContain("imageId={selectedImage.id}");
+    expect(gallerySource).toContain("light");
+    expect(pageSource).toContain("heritageItemId={item.id}");
+  });
+
   it("upgrades the detail gallery with lazy images, lightbox preview and high-resolution viewing", () => {
     const gallerySource = readFileSync("components/heritage/image-gallery.tsx", "utf8");
 
