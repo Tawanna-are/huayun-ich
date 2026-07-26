@@ -27,7 +27,7 @@ export const siteConfig = {
   ...localizedSiteConfig.zh,
   name: "华韵 · 中国非遗",
   englishName: "Chinese Intangible Cultural Heritage",
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, ""),
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://www.huayunheritage.com").replace(/\/$/, ""),
   ogImage: "/assets/hero-museum.png",
   localized: localizedSiteConfig
 };

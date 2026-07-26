@@ -15,6 +15,7 @@ import { FavoriteButton } from "@/components/user/favorite-button";
 import { defaultLocale, isAppLocale, routing, type AppLocale } from "@/i18n/routing";
 import { getHeritageBySlug, getHeritageSlugs } from "@/lib/content/heritage-repository";
 import { createMetadata } from "@/lib/metadata";
+import { getHeritageSeoDescription, getHeritageSeoKeywords } from "@/lib/seo/localized-content";
 import { createBreadcrumbJsonLd, createCreativeWorkJsonLd } from "@/lib/seo/structured-data";
 
 type PageProps = {
@@ -73,7 +74,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return createMetadata({
     title: currentLocale === "en" ? item.englishName || item.name : item.name,
-    description: item.summary,
+    description: getHeritageSeoDescription(item, currentLocale),
+    keywords: getHeritageSeoKeywords(item, currentLocale),
     path: `/heritage/${item.slug}`,
     image: item.heroImage || item.image,
     type: "article",

@@ -3,6 +3,7 @@ import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { siteConfig } from "@/lib/constants";
 import { createMetadata } from "@/lib/metadata";
+import { getHeritageSeoDescription } from "@/lib/seo/localized-content";
 import {
   createCreativeWorkJsonLd,
   createItemListJsonLd,
@@ -51,6 +52,7 @@ describe("SEO configuration", () => {
   it("uses production-ready Chinese site metadata", () => {
     expect(siteConfig.name).toBe("华韵 · 中国非遗");
     expect(siteConfig.description).toContain("中国非物质文化遗产");
+    expect(siteConfig.url).toBe("https://www.huayunheritage.com");
     expect(siteConfig.url).not.toMatch(/\/$/);
   });
 
@@ -78,12 +80,35 @@ describe("SEO configuration", () => {
       expect.arrayContaining([
         expect.objectContaining({
           url: `${siteConfig.url}/assets/hero-museum.png`,
-          width: 1200,
-          height: 630
+          width: 1600,
+          height: 1000
         })
       ])
     );
     expect(twitter.card).toBe("summary_large_image");
+    expect(twitter).not.toHaveProperty("creator");
+  });
+
+  it("merges page-specific keywords without duplicates", () => {
+    const metadata = createMetadata({
+      title: "Peking Opera",
+      path: "/heritage/jingju",
+      locale: "en",
+      keywords: ["Peking Opera", "living heritage", "Beijing", "Peking Opera"]
+    });
+
+    expect(metadata.keywords).toEqual(
+      expect.arrayContaining(["Chinese intangible cultural heritage", "Peking Opera", "Beijing"])
+    );
+    expect((metadata.keywords as string[]).filter((keyword) => keyword === "Peking Opera")).toHaveLength(1);
+  });
+
+  it("uses an English fallback instead of Chinese CMS copy for English heritage SEO", () => {
+    const description = getHeritageSeoDescription(heritageItem, "en");
+
+    expect(description).toContain("Peking Opera");
+    expect(description).toContain("Chinese intangible cultural heritage");
+    expect(description).not.toBe(heritageItem.summary);
   });
 
   it("creates English metadata with localized canonical and Open Graph locale", () => {
@@ -113,7 +138,7 @@ describe("SEO configuration", () => {
         expect.objectContaining({ userAgent: "*", allow: "/" }),
         expect.objectContaining({
           userAgent: "*",
-          disallow: expect.arrayContaining(["/admin", "/zh/admin", "/en/admin", "/api/admin"])
+          disallow: expect.arrayContaining(["/admin", "/zh/admin", "/en/admin", "/api/", "/monitoring"])
         })
       ])
     );
@@ -158,10 +183,8 @@ describe("SEO configuration", () => {
       "zh-CN": `${siteConfig.url}/zh/campaigns/traditional-opera`,
       "en-US": `${siteConfig.url}/en/campaigns/traditional-opera`
     });
-    expect(zhOffline?.alternates?.languages).toMatchObject({
-      "zh-CN": `${siteConfig.url}/zh/offline`,
-      "en-US": `${siteConfig.url}/en/offline`
-    });
+    expect(zhOffline).toBeUndefined();
+    expect(result.every((entry) => entry.lastModified === undefined)).toBe(true);
     expect(zhEmbroideryTopic?.alternates?.languages).toMatchObject({
       "zh-CN": `${siteConfig.url}/zh/museum/topics/four-embroideries`,
       "en-US": `${siteConfig.url}/en/museum/topics/four-embroideries`
@@ -214,6 +237,14 @@ describe("structured data helpers", () => {
         name: "京剧",
         alternateName: "Peking Opera",
         spatialCoverage: "北京"
+      })
+    );
+
+    expect(createCreativeWorkJsonLd(heritageItem, "en")).toEqual(
+      expect.objectContaining({
+        name: "Peking Opera",
+        description: expect.stringContaining("Chinese intangible cultural heritage"),
+        inLanguage: "en-US"
       })
     );
   });

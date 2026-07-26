@@ -8,7 +8,6 @@ import { siteConfig } from "@/lib/constants";
 import { absoluteUrl, createLanguageAlternates } from "@/lib/metadata";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
   const heritageItems = await getHeritageItems();
   const inheritors = await getInheritorProfiles();
   const createEntries = (
@@ -18,7 +17,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ) =>
     locales.map((locale) => ({
       url: absoluteUrl(getLocalizedPath(path, locale)),
-      lastModified: now,
       changeFrequency,
       priority,
       alternates: {
@@ -37,7 +35,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...createEntries("/assistant", "weekly", 0.84),
     ...heritageItems.flatMap((item) => createEntries(`/heritage/${item.slug}`, "monthly", 0.75)),
     ...createEntries("/inheritors", "weekly", 0.82),
-    ...inheritors.flatMap((profile) => createEntries(`/inheritors/${profile.id}`, "monthly", 0.68)),
-    ...createEntries("/offline", "yearly", 0.2)
+    ...inheritors.flatMap((profile) => createEntries(`/inheritors/${profile.id}`, "monthly", 0.68))
   ];
 }

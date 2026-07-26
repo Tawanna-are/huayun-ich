@@ -16,7 +16,14 @@ type MetadataOptions = {
   type?: "website" | "article";
   noIndex?: boolean;
   locale?: AppLocale;
+  keywords?: readonly string[];
 };
+
+function normalizeDescription(description: string) {
+  const normalized = description.replace(/\s+/g, " ").trim();
+  if (normalized.length <= 160) return normalized;
+  return `${normalized.slice(0, 157).trimEnd()}...`;
+}
 
 export function absoluteUrl(path = "/") {
   if (path.startsWith("http")) {
@@ -46,13 +53,18 @@ export function createMetadata({
   image = siteConfig.ogImage,
   type = "website",
   noIndex = false,
-  locale = defaultLocale
+  locale = defaultLocale,
+  keywords = []
 }: MetadataOptions): Metadata {
   const localeConfig = getSiteLocaleConfig(locale);
-  const resolvedDescription = description ?? localeConfig.description;
+  const resolvedDescription = normalizeDescription(description ?? localeConfig.description);
+  const resolvedKeywords = [...new Set([...localeConfig.keywords, ...keywords].map((keyword) => keyword.trim()).filter(Boolean))];
   const resolvedTitle = title === localeConfig.name ? title : `${title} | ${localeConfig.name}`;
   const url = absoluteUrl(getLocalizedPath(path, locale));
   const imageUrl = absoluteUrl(image);
+  const openGraphImage = image === siteConfig.ogImage
+    ? { url: imageUrl, width: 1600, height: 1000, alt: title }
+    : { url: imageUrl, alt: title };
   const alternateLocales = locales
     .filter((candidate) => candidate !== locale)
     .map((candidate) => localeMeta[candidate].openGraph);
@@ -61,7 +73,7 @@ export function createMetadata({
     title: resolvedTitle,
     description: resolvedDescription,
     applicationName: localeConfig.name,
-    keywords: [...localeConfig.keywords],
+    keywords: resolvedKeywords,
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     creator: localeConfig.name,
     publisher: localeConfig.name,
@@ -103,21 +115,13 @@ export function createMetadata({
       locale: localeMeta[locale].openGraph,
       alternateLocale: alternateLocales,
       type,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: title
-        }
-      ]
+      images: [openGraphImage]
     },
     twitter: {
       card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
-      images: [imageUrl],
-      creator: localeConfig.name
+      images: [imageUrl]
     }
   };
 }

@@ -13,13 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "@/components/user/favorite-button";
 import { Link } from "@/i18n/navigation";
-import { defaultLocale, isAppLocale, routing, type AppLocale } from "@/i18n/routing";
+import { defaultLocale, getLocalizedPath, isAppLocale, routing, type AppLocale } from "@/i18n/routing";
 import {
   getInheritorProfileById,
   getInheritorProfileIds
 } from "@/lib/content/inheritor-repository";
 import { getHeritageBySlug, getRelatedHeritage } from "@/lib/content/heritage-repository";
-import { createMetadata } from "@/lib/metadata";
+import { absoluteUrl, createMetadata } from "@/lib/metadata";
+import { getInheritorSeoDescription } from "@/lib/seo/localized-content";
 
 type InheritorDetailPageProps = {
   params: Promise<{
@@ -54,7 +55,8 @@ export async function generateMetadata({ params }: InheritorDetailPageProps): Pr
 
   return createMetadata({
     title: profile.name,
-    description: profile.bio,
+    description: getInheritorSeoDescription(profile, currentLocale),
+    keywords: [profile.name, profile.heritageName, profile.heritageEnglishName, profile.region],
     path: `/inheritors/${profile.id}`,
     image: profile.image,
     type: "article",
@@ -84,8 +86,10 @@ export default async function InheritorDetailPage({ params }: InheritorDetailPag
           "@type": "Person",
           name: profile.name,
           jobTitle: profile.title,
-          description: profile.bio,
-          image: profile.image,
+          description: getInheritorSeoDescription(profile, currentLocale),
+          image: absoluteUrl(profile.image),
+          url: absoluteUrl(getLocalizedPath(`/inheritors/${profile.id}`, currentLocale)),
+          inLanguage: currentLocale === "en" ? "en-US" : "zh-CN",
           worksFor: {
             "@type": "CreativeWork",
             name: profile.heritageName
