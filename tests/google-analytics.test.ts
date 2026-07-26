@@ -38,4 +38,12 @@ describe("Google Analytics 4 integration", () => {
     expect(readSource(".env.example")).toContain("NEXT_PUBLIC_GA_MEASUREMENT_ID=");
     expect(readSource("docs/deployment.md")).toContain("NEXT_PUBLIC_GA_MEASUREMENT_ID=G-");
   });
+
+  it("allows GA4 scripts and collection requests through the content security policy", () => {
+    const middleware = readSource("middleware.ts");
+
+    expect(middleware).toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com");
+    expect(middleware).toContain("https://www.google-analytics.com");
+    expect(middleware).toContain("https://*.google-analytics.com");
+  });
 });
