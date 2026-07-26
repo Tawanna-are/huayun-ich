@@ -26,4 +26,8 @@ describe("zoomable image viewer", () => {
     expect(source).toContain("translate3d(${pan.x}px, ${pan.y}px, 0) scale(${scale})");
     expect(source).toContain("motion-reduce:transition-none");
   });
+
+  it("keeps zoom-control pointer events out of the draggable viewport", () => {
+    expect(source).toContain("onPointerDown={(event) => event.stopPropagation()}");
+  });
 });

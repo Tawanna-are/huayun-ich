@@ -144,7 +144,10 @@ export function ZoomableImageViewer({ src, alt, zoomInLabel, zoomOutLabel, reset
         <Image src={src} alt={alt} fill sizes="100vw" className="pointer-events-none select-none object-contain" draggable={false} priority />
       </div>
 
-      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-[#071612]/55 p-1.5 shadow-lg backdrop-blur-md sm:bottom-6">
+      <div
+        className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-[#071612]/55 p-1.5 shadow-lg backdrop-blur-md sm:bottom-6"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
         <button type="button" onClick={() => applyScale(scale - IMAGE_SCALE_STEP)} disabled={scale <= MIN_IMAGE_SCALE} className={controlClassName} aria-label={zoomOutLabel} title={zoomOutLabel}>
           <ZoomOut className="size-4" aria-hidden="true" />
         </button>
