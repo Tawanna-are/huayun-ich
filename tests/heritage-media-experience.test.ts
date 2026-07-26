@@ -15,6 +15,25 @@ describe("heritage detail media experience", () => {
     expect(pageSource).toContain("heritageItemId={item.id}");
   });
 
+  it("adds bilingual zoom and pan viewing to the existing preview dialog", () => {
+    const gallerySource = readFileSync("components/heritage/craft-media-gallery.tsx", "utf8");
+    const pageSource = readFileSync("app/[locale]/heritage/[slug]/page.tsx", "utf8");
+
+    expect(gallerySource).toContain("ZoomableImageViewer");
+    expect(gallerySource).toContain("zoomInLabel");
+    expect(gallerySource).toContain("zoomOutLabel");
+    expect(gallerySource).toContain("resetZoomLabel");
+    expect(gallerySource).toContain("dialog.showModal()");
+    expect(gallerySource).toContain('addEventListener("cancel"');
+    expect(gallerySource).toContain("lastTriggerRef.current?.focus()");
+    expect(pageSource).toContain('zoomIn: "放大图片"');
+    expect(pageSource).toContain('zoomOut: "缩小图片"');
+    expect(pageSource).toContain('resetZoom: "还原图片大小"');
+    expect(pageSource).toContain('zoomIn: "Zoom in"');
+    expect(pageSource).toContain('zoomOut: "Zoom out"');
+    expect(pageSource).toContain('resetZoom: "Reset zoom"');
+  });
+
   it("upgrades the detail gallery with lazy images, lightbox preview and high-resolution viewing", () => {
     const gallerySource = readFileSync("components/heritage/image-gallery.tsx", "utf8");
 

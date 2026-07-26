@@ -36,7 +36,10 @@ const detailCopy = {
     videoDescription: "现场动作与声音记录。",
     consultationEyebrow: "Consultation",
     consultationTitle: "咨询合作",
-    closePreview: "关闭图片预览"
+    closePreview: "关闭图片预览",
+    zoomIn: "放大图片",
+    zoomOut: "缩小图片",
+    resetZoom: "还原图片大小"
   },
   en: {
     galleryEyebrow: "Work Images",
@@ -51,7 +54,10 @@ const detailCopy = {
     videoDescription: "Gesture and sound recorded in place.",
     consultationEyebrow: "Consultation",
     consultationTitle: "Consultation & Cooperation",
-    closePreview: "Close image preview"
+    closePreview: "Close image preview",
+    zoomIn: "Zoom in",
+    zoomOut: "Zoom out",
+    resetZoom: "Reset zoom"
   }
 } as const;
 
@@ -132,6 +138,9 @@ export default async function HeritageDetailPage({ params }: PageProps) {
             title={copy.galleryTitle}
             description={copy.galleryDescription}
             closeLabel={copy.closePreview}
+            zoomInLabel={copy.zoomIn}
+            zoomOutLabel={copy.zoomOut}
+            resetZoomLabel={copy.resetZoom}
           />
 
           {hasVideo ? <HeritageVideoArchive item={item} eyebrow={copy.videoEyebrow} title={copy.videoTitle} description={copy.videoDescription} /> : null}

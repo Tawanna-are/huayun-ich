@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Maximize2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { HeritageImageActions } from "@/components/heritage/heritage-image-actions";
+import { ZoomableImageViewer } from "@/components/heritage/zoomable-image-viewer";
 import { Reveal } from "@/components/motion/reveal";
 import type { HeritageGalleryImage } from "@/lib/types/heritage";
 
@@ -15,9 +16,12 @@ type CraftMediaGalleryProps = {
   title: string;
   description: string;
   closeLabel: string;
+  zoomInLabel: string;
+  zoomOutLabel: string;
+  resetZoomLabel: string;
 };
 
-export function CraftMediaGallery({ images, heritageItemId, itemName, eyebrow, title, description, closeLabel }: CraftMediaGalleryProps) {
+export function CraftMediaGallery({ images, heritageItemId, itemName, eyebrow, title, description, closeLabel, zoomInLabel, zoomOutLabel, resetZoomLabel }: CraftMediaGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<HeritageGalleryImage | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -117,9 +121,17 @@ export function CraftMediaGallery({ images, heritageItemId, itemName, eyebrow, t
         <dialog ref={dialogRef} role="dialog" aria-modal="true" aria-label={selectedImage.alt || itemName} className="fixed inset-0 z-50 m-0 h-[100dvh] w-screen max-w-none border-0 bg-[#071612]/[0.96] p-0 text-white backdrop:bg-[#071612]/40 backdrop:backdrop-blur-sm">
           <button type="button" tabIndex={-1} className="absolute inset-0 cursor-zoom-out" onClick={() => setSelectedImage(null)} aria-label={closeLabel} />
           <div className="pointer-events-none relative flex h-full items-center justify-center px-4 py-28 sm:py-20 md:px-10">
-            <div className="relative h-full w-full max-w-6xl"><Image src={selectedImage.src} alt={selectedImage.alt || itemName} fill sizes="100vw" className="object-contain" /></div>
+            <div className="relative h-full w-full max-w-6xl">
+              <ZoomableImageViewer
+                src={selectedImage.src}
+                alt={selectedImage.alt || itemName}
+                zoomInLabel={zoomInLabel}
+                zoomOutLabel={zoomOutLabel}
+                resetZoomLabel={resetZoomLabel}
+              />
+            </div>
           </div>
-          <div className="absolute inset-x-0 top-0 flex flex-col gap-3 border-b border-white/10 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4 md:px-10">
+          <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-3 border-b border-white/10 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4 md:px-10">
             <p className="min-w-0 text-sm text-white/70 sm:truncate">{selectedImage.caption || itemName}</p>
             <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end">
               <HeritageImageActions heritageItemId={heritageItemId} imageId={selectedImage.id} light />
