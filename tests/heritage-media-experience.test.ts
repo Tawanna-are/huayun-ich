@@ -26,6 +26,7 @@ describe("heritage detail media experience", () => {
     expect(gallerySource).toContain("dialog.showModal()");
     expect(gallerySource).toContain('addEventListener("cancel"');
     expect(gallerySource).toContain("lastTriggerRef.current?.focus()");
+    expect(gallerySource).toContain("max-h-none");
     expect(pageSource).toContain('zoomIn: "放大图片"');
     expect(pageSource).toContain('zoomOut: "缩小图片"');
     expect(pageSource).toContain('resetZoom: "还原图片大小"');

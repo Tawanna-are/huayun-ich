@@ -118,7 +118,7 @@ export function CraftMediaGallery({ images, heritageItemId, itemName, eyebrow, t
       </div>
 
       {selectedImage ? (
-        <dialog ref={dialogRef} role="dialog" aria-modal="true" aria-label={selectedImage.alt || itemName} className="fixed inset-0 z-50 m-0 h-[100dvh] w-screen max-w-none border-0 bg-[#071612]/[0.96] p-0 text-white backdrop:bg-[#071612]/40 backdrop:backdrop-blur-sm">
+        <dialog ref={dialogRef} role="dialog" aria-modal="true" aria-label={selectedImage.alt || itemName} className="fixed inset-0 z-50 m-0 h-[100dvh] max-h-none w-screen max-w-none border-0 bg-[#071612]/[0.96] p-0 text-white backdrop:bg-[#071612]/40 backdrop:backdrop-blur-sm">
           <button type="button" tabIndex={-1} className="absolute inset-0 cursor-zoom-out" onClick={() => setSelectedImage(null)} aria-label={closeLabel} />
           <div className="pointer-events-none relative flex h-full items-center justify-center px-4 py-28 sm:py-20 md:px-10">
             <div className="relative h-full w-full max-w-6xl">
