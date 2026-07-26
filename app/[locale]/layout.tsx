@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
@@ -55,6 +57,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <html lang={localeMeta[currentLocale].language} className="dark">
       <body>
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
         <NextIntlClientProvider>
           <ServiceWorkerRegister />
           <SiteHeader />

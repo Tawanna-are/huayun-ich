@@ -34,6 +34,7 @@ Configure environment variables:
 
 ```bash
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 NEXT_PUBLIC_SENTRY_DSN=your-public-sentry-dsn
 SENTRY_DSN=your-server-sentry-dsn
 SENTRY_ORG=your-sentry-org
