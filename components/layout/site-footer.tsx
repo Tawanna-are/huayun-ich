@@ -2,9 +2,24 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Landmark } from "lucide-react";
-import { usePathname } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { defaultLocale, isAppLocale, type AppLocale } from "@/i18n/routing";
 import { siteConfig } from "@/lib/constants";
+
+const legalLinks = {
+  zh: [
+    { href: "/disclaimer", label: "免责声明" },
+    { href: "/privacy", label: "隐私政策" },
+    { href: "/copyright", label: "图片版权声明" },
+    { href: "/terms", label: "用户协议" }
+  ],
+  en: [
+    { href: "/disclaimer", label: "Disclaimer" },
+    { href: "/privacy", label: "Privacy Policy" },
+    { href: "/copyright", label: "Image Copyright Policy" },
+    { href: "/terms", label: "Terms of Service" }
+  ]
+} as const;
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -33,7 +48,17 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="museum-container mt-10 border-t border-pine/10 pt-6 text-xs text-ink/42">
-        © 2026 {localizedSite.name}. Digital museum.
+        <nav
+          aria-label={currentLocale === "en" ? "Legal information" : "法律信息"}
+          className="flex flex-wrap gap-x-5 gap-y-3"
+        >
+          {legalLinks[currentLocale].map((item) => (
+            <Link key={item.href} href={item.href} className="transition hover:text-ink/75">
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <p className="mt-5">© 2026 {localizedSite.name}. Digital museum.</p>
       </div>
     </footer>
   );

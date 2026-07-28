@@ -35,6 +35,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...createEntries("/assistant", "weekly", 0.84),
     ...heritageItems.flatMap((item) => createEntries(`/heritage/${item.slug}`, "monthly", 0.75)),
     ...createEntries("/inheritors", "weekly", 0.82),
-    ...inheritors.flatMap((profile) => createEntries(`/inheritors/${profile.id}`, "monthly", 0.68))
+    ...inheritors.flatMap((profile) => createEntries(`/inheritors/${profile.id}`, "monthly", 0.68)),
+    ...createEntries("/disclaimer", "yearly", 0.45),
+    ...createEntries("/privacy", "yearly", 0.45),
+    ...createEntries("/copyright", "yearly", 0.45),
+    ...createEntries("/terms", "yearly", 0.45)
   ];
 }
