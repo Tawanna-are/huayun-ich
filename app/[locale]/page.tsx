@@ -41,6 +41,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
     title: seo.title,
     description: seo.description,
     keywords: seo.keywords,
+    path: "/",
     locale: currentLocale
   });
 }

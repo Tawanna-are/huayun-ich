@@ -1,5 +1,5 @@
 import createMiddleware from "next-intl/middleware";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
@@ -28,6 +28,10 @@ export function applySecurityHeaders(response: ReturnType<typeof intlMiddleware>
 }
 
 export default function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === "/") {
+    return applySecurityHeaders(NextResponse.redirect(new URL("/zh", request.url), 308));
+  }
+
   return applySecurityHeaders(intlMiddleware(request));
 }
 
