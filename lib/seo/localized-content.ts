@@ -3,10 +3,30 @@ import type { HeritageItem } from "@/lib/types/heritage";
 import type { InheritorProfile } from "@/lib/types/inheritor";
 
 export function getHeritageSeoDescription(item: HeritageItem, locale: AppLocale) {
-  if (locale === "zh") return item.summary;
+  if (locale === "zh") {
+    return `了解中国非物质文化遗产${item.name}的历史、技艺和文化价值。${item.summary}`;
+  }
 
   const name = item.englishName || item.name;
   return `Explore ${name}, a Chinese intangible cultural heritage project, through its history, craftsmanship, images, videos and living transmission.`;
+}
+
+export function getHeritageSeoTitle(item: HeritageItem, locale: AppLocale) {
+  if (locale === "zh") return `${item.name} | 中国非物质文化遗产`;
+
+  return `${item.englishName || item.name} | Chinese Intangible Cultural Heritage`;
+}
+
+type HeritageImageAltItem = Pick<HeritageItem, "name" | "englishName" | "categoryName" | "region">;
+
+export function getHeritageImageAlt(item: HeritageImageAltItem, locale: AppLocale, suppliedAlt?: string) {
+  if (suppliedAlt?.trim()) return suppliedAlt.trim();
+
+  if (locale === "zh") {
+    return `${item.name}，${item.categoryName}，${item.region}`;
+  }
+
+  return `${item.englishName || item.name}, ${item.categoryName}, ${item.region}`;
 }
 
 export function getInheritorSeoDescription(profile: InheritorProfile, locale: AppLocale) {

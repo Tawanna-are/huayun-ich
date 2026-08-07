@@ -11,13 +11,24 @@ export function createOrganizationJsonLd(): JsonLd {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    additionalType: "CulturalOrganization",
     "@id": organizationId,
     name: siteConfig.name,
     alternateName: siteConfig.englishName,
     url: siteConfig.url,
-    logo: absoluteUrl(siteConfig.ogImage),
+    logo: {
+      "@type": "ImageObject",
+      url: absoluteUrl(siteConfig.ogImage),
+      caption: siteConfig.name
+    },
     description: siteConfig.description,
-    knowsAbout: "Chinese intangible cultural heritage"
+    knowsAbout: "Chinese intangible cultural heritage",
+    areaServed: "Worldwide",
+    brand: {
+      "@type": "Brand",
+      name: siteConfig.name,
+      alternateName: siteConfig.englishName
+    }
   };
 }
 
@@ -53,10 +64,45 @@ export function createWebsiteJsonLd(locale: AppLocale = defaultLocale): JsonLd {
       "@type": "Thing",
       name: "Chinese intangible cultural heritage"
     },
+    genre: "Chinese intangible cultural heritage and traditional crafts",
     potentialAction: {
       "@type": "SearchAction",
       target: `${absoluteUrl(getLocalizedPath("/heritage", locale))}?query={search_term_string}`,
       "query-input": "required name=search_term_string"
+    }
+  };
+}
+
+export function createHeritageArticleJsonLd(item: HeritageItem, locale: AppLocale = defaultLocale): JsonLd {
+  const localeConfig = getSiteLocaleConfig(locale);
+  const url = absoluteUrl(getLocalizedPath(`/heritage/${item.slug}`, locale));
+  const headline = locale === "en" ? item.englishName || item.name : item.name;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": `${url}#article`,
+    headline,
+    description: getHeritageSeoDescription(item, locale),
+    image: absoluteUrl(item.heroImage || item.image),
+    mainEntityOfPage: url,
+    inLanguage: localeConfig.language,
+    articleSection: item.categoryName,
+    keywords: item.tags.join(", "),
+    about: {
+      "@type": "Thing",
+      name: headline,
+      description: item.categoryName
+    },
+    spatialCoverage: item.region,
+    author: {
+      "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`,
+      name: siteConfig.name
+    },
+    publisher: {
+      "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`
     }
   };
 }

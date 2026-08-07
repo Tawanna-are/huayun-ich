@@ -8,12 +8,16 @@ import { siteConfig } from "@/lib/constants";
 
 const legalLinks = {
   zh: [
+    { href: "/about", label: "关于我们" },
+    { href: "/contact", label: "联系我们" },
     { href: "/disclaimer", label: "免责声明" },
     { href: "/privacy", label: "隐私政策" },
     { href: "/copyright", label: "图片版权声明" },
     { href: "/terms", label: "用户协议" }
   ],
   en: [
+    { href: "/about", label: "About Huayun" },
+    { href: "/contact", label: "Contact Us" },
     { href: "/disclaimer", label: "Disclaimer" },
     { href: "/privacy", label: "Privacy Policy" },
     { href: "/copyright", label: "Image Copyright Policy" },

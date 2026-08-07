@@ -2,8 +2,9 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { HeritageItem } from "@/lib/types/heritage";
 import type { AppLocale } from "@/i18n/routing";
+import { getHeritageImageAlt } from "@/lib/seo/localized-content";
 
-type HeritageExplorerItem = Pick<HeritageItem, "slug" | "image" | "heroImage">;
+type HeritageExplorerItem = Pick<HeritageItem, "slug" | "name" | "englishName" | "categoryName" | "region" | "image" | "heroImage">;
 
 type HeritageExplorerHeroProps = {
   mainItem?: HeritageExplorerItem;
@@ -62,6 +63,11 @@ export function HeritageExplorerHero({ mainItem, railItems, locale }: HeritageEx
             <span className="block whitespace-nowrap">{t.titleFirst}</span>
             <span className="block whitespace-nowrap">{t.titleSecond}</span>
           </h1>
+          <h2 className="sr-only">
+            {locale === "en"
+              ? "Chinese Intangible Cultural Heritage and Traditional Chinese Culture"
+              : "中国非物质文化遗产与中国传统文化展示平台"}
+          </h2>
           <p className="mt-7 max-w-sm text-sm leading-8 text-[#6d7671]">
             {t.description}
           </p>
@@ -76,7 +82,7 @@ export function HeritageExplorerHero({ mainItem, railItems, locale }: HeritageEx
           >
             <Image
               src={getDisplayImage(mainItem, fallbackImages[0])}
-              alt={t.imageAlt}
+              alt={mainItem ? getHeritageImageAlt(mainItem, locale) : t.imageAlt}
               fill
               priority
               fetchPriority="high"
@@ -99,7 +105,7 @@ export function HeritageExplorerHero({ mainItem, railItems, locale }: HeritageEx
               >
                 <Image
                   src={getDisplayImage(item, fallbackImages[index + 1])}
-                  alt={t.imageAlt}
+                  alt={item ? getHeritageImageAlt(item, locale) : t.imageAlt}
                   fill
                   sizes="190px"
                   className="object-cover brightness-[0.82] saturate-[0.88] transition duration-700 group-hover:scale-[1.035] group-hover:brightness-90 group-hover:saturate-100 group-focus-visible:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none"

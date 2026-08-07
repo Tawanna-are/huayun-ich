@@ -15,8 +15,8 @@ import { FavoriteButton } from "@/components/user/favorite-button";
 import { defaultLocale, isAppLocale, routing, type AppLocale } from "@/i18n/routing";
 import { getHeritageBySlug, getHeritageSlugs } from "@/lib/content/heritage-repository";
 import { createMetadata } from "@/lib/metadata";
-import { getHeritageSeoDescription, getHeritageSeoKeywords } from "@/lib/seo/localized-content";
-import { createBreadcrumbJsonLd, createCreativeWorkJsonLd } from "@/lib/seo/structured-data";
+import { getHeritageSeoDescription, getHeritageSeoKeywords, getHeritageSeoTitle } from "@/lib/seo/localized-content";
+import { createBreadcrumbJsonLd, createCreativeWorkJsonLd, createHeritageArticleJsonLd } from "@/lib/seo/structured-data";
 
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -79,7 +79,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!item) return createMetadata({ title: t("fallbackTitle"), path: "/heritage", locale: currentLocale });
 
   return createMetadata({
-    title: currentLocale === "en" ? item.englishName || item.name : item.name,
+    title: getHeritageSeoTitle(item, currentLocale),
     description: getHeritageSeoDescription(item, currentLocale),
     keywords: getHeritageSeoKeywords(item, currentLocale),
     path: `/heritage/${item.slug}`,
@@ -107,6 +107,7 @@ export default async function HeritageDetailPage({ params }: PageProps) {
   return (
     <PageTransition>
       <JsonLd data={createCreativeWorkJsonLd(item, currentLocale)} />
+      <JsonLd data={createHeritageArticleJsonLd(item, currentLocale)} />
       <JsonLd data={createBreadcrumbJsonLd([
         { name: t("breadcrumbHome"), path: "/" },
         { name: t("breadcrumbArchive"), path: "/heritage" },

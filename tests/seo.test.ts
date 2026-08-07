@@ -97,8 +97,8 @@ describe("SEO configuration", () => {
       keywords: ["Peking Opera", "living heritage", "Beijing", "Peking Opera"]
     });
 
-    expect(metadata.keywords).toEqual(
-      expect.arrayContaining(["Chinese intangible cultural heritage", "Peking Opera", "Beijing"])
+    expect((metadata.keywords as string[]).map((keyword) => keyword.toLowerCase())).toEqual(
+      expect.arrayContaining(["chinese intangible cultural heritage", "peking opera", "beijing"])
     );
     expect((metadata.keywords as string[]).filter((keyword) => keyword === "Peking Opera")).toHaveLength(1);
   });

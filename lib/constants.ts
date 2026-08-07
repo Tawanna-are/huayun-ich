@@ -4,7 +4,7 @@ const localizedSiteConfig = {
     description: "以数字博物馆方式呈现中国非物质文化遗产，探索戏曲、工艺、技艺、民俗与民间文学的当代生命力。",
     locale: "zh_CN",
     language: "zh-CN",
-    keywords: ["中国非遗", "非物质文化遗产", "数字博物馆", "传统工艺", "传统戏曲", "民俗活动"]
+    keywords: ["中国非物质文化遗产", "中国非遗", "中国传统文化", "传统手工艺", "非遗文化展示平台", "数字博物馆", "传统戏曲", "民俗活动"]
   },
   en: {
     name: "Huayun · Chinese Intangible Cultural Heritage",
@@ -13,10 +13,12 @@ const localizedSiteConfig = {
     locale: "en_US",
     language: "en-US",
     keywords: [
-      "Chinese intangible cultural heritage",
+      "Chinese Intangible Cultural Heritage",
+      "Traditional Chinese Culture",
+      "Chinese Heritage",
+      "Chinese Traditional Crafts",
       "digital museum",
       "Chinese opera",
-      "traditional craft",
       "folk culture",
       "living heritage"
     ]
