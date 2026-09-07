@@ -28,6 +28,8 @@ const copy: Record<
     loading: string;
     checkEmail: string;
     passwordHint: string;
+    forgotPassword: string;
+    resetSent: string;
   }
 > = {
   zh: {
@@ -42,7 +44,9 @@ const copy: Record<
     switchToLogin: "已有账号？登录",
     loading: "处理中...",
     checkEmail: "注册成功，请根据 Supabase 邮件配置确认邮箱或直接进入个人中心。",
-    passwordHint: "密码至少 6 位"
+    passwordHint: "密码至少 6 位",
+    forgotPassword: "忘记密码？发送重置邮件",
+    resetSent: "重置邮件已发送，请检查邮箱。"
   },
   en: {
     title: "Enter Your Collection",
@@ -56,7 +60,9 @@ const copy: Record<
     switchToLogin: "Already have an account? Sign in",
     loading: "Working...",
     checkEmail: "Account created. Confirm your email if required by Supabase, or continue to your profile.",
-    passwordHint: "Use at least 6 characters"
+    passwordHint: "Use at least 6 characters",
+    forgotPassword: "Forgot password? Send reset email",
+    resetSent: "Reset email sent. Check your inbox."
   }
 };
 
@@ -146,6 +152,28 @@ export function LoginForm() {
     }
   }
 
+  async function handlePasswordReset() {
+    setError("");
+    setStatus("");
+    if (!email.trim()) {
+      setError(text.email);
+      return;
+    }
+    setLoading(true);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/${locale}/reset-password`
+      });
+      if (resetError) setError(resetError.message);
+      else setStatus(text.resetSent);
+    } catch (resetError) {
+      setError(resetError instanceof Error ? resetError.message : "Password reset failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <Card className="mx-auto w-full max-w-xl bg-rice/[0.04]">
       <CardContent className="p-6 md:p-8">
@@ -197,6 +225,7 @@ export function LoginForm() {
             {mode === "login" ? <Mail className="size-4" /> : <UserPlus className="size-4" />}
             {loading ? text.loading : mode === "login" ? text.login : text.signup}
           </Button>
+          {mode === "login" ? <button type="button" className="justify-self-start text-sm text-museumGold hover:text-rice" onClick={handlePasswordReset} disabled={loading}>{text.forgotPassword}</button> : null}
         </form>
 
         <div className="my-6 h-px bg-museumGold/16" />

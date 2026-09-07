@@ -16,6 +16,7 @@ import {
   UploadCloud
 } from "lucide-react";
 import { ProjectMediaManager } from "@/components/admin/project-media-manager";
+import { HomepagePromotionsAdmin } from "@/components/admin/homepage-promotions-admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,7 +38,7 @@ import type {
 } from "@/lib/types/database";
 import type { HeritageCategory, HeritageItem } from "@/lib/types/heritage";
 
-type AdminTab = "heritage" | "categories" | "media" | "campaigns";
+type AdminTab = "heritage" | "categories" | "media" | "campaigns" | "promotions";
 
 type HeritageFormState = {
   id?: string;
@@ -633,7 +634,8 @@ export function HeritageAdminClient({
     { id: "heritage", label: "非遗项目", icon: FileText },
     { id: "categories", label: "分类管理", icon: Layers3 },
     { id: "media", label: "图片/视频", icon: ImageUp },
-    { id: "campaigns", label: "活动配置", icon: Megaphone }
+    { id: "campaigns", label: "活动配置", icon: Megaphone },
+    { id: "promotions", label: "首页广告", icon: Megaphone }
   ];
 
   return (
@@ -1109,6 +1111,10 @@ export function HeritageAdminClient({
                 </div>
               </CardContent>
             </Card>
+          ) : null}
+
+          {tab === "promotions" ? (
+            <HomepagePromotionsAdmin locale={locale} adminKey={adminKey} isAuthenticated={isAuthenticated} />
           ) : null}
 
         </div>

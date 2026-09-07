@@ -1,6 +1,7 @@
 import { HeritageExplorerHero } from "@/components/home/heritage-explorer-hero";
 import { HomeContactEntry } from "@/components/home/home-contact-entry";
 import { HomeHeader } from "@/components/home/home-header";
+import { HomePromotions } from "@/components/home/home-promotions";
 import type { HeritageItem } from "@/lib/types/heritage";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -22,6 +23,9 @@ export async function HomeCmsContent({ itemsPromise, locale }: HomeCmsContentPro
     <>
       <HomeHeader />
       <HeritageExplorerHero mainItem={mainItem} railItems={railCandidates.slice(0, 3)} locale={locale} />
+      <HomePromotions placement="top" locale={locale} />
+      <HomePromotions placement="video" locale={locale} />
+      <HomePromotions placement="bottom" locale={locale} />
       <HomeContactEntry locale={locale} />
     </>
   );
