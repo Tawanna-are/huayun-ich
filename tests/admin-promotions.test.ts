@@ -34,15 +34,20 @@ describe("homepage promotions admin", () => {
 
   it("validates media types and the 150MB video limit", () => {
     const source = readFileSync("lib/admin/homepage-promotions.ts", "utf8");
+    const admin = readFileSync("components/admin/homepage-promotions-admin.tsx", "utf8");
     expect(source).toContain("150 * 1024 * 1024");
     expect(source).toContain("video/mp4");
     expect(source).toContain("image/webp");
+    expect(admin).toContain('<option value="image">');
+    expect(admin).toContain('<option value="video">');
+    expect(admin).toContain('accept={row.media_type === "video" ? "video/mp4"');
   });
 
   it("keeps replacement ordering upload then database then old-file cleanup", () => {
     const source = readFileSync("app/api/admin/promotions/route.ts", "utf8");
     expect(source).toContain("upload");
     expect(source).toContain("upsert");
+    expect(source).toContain("existing.media_type !== mediaType");
   });
 
   it("always publishes a promotion after save and hides status controls", () => {

@@ -50,6 +50,13 @@ describe("homepage promotions", () => {
     expect(source).toContain('locale === "zh" ? row.cta_zh : row.cta_en');
   });
 
+  it("allows image or video media in all three homepage placements", () => {
+    const source = readFileSync("components/home/home-promotions.tsx", "utf8");
+
+    expect(source).toContain('row.media_type === "image" || row.media_type === "video"');
+    expect(source).not.toContain('placement === "video" ? row.media_type === "video"');
+  });
+
   it("provides an image fallback without touching heritage item data", () => {
     const source = readFileSync("components/home/home-promotions.tsx", "utf8");
 
