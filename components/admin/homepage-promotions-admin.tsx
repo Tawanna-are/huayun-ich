@@ -37,6 +37,7 @@ export function HomepagePromotionsAdmin({ locale, adminKey, isAuthenticated }: {
       let response: Response;
       if (row.media_type === "video") {
         let storagePath = row.storage_path;
+        let uploadClaim: string | undefined;
         if (file) {
           setMessage(copy.preparing);
           const prepareResponse = await fetch("/api/admin/promotions/upload-url", {
@@ -67,6 +68,7 @@ export function HomepagePromotionsAdmin({ locale, adminKey, isAuthenticated }: {
             });
           if (uploadError) throw new Error(uploadError.message);
           storagePath = preparePayload.path;
+          uploadClaim = preparePayload.upload_claim;
         }
 
         setMessage(copy.saving);
@@ -82,7 +84,8 @@ export function HomepagePromotionsAdmin({ locale, adminKey, isAuthenticated }: {
             slot,
             media_type: "video",
             storage_path: storagePath,
-            published: true
+            published: true,
+            upload_claim: uploadClaim
           })
         });
       } else {

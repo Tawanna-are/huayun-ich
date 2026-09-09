@@ -51,7 +51,6 @@ describe("homepage promotions admin", () => {
     const source = readFileSync("app/api/admin/promotions/route.ts", "utf8");
     expect(source).toContain("upsert");
     expect(source).toContain("existing.media_type !== fields.media_type");
-    expect(source).toContain("isNewVideoUpload");
     expect(source).toContain("cleanupUploadedVideo");
     expect(source.indexOf("upsert")).toBeLessThan(source.lastIndexOf("existing.storage_path"));
   });
@@ -81,8 +80,8 @@ describe("homepage promotions admin", () => {
     const source = readFileSync("app/api/admin/promotions/route.ts", "utf8");
     expect(source).toContain('content-type');
     expect(source).toContain('application/json');
-    expect(source).toContain('homepage-promotions/video/');
-    expect(source).toContain('.endsWith(".mp4")');
+    expect(source).toContain('homepage-promotions\\/video\\/');
+    expect(source).toContain("[0-9a-f]{8}");
     expect(source).toContain("published: true");
   });
 

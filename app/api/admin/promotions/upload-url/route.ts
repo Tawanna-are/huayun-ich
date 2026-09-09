@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { NextResponse } from "next/server";
 import {
   MAX_PROMOTION_VIDEO_BYTES,
@@ -15,6 +16,12 @@ const slots = new Set([
   "video",
   "bottom_banner"
 ]);
+
+function signUploadPath(path: string) {
+  const secret = process.env.ADMIN_API_KEY;
+  if (!secret) throw new Error("Missing admin configuration.");
+  return createHmac("sha256", secret).update(path).digest("hex");
+}
 
 type UploadRequest = {
   slot?: unknown;
@@ -63,7 +70,7 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ path, token: data.token });
+    return NextResponse.json({ path, token: data.token, upload_claim: signUploadPath(path) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "无法准备视频上传。" },

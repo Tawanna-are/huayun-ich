@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import {
   promotionStoragePath,
@@ -71,7 +72,26 @@ function fieldsFromJson(body: Record<string, unknown>): PromotionFields {
 }
 
 function validVideoPath(path: string) {
-  return path.startsWith("homepage-promotions/video/") && path.toLowerCase().endsWith(".mp4");
+  const match = /^homepage-promotions\/video\/([^/]+)\.mp4$/i.exec(path);
+  if (!match) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(match[1]);
+}
+
+function validUploadClaim(path: string, claim: unknown) {
+  const secret = process.env.ADMIN_API_KEY;
+  if (!secret || typeof claim !== "string" || !/^[a-f0-9]{64}$/i.test(claim)) return false;
+  const expected = Buffer.from(createHmac("sha256", secret).update(path).digest("hex"));
+  const provided = Buffer.from(claim);
+  return expected.length === provided.length && timingSafeEqual(expected, provided);
+}
+
+function withDefaultAlt(fields: PromotionFields): PromotionFields {
+  const fallback = fields.slot.replaceAll("_", " ");
+  return {
+    ...fields,
+    media_alt_zh: fields.media_alt_zh || fields.title_zh || fallback,
+    media_alt_en: fields.media_alt_en || fields.title_en || fallback
+  };
 }
 
 export async function GET(request: Request) {
@@ -99,10 +119,13 @@ export async function POST(request: Request) {
 
     if (isJson) {
       const body = (await request.json()) as Record<string, unknown>;
-      fields = fieldsFromJson(body);
+      fields = withDefaultAlt(fieldsFromJson(body));
       if (fields.media_type !== "video" || !validVideoPath(fields.storage_path)) {
         return NextResponse.json({ error: "视频媒体信息或 Storage 路径无效。" }, { status: 400 });
       }
+      const uploadClaim = body.upload_claim;
+      const isNewVideoUpload = validUploadClaim(fields.storage_path, uploadClaim);
+      if (isNewVideoUpload) uploadedPath = fields.storage_path;
     } else {
       const form = await request.formData();
       const slot = formText(form, "slot");
@@ -147,7 +170,7 @@ export async function POST(request: Request) {
       if (!path) {
         return NextResponse.json({ error: "请先选择广告媒体文件。" }, { status: 400 });
       }
-      fields = fieldsFromForm(form, path);
+      fields = withDefaultAlt(fieldsFromForm(form, path));
     }
 
     if (!slots.has(fields.slot)) {
@@ -165,19 +188,11 @@ export async function POST(request: Request) {
     }
 
     if (!uploadedPath && existing?.media_type && existing.media_type !== fields.media_type) {
-      const isNewVideoUpload =
-        fields.media_type === "video" && existing.storage_path !== fields.storage_path;
-      if (!isNewVideoUpload) {
-        return NextResponse.json(
-          { error: "切换媒体类型时，请选择新的媒体文件。" },
-          { status: 400 }
-        );
-      }
+      return NextResponse.json(
+        { error: "切换媒体类型时，请选择新的媒体文件。" },
+        { status: 400 }
+      );
     }
-
-    const isNewVideoUpload =
-      fields.media_type === "video" && existing?.storage_path !== fields.storage_path;
-    if (isNewVideoUpload) uploadedPath = fields.storage_path;
 
     const { data, error } = await supabase
       .from("homepage_promotions")
