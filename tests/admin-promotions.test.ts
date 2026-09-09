@@ -15,9 +15,13 @@ describe("homepage promotions admin", () => {
 
   it("protects promotion APIs with the legacy Admin Key", () => {
     const route = readFileSync("app/api/admin/promotions/route.ts", "utf8");
+    const uploadRoute = readFileSync("app/api/admin/promotions/upload-url/route.ts", "utf8");
     expect(route).toContain("verifyAdminRequest");
     expect(route).toContain("createSupabaseAdminClient");
     expect(route).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
+    expect(uploadRoute).toContain("verifyAdminRequest");
+    expect(uploadRoute).toContain("createSupabaseAdminClient");
+    expect(uploadRoute).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
   });
 
   it("exposes localized admin routes", () => {
@@ -45,9 +49,41 @@ describe("homepage promotions admin", () => {
 
   it("keeps replacement ordering upload then database then old-file cleanup", () => {
     const source = readFileSync("app/api/admin/promotions/route.ts", "utf8");
-    expect(source).toContain("upload");
     expect(source).toContain("upsert");
-    expect(source).toContain("existing.media_type !== mediaType");
+    expect(source).toContain("existing.media_type !== fields.media_type");
+    expect(source).toContain("isNewVideoUpload");
+    expect(source).toContain("cleanupUploadedVideo");
+    expect(source.indexOf("upsert")).toBeLessThan(source.lastIndexOf("existing.storage_path"));
+  });
+
+  it("creates one-time signed upload permission for valid MP4 videos", () => {
+    const source = readFileSync("app/api/admin/promotions/upload-url/route.ts", "utf8");
+    expect(source).toContain("createSignedUploadUrl");
+    expect(source).toContain("promotionStoragePath");
+    expect(source).toContain("video/mp4");
+    expect(source).toContain("MAX_PROMOTION_VIDEO_BYTES");
+    expect(source).toContain("Admin Key 无效。");
+    expect(source).toContain("token");
+  });
+
+  it("uploads videos directly to Storage and posts metadata without the File", () => {
+    const source = readFileSync("components/admin/homepage-promotions-admin.tsx", "utf8");
+    expect(source).toContain("/api/admin/promotions/upload-url");
+    expect(source).toContain("uploadToSignedUrl");
+    expect(source).toContain("正在准备上传…");
+    expect(source).toContain("正在上传视频…");
+    expect(source).toContain("正在保存广告信息…");
+    expect(source).toContain("JSON.stringify");
+    expect(source).toContain("storage_path");
+  });
+
+  it("accepts video metadata as JSON and rejects unsafe Storage paths", () => {
+    const source = readFileSync("app/api/admin/promotions/route.ts", "utf8");
+    expect(source).toContain('content-type');
+    expect(source).toContain('application/json');
+    expect(source).toContain('homepage-promotions/video/');
+    expect(source).toContain('.endsWith(".mp4")');
+    expect(source).toContain("published: true");
   });
 
   it("always publishes a promotion after save and hides status controls", () => {

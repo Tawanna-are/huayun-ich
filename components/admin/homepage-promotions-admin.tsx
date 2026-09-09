@@ -5,6 +5,7 @@ import { Loader2, Save, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { validatePromotionFile } from "@/lib/admin/homepage-promotions";
+import { createSupabaseClient } from "@/lib/supabase/client";
 import type { AppLocale } from "@/i18n/routing";
 
 type Slot = "top_banner" | "video" | "bottom_banner";
@@ -15,15 +16,105 @@ const blank = (slot: Slot): Row => ({ slot, media_type: slot === "video" ? "vide
 
 export function HomepagePromotionsAdmin({ locale, adminKey, isAuthenticated }: { locale: AppLocale; adminKey: string; isAuthenticated: boolean }) {
   const [rows, setRows] = useState<Record<Slot, Row>>(() => Object.fromEntries(slots.map((slot) => [slot, blank(slot)])) as Record<Slot, Row>); const [files, setFiles] = useState<Partial<Record<Slot, File>>>({}); const [busy, setBusy] = useState<Slot | null>(null); const [message, setMessage] = useState("");
-  const copy = locale === "zh" ? { title: "首页广告管理", empty: "尚未配置", save: "保存", upload: "选择文件", replace: "替换媒体", remove: "删除广告", saved: "保存成功，首页已更新。", removed: "删除成功，首页广告已移除。", login: "请先使用 Admin Key 登录后台。", failed: "操作失败，请重试。", image: "图片仅支持 JPG、JPEG、PNG、WebP。", video: "视频仅支持 MP4，最大 150MB。", spec: "图片：JPG / JPEG / PNG / WebP · 视频：MP4 / H.264 / AAC · 最大 150MB" } : { title: "Homepage Promotions", empty: "Not configured", save: "Save", upload: "Choose file", replace: "Replace media", remove: "Delete promotion", saved: "Saved. Homepage updated.", removed: "Deleted. Homepage promotion removed.", login: "Sign in with the Admin Key first.", failed: "Operation failed. Please try again.", image: "Images must be JPG, JPEG, PNG or WebP.", video: "Videos must be MP4, maximum 150MB.", spec: "Images: JPG / JPEG / PNG / WebP · Video: MP4 / H.264 / AAC · Max 150MB" };
+  const copy = locale === "zh" ? { title: "首页广告管理", empty: "尚未配置", save: "保存", upload: "选择文件", replace: "替换媒体", remove: "删除广告", saved: "保存成功，首页已更新。", removed: "删除成功，首页广告已移除。", login: "请先使用 Admin Key 登录后台。", failed: "操作失败，请重试。", image: "图片仅支持 JPG、JPEG、PNG、WebP。", video: "视频仅支持 MP4，最大 150MB。", preparing: "正在准备上传…", uploading: "正在上传视频…", saving: "正在保存广告信息…", spec: "图片：JPG / JPEG / PNG / WebP · 视频：MP4 / H.264 / AAC · 最大 150MB" } : { title: "Homepage Promotions", empty: "Not configured", save: "Save", upload: "Choose file", replace: "Replace media", remove: "Delete promotion", saved: "Saved. Homepage updated.", removed: "Deleted. Homepage promotion removed.", login: "Sign in with the Admin Key first.", failed: "Operation failed. Please try again.", image: "Images must be JPG, JPEG, PNG or WebP.", video: "Videos must be MP4, maximum 150MB.", preparing: "Preparing upload…", uploading: "Uploading video…", saving: "Saving promotion details…", spec: "Images: JPG / JPEG / PNG / WebP · Video: MP4 / H.264 / AAC · Max 150MB" };
   useEffect(() => { if (!isAuthenticated) return; void load(); }, [isAuthenticated, adminKey]);
   const update = (slot: Slot, patch: Partial<Row>) => setRows((current) => ({ ...current, [slot]: { ...current[slot], ...patch } }));
   const mediaUrl = (path: string) => { const base = process.env.NEXT_PUBLIC_SUPABASE_URL; return base && path ? `${base.replace(/\/$/, "")}/storage/v1/object/public/heritage-media/${path}` : ""; };
   async function load() { const response = await fetch("/api/admin/promotions", { headers: { "x-admin-key": adminKey } }); const payload = await response.json(); if (!response.ok) { setMessage(payload.error ?? copy.failed); return; } setRows((current) => ({ ...current, ...Object.fromEntries((payload.promotions ?? []).map((row: Row) => [row.slot, row])) })); }
-  async function save(slot: Slot) { const row = rows[slot]; const file = files[slot]; setBusy(slot); setMessage(""); try { const form = new FormData(); Object.entries(row).forEach(([key, value]) => { if (key !== "id" && key !== "storage_path") form.append(key, String(value ?? "")); }); if (file) { const validation = validatePromotionFile(file, row.media_type); if (validation) throw new Error(validation); form.append("file", file); } else if (!row.storage_path) throw new Error("file_required"); const response = await fetch("/api/admin/promotions", { method: "POST", headers: { "x-admin-key": adminKey }, body: form }); const payload = await response.json(); if (!response.ok) throw new Error(payload.error ?? copy.failed); update(slot, payload.promotion); setFiles((current) => ({ ...current, [slot]: undefined })); setMessage(copy.saved); } catch (error) { const code = error instanceof Error ? error.message : ""; setMessage(code === "video_too_large" ? copy.video : code.startsWith("unsupported") ? (row.media_type === "video" ? copy.video : copy.image) : copy.failed); } finally { setBusy(null); } }
+  async function save(slot: Slot) {
+    const row = rows[slot];
+    const file = files[slot];
+    setBusy(slot);
+    setMessage("");
+    try {
+      if (file) {
+        const validation = validatePromotionFile(file, row.media_type);
+        if (validation) throw new Error(validation);
+      } else if (!row.storage_path) {
+        throw new Error("file_required");
+      }
+
+      let response: Response;
+      if (row.media_type === "video") {
+        let storagePath = row.storage_path;
+        if (file) {
+          setMessage(copy.preparing);
+          const prepareResponse = await fetch("/api/admin/promotions/upload-url", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "x-admin-key": adminKey
+            },
+            body: JSON.stringify({
+              slot,
+              media_type: "video",
+              file_name: file.name,
+              content_type: file.type,
+              file_size: file.size
+            })
+          });
+          const preparePayload = await prepareResponse.json();
+          if (!prepareResponse.ok) {
+            throw new Error(preparePayload.error ?? copy.failed);
+          }
+
+          setMessage(copy.uploading);
+          const supabase = createSupabaseClient();
+          const { error: uploadError } = await supabase.storage
+            .from("heritage-media")
+            .uploadToSignedUrl(preparePayload.path, preparePayload.token, file, {
+              contentType: file.type
+            });
+          if (uploadError) throw new Error(uploadError.message);
+          storagePath = preparePayload.path;
+        }
+
+        setMessage(copy.saving);
+        response = await fetch("/api/admin/promotions", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-admin-key": adminKey
+          },
+          body: JSON.stringify({
+            ...row,
+            id: undefined,
+            slot,
+            media_type: "video",
+            storage_path: storagePath,
+            published: true
+          })
+        });
+      } else {
+        const form = new FormData();
+        Object.entries(row).forEach(([key, value]) => {
+          if (key !== "id" && key !== "storage_path") {
+            form.append(key, String(value ?? ""));
+          }
+        });
+        if (file) form.append("file", file);
+        response = await fetch("/api/admin/promotions", {
+          method: "POST",
+          headers: { "x-admin-key": adminKey },
+          body: form
+        });
+      }
+
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? copy.failed);
+      update(slot, payload.promotion);
+      setFiles((current) => ({ ...current, [slot]: undefined }));
+      setMessage(payload.storageWarning ? `${copy.saved} ${payload.storageWarning}` : copy.saved);
+    } catch (error) {
+      const code = error instanceof Error ? error.message : copy.failed;
+      setMessage(code === "video_too_large" ? copy.video : code.startsWith("unsupported") ? (row.media_type === "video" ? copy.video : copy.image) : code);
+    } finally {
+      setBusy(null);
+    }
+  }
   async function remove(slot: Slot) { const row = rows[slot]; if (!row.id) return; setBusy(slot); const response = await fetch(`/api/admin/promotions/${row.id}`, { method: "DELETE", headers: { "x-admin-key": adminKey } }); const payload = await response.json(); setMessage(response.ok ? (payload.storageWarning ? `${copy.removed}: ${payload.storageWarning}` : copy.removed) : payload.error ?? copy.failed); if (response.ok) update(slot, blank(slot)); setBusy(null); }
   if (!isAuthenticated) return <CardMessage>{copy.login}</CardMessage>;
-  return <section className="bg-ink py-8 text-rice"><div className="museum-container"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="serif-title text-3xl font-normal">{copy.title}</h2>{message ? <p className="text-sm text-museumGold">{message}</p> : null}</div><p className="mt-3 text-sm text-rice/58">{copy.spec}</p><div className="mt-6 grid gap-5 lg:grid-cols-2">{slots.map((slot) => { const row = rows[slot]; const file = files[slot]; const preview = file ? URL.createObjectURL(file) : mediaUrl(row.storage_path); return <article key={slot} className="border border-rice/12 bg-rice/[0.035] p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs uppercase tracking-[0.16em] text-museumGold">{slot}</p><h3 className="mt-1 text-xl">{labels[locale][slot]}</h3></div></div><div className="mt-4 overflow-hidden border border-rice/10 bg-ink/40">{preview ? row.media_type === "video" ? <video className="aspect-video w-full object-contain" src={preview} controls preload="metadata" /> : <img className="aspect-[16/7] w-full object-contain" src={preview} alt={locale === "zh" ? row.media_alt_zh : row.media_alt_en} /> : <div className="flex aspect-[16/7] items-center justify-center text-sm text-rice/40">{copy.empty}</div>}</div><div className="mt-4 grid gap-3"><label className="grid gap-1 text-xs text-rice/60">{locale === "zh" ? "媒体类型" : "Media type"}<select className="h-10 rounded-md border border-museumGold/22 bg-rice/[0.055] px-3 text-sm text-rice" value={row.media_type} onChange={(e) => { update(slot, { media_type: e.target.value as Row["media_type"] }); setFiles((current) => ({ ...current, [slot]: undefined })); }}><option value="image">{locale === "zh" ? "图片" : "Image"}</option><option value="video">{locale === "zh" ? "视频（MP4）" : "Video (MP4)"}</option></select></label><Input value={row.title_zh} onChange={(e) => update(slot, { title_zh: e.target.value })} placeholder="中文标题" /><Input value={row.title_en} onChange={(e) => update(slot, { title_en: e.target.value })} placeholder="English Title" /><textarea className="min-h-20 rounded-md border border-museumGold/22 bg-rice/[0.055] p-3 text-sm text-rice" value={row.description_zh} onChange={(e) => update(slot, { description_zh: e.target.value })} placeholder="中文介绍" /><textarea className="min-h-20 rounded-md border border-museumGold/22 bg-rice/[0.055] p-3 text-sm text-rice" value={row.description_en} onChange={(e) => update(slot, { description_en: e.target.value })} placeholder="English Description" /><Input value={row.cta_zh ?? ""} onChange={(e) => update(slot, { cta_zh: e.target.value })} placeholder="中文 CTA" /><Input value={row.cta_en ?? ""} onChange={(e) => update(slot, { cta_en: e.target.value })} placeholder="English CTA" /><Input value={row.href ?? ""} onChange={(e) => update(slot, { href: e.target.value })} placeholder="https://" /><Input value={row.media_alt_zh} onChange={(e) => update(slot, { media_alt_zh: e.target.value })} placeholder="中文 Alt" /><Input value={row.media_alt_en} onChange={(e) => update(slot, { media_alt_en: e.target.value })} placeholder="English Alt" /></div><div className="mt-4 flex flex-wrap gap-2"><label className="inline-flex cursor-pointer items-center gap-2 border border-rice/15 px-3 py-2 text-sm"><Upload className="size-4" />{file ? copy.replace : copy.upload}<input type="file" className="sr-only" accept={row.media_type === "video" ? "video/mp4" : "image/jpeg,image/png,image/webp"} onChange={(e) => { const next = e.target.files?.[0]; if (next) setFiles((current) => ({ ...current, [slot]: next })); }} /></label><Button type="button" onClick={() => void save(slot)} disabled={busy === slot}><Save />{busy === slot ? <Loader2 className="animate-spin" /> : copy.save}</Button><Button type="button" variant="outline" onClick={() => void remove(slot)} disabled={busy === slot || !row.id}><Trash2 />{copy.remove}</Button></div></article>; })}</div></div></section>;
+  return <section className="bg-ink py-8 text-rice"><div className="museum-container"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="serif-title text-3xl font-normal">{copy.title}</h2>{message ? <p className="text-sm text-museumGold">{message}</p> : null}</div><p className="mt-3 text-sm text-rice/58">{copy.spec}</p><div className="mt-6 grid gap-5 lg:grid-cols-2">{slots.map((slot) => { const row = rows[slot]; const file = files[slot]; const preview = file ? URL.createObjectURL(file) : mediaUrl(row.storage_path); return <article key={slot} className="border border-rice/12 bg-rice/[0.035] p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs uppercase tracking-[0.16em] text-museumGold">{slot}</p><h3 className="mt-1 text-xl">{labels[locale][slot]}</h3></div></div><div className="mt-4 overflow-hidden border border-rice/10 bg-ink/40">{preview ? row.media_type === "video" ? <video className="aspect-video w-full object-contain" src={preview} controls preload="metadata" /> : <img className="aspect-[16/7] w-full object-contain" src={preview} alt={locale === "zh" ? row.media_alt_zh : row.media_alt_en} /> : <div className="flex aspect-[16/7] items-center justify-center text-sm text-rice/40">{copy.empty}</div>}</div><div className="mt-4 grid gap-3"><label className="grid gap-1 text-xs text-rice/60">{locale === "zh" ? "媒体类型" : "Media type"}<select className="h-10 rounded-md border border-museumGold/22 bg-rice/[0.055] px-3 text-sm text-rice" value={row.media_type} onChange={(e) => { update(slot, { media_type: e.target.value as Row["media_type"] }); setFiles((current) => ({ ...current, [slot]: undefined })); }}><option value="image">{locale === "zh" ? "图片" : "Image"}</option><option value="video">{locale === "zh" ? "视频（MP4）" : "Video (MP4)"}</option></select></label><Input value={row.title_zh} onChange={(e) => update(slot, { title_zh: e.target.value })} placeholder="中文标题" /><Input value={row.title_en} onChange={(e) => update(slot, { title_en: e.target.value })} placeholder="English Title" /><textarea className="min-h-20 rounded-md border border-museumGold/22 bg-rice/[0.055] p-3 text-sm text-rice" value={row.description_zh} onChange={(e) => update(slot, { description_zh: e.target.value })} placeholder="中文介绍" /><textarea className="min-h-20 rounded-md border border-museumGold/22 bg-rice/[0.055] p-3 text-sm text-rice" value={row.description_en} onChange={(e) => update(slot, { description_en: e.target.value })} placeholder="English Description" /></div><div className="mt-4 flex flex-wrap gap-2"><label className="inline-flex cursor-pointer items-center gap-2 border border-rice/15 px-3 py-2 text-sm"><Upload className="size-4" />{file ? copy.replace : copy.upload}<input type="file" className="sr-only" accept={row.media_type === "video" ? "video/mp4" : "image/jpeg,image/png,image/webp"} onChange={(e) => { const next = e.target.files?.[0]; if (next) setFiles((current) => ({ ...current, [slot]: next })); }} /></label><Button type="button" onClick={() => void save(slot)} disabled={busy === slot}><Save />{busy === slot ? <Loader2 className="animate-spin" /> : copy.save}</Button><Button type="button" variant="outline" onClick={() => void remove(slot)} disabled={busy === slot || !row.id}><Trash2 />{copy.remove}</Button></div></article>; })}</div></div></section>;
 }
 
 function CardMessage({ children }: { children: string }) { return <section className="bg-ink py-8 text-rice"><div className="museum-container"><p className="text-sm text-museumGold">{children}</p></div></section>; }

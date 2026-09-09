@@ -64,4 +64,17 @@ describe("homepage promotions", () => {
     expect(source).toContain("if(!rows.length)return null");
     expect(source).not.toContain("HeritageItem");
   });
+
+  it("ships a public read policy limited to published promotions", () => {
+    const migration = readFileSync(
+      "supabase/migrations/20260908_homepage_promotions_public_read.sql",
+      "utf8"
+    );
+
+    expect(migration).toContain("to anon, authenticated");
+    expect(migration).toContain("using (published = true)");
+    expect(migration).not.toContain("for insert");
+    expect(migration).not.toContain("for update");
+    expect(migration).not.toContain("for delete");
+  });
 });

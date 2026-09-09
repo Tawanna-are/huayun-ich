@@ -13,7 +13,7 @@ export function validatePromotionFile(file: File, mediaType: "image" | "video") 
   return null;
 }
 
-export function promotionStoragePath(mediaType: "image" | "video", id: string, file: File) {
+export function promotionStoragePath(mediaType: "image" | "video", id: string, file: Pick<File, "name">) {
   const extension = file.name.split(".").pop()?.toLowerCase() ?? (mediaType === "video" ? "mp4" : "jpg");
   return `homepage-promotions/${mediaType === "video" ? "video" : "images"}/${id}.${extension}`;
 }
