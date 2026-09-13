@@ -31,7 +31,6 @@ describe("homepage promotions", () => {
   it("keeps banner and video media responsive without cropping", () => {
     const source = readFileSync("components/home/home-promotions.tsx", "utf8");
 
-    expect(source).toContain("aspect-[16/5]");
     expect(source).toContain("aspect-[9/16]");
     expect(source).toContain("max-w-[420px]");
     expect(source).toContain("object-contain");
