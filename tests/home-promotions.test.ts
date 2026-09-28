@@ -2,20 +2,36 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("homepage promotions", () => {
-  it("renders the three promotion placements around the existing homepage content", () => {
+  it("renders the works grid between the unchanged top and bottom banners", () => {
     const source = readFileSync("components/home/home-cms-content.tsx", "utf8");
 
     const hero = source.indexOf("<HeritageExplorerHero");
     const top = source.indexOf('<HomePromotions placement="top"');
-    const video = source.indexOf('<HomePromotions placement="video"');
+    const works = source.indexOf("{imageItems.length > 0");
     const contact = source.indexOf("<HomeContactEntry");
     const bottom = source.indexOf('<HomePromotions placement="bottom"');
 
     expect(hero).toBeGreaterThan(-1);
     expect(top).toBeGreaterThan(hero);
-    expect(video).toBeGreaterThan(top);
-    expect(bottom).toBeGreaterThan(video);
+    expect(works).toBeGreaterThan(top);
+    expect(bottom).toBeGreaterThan(works);
     expect(contact).toBeGreaterThan(bottom);
+  });
+
+  it("reuses homepage works with portrait images and localized detail links", () => {
+    const source = readFileSync("components/home/home-cms-content.tsx", "utf8");
+
+    expect(source).toContain("imageItems.map((item)");
+    expect(source).toContain("grid-cols-2");
+    expect(source).toContain("md:grid-cols-3");
+    expect(source).toContain("aspect-[4/5]");
+    expect(source).toContain("object-contain");
+    expect(source).toContain("src={item.image || item.heroImage}");
+    expect(source).toContain("{item.name}");
+    expect(source).toContain("item.englishName &&");
+    expect(source).toContain("href={`/heritage/${item.slug}`}");
+    expect(source).toContain("locale={locale}");
+    expect(source).not.toContain("createSupabase");
   });
 
   it("uses published database rows with localized fields", () => {
