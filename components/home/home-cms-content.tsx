@@ -28,7 +28,7 @@ export async function HomeCmsContent({ itemsPromise, locale }: HomeCmsContentPro
       <HomePromotions placement="top" locale={locale} />
       {imageItems.length > 0 && (
         <section aria-label={locale === "zh" ? "非遗作品" : "Heritage works"} className="bg-[#f7f5f0] px-5 py-12 lg:px-12 lg:py-16">
-          <div className="mx-auto grid max-w-[1344px] grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 md:gap-6">
+          <div className="mx-auto grid max-w-[1500px] grid-cols-2 gap-x-4 gap-y-6 md:gap-6 lg:grid-cols-4">
             {imageItems.map((item) => (
               <Link
                 key={item.id}
