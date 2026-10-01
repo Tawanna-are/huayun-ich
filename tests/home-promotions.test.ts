@@ -23,7 +23,7 @@ describe("homepage promotions", () => {
 
     expect(source).toContain("imageItems.map((item)");
     expect(source).toContain("grid-cols-2");
-    expect(source).toContain("md:grid-cols-3");
+    expect(source).toContain("lg:grid-cols-4");
     expect(source).toContain("aspect-[4/5]");
     expect(source).toContain("object-contain");
     expect(source).toContain("src={item.image || item.heroImage}");
