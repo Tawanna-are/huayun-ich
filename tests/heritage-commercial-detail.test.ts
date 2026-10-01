@@ -22,7 +22,7 @@ describe("heritage commercial detail", () => {
     for (const component of ["DetailHero", "CraftMediaGallery", "HeritageVideoArchive", "ContactApplicationForm"]) {
       expect(page).toContain(component);
     }
-    expect(page).toContain("item.gallery");
+    expect(page).toContain("detailItem.gallery");
     expect(page).toContain("item.heroImage");
     expect(page).toContain("item.image");
     expect(page).not.toContain("<InheritorProfile");

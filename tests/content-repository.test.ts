@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   filterHeritageItems,
   groupHeritageByProvince,
+  localizeHeritageDetailItem,
   mapCategoryRow,
   mapHeritageItemRow
 } from "@/lib/content/heritage-repository";
@@ -166,6 +167,7 @@ describe("Supabase heritage repository mapping", () => {
     expect(item.slug).toBe("jingju");
     expect(item.featured).toBe(true);
     expect(item.categoryName).toBe("Traditional Opera");
+    expect(item.categoryEnglishName).toBe("Opera");
     expect(item.image).toBe("/assets/jingju.png");
     expect(item.heroImage).toBe("/assets/jingju-hero.png");
     expect(item.videoUrl).toBe("/video.mp4");
@@ -177,6 +179,52 @@ describe("Supabase heritage repository mapping", () => {
     expect(item.timeline[0]?.year).toBe("1790");
     expect(item.inheritor.name).toBe("Mei school group");
     expect(item.relatedSlugs).toEqual(["kunqu"]);
+
+    const source = {
+      ...mapHeritageItemRow(baseRow),
+      slug: "tie-dye",
+      name: "扎染",
+      englishName: "Tie-dye Craft",
+      categoryName: "传统技艺",
+      categoryEnglishName: "Technique",
+      summary: "中文扎染简介",
+      region: "云南大理",
+      gallery: Array.from({ length: 12 }, (_, index) => ({
+        id: `image-${index + 1}`,
+        src: `/tie-dye/${index + 1}.webp`,
+        alt: "扎染",
+        caption: "中文说明"
+      }))
+    };
+    const english = localizeHeritageDetailItem(source, "en");
+
+    expect(english.name).toBe("Tie-dye Craft");
+    expect(english.categoryName).toBe("Technique");
+    expect(english.region).toBe("Dali, Yunnan");
+    expect(english.summary).toContain("Tie-dye, historically known as jiaoxie");
+    expect(english.gallery.map((image) => image.alt)).toEqual(Array(12).fill("Tie-dye"));
+    expect(english.gallery.map((image) => image.caption)).toEqual([
+      "Tie-dye Bag",
+      "Tie-dye Bag",
+      "Tie-dye Bag",
+      "Tie-dye Bag",
+      "Tie-dye Bag",
+      "Tie-dye Bag",
+      "Tie-dye Accessories",
+      "Tie-dye Accessories",
+      "Tie-dye Doll",
+      "Tie-dye Doll",
+      "Tie-dye Doll",
+      "Tie-dye Bag"
+    ]);
+    expect(localizeHeritageDetailItem(source, "zh")).toBe(source);
+    expect(source.summary).toBe("中文扎染简介");
+
+    const otherItem = { ...source, slug: "future-item", summary: "Original summary", region: "Original region" };
+    const localizedOtherItem = localizeHeritageDetailItem(otherItem, "en");
+    expect(localizedOtherItem.summary).toBe("Original summary");
+    expect(localizedOtherItem.region).toBe("Original region");
+    expect(localizedOtherItem.gallery).toBe(otherItem.gallery);
   });
 
   it("uses Cover, then Hero, then the placeholder for collection cards", () => {

@@ -32,7 +32,7 @@ describe("heritage work visual platform", () => {
   it("renders video conditionally and uses the online supporter form", () => {
     const page = readFileSync(pagePath, "utf8");
 
-    expect(page).toContain("const hasVideo = Boolean(item.videoUrl || item.videos?.length)");
+    expect(page).toContain("const hasVideo = Boolean(detailItem.videoUrl || detailItem.videos?.length)");
     expect(page).toContain("{hasVideo ? <HeritageVideoArchive");
     expect(page).toContain("<ContactApplicationForm");
     expect(page).toContain('defaultKind="supporter"');

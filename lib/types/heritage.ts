@@ -39,6 +39,7 @@ export type HeritageItem = {
   englishName: string;
   categorySlug: HeritageCategorySlug;
   categoryName: string;
+  categoryEnglishName?: string;
   summary: string;
   region: string;
   province: string;

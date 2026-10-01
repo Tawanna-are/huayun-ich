@@ -17,6 +17,25 @@ export type { HeritageFilters };
 
 const hiddenPublicHeritageSlugs = new Set(["yue-embroidery", "kunqu"]);
 
+const tieDyeEnglishSummary = `Tie-dye, historically known as jiaoxie, is an ancient and distinctive Chinese textile-dyeing technique. Together with batik and clamp-resist dyeing, it forms China’s three traditional resist-dyeing methods. Originating in the Qin and Han dynasties and flourishing during the Tang, the craft is now best represented by Bai tie-dye from Dali, Yunnan, and tie-dye from Zigong, Sichuan. It is included in China’s national list of intangible cultural heritage.
+
+The essence of tie-dye lies in binding and dyeing. Fabric is tied, folded, stitched or clamped before being immersed in natural plant dyes such as indigo. The bound areas resist the dye, creating naturally diffused patterns in varied shades. Classic blue-and-white tie-dye has a restrained, rustic beauty, and every piece is unique, like a painting made without a brush.`;
+
+const tieDyeEnglishGalleryCaptions = [
+  "Tie-dye Bag",
+  "Tie-dye Bag",
+  "Tie-dye Bag",
+  "Tie-dye Bag",
+  "Tie-dye Bag",
+  "Tie-dye Bag",
+  "Tie-dye Accessories",
+  "Tie-dye Accessories",
+  "Tie-dye Doll",
+  "Tie-dye Doll",
+  "Tie-dye Doll",
+  "Tie-dye Bag"
+] as const;
+
 export function isPublicHeritageSlug(slug: string) {
   return !hiddenPublicHeritageSlugs.has(slug);
 }
@@ -219,6 +238,7 @@ export function mapHeritageItemRow(row: HeritageItemSelectRow): HeritageItem {
     englishName: row.english_name,
     categorySlug: (category?.slug ?? "traditional-craft") as HeritageCategorySlug,
     categoryName: category?.name ?? "未分类",
+    categoryEnglishName: category?.english_name,
     summary: row.summary,
     region: row.region,
     province: row.province,
@@ -256,6 +276,33 @@ export function mapHeritageItemRow(row: HeritageItemSelectRow): HeritageItem {
     },
     tags: row.tags ?? [],
     relatedSlugs: row.related_slugs ?? []
+  };
+}
+
+export function localizeHeritageDetailItem(item: HeritageItem, locale: "zh" | "en"): HeritageItem {
+  if (locale !== "en") {
+    return item;
+  }
+
+  const englishItem = {
+    ...item,
+    name: item.englishName || item.name,
+    categoryName: item.categoryEnglishName || item.categoryName
+  };
+
+  if (item.slug !== "tie-dye") {
+    return englishItem;
+  }
+
+  return {
+    ...englishItem,
+    summary: tieDyeEnglishSummary,
+    region: "Dali, Yunnan",
+    gallery: item.gallery.map((image, index) => ({
+      ...image,
+      alt: "Tie-dye",
+      caption: tieDyeEnglishGalleryCaptions[index] ?? image.caption
+    }))
   };
 }
 

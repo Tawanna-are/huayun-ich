@@ -13,7 +13,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { BrowsingHistoryTracker } from "@/components/user/browsing-history-tracker";
 import { FavoriteButton } from "@/components/user/favorite-button";
 import { defaultLocale, isAppLocale, routing, type AppLocale } from "@/i18n/routing";
-import { getHeritageBySlug, getHeritageSlugs } from "@/lib/content/heritage-repository";
+import { getHeritageBySlug, getHeritageSlugs, localizeHeritageDetailItem } from "@/lib/content/heritage-repository";
 import { createMetadata } from "@/lib/metadata";
 import { getHeritageSeoDescription, getHeritageSeoKeywords, getHeritageSeoTitle } from "@/lib/seo/localized-content";
 import { createBreadcrumbJsonLd, createCreativeWorkJsonLd, createHeritageArticleJsonLd } from "@/lib/seo/structured-data";
@@ -99,9 +99,10 @@ export default async function HeritageDetailPage({ params }: PageProps) {
   if (!item) notFound();
 
   const copy = detailCopy[currentLocale];
-  const displayTitle = currentLocale === "en" ? item.englishName || item.name : item.name;
-  const displaySubtitle = currentLocale === "en" ? item.name : item.englishName;
-  const hasVideo = Boolean(item.videoUrl || item.videos?.length);
+  const detailItem = localizeHeritageDetailItem(item, currentLocale);
+  const displayTitle = detailItem.name;
+  const displaySubtitle = currentLocale === "en" ? "" : item.englishName;
+  const hasVideo = Boolean(detailItem.videoUrl || detailItem.videos?.length);
   const heroActionClassName = "border-white/45 bg-black/35 text-white hover:border-white/70 hover:bg-white/15 hover:text-white";
 
   return (
@@ -117,7 +118,7 @@ export default async function HeritageDetailPage({ params }: PageProps) {
       <article className="bg-[#f4f1ea] text-[#18231e]">
           <BrowsingHistoryTracker itemId={item.id} />
           <DetailHero
-            item={item}
+            item={detailItem}
             title={displayTitle}
             subtitle={displaySubtitle}
             breadcrumbHome={t("breadcrumbHome")}
@@ -132,9 +133,9 @@ export default async function HeritageDetailPage({ params }: PageProps) {
           />
 
           <CraftMediaGallery
-            images={item.gallery}
+            images={detailItem.gallery}
             heritageItemId={item.id}
-            itemName={item.name}
+            itemName={detailItem.name}
             eyebrow={copy.galleryEyebrow}
             title={copy.galleryTitle}
             description={copy.galleryDescription}
@@ -144,7 +145,7 @@ export default async function HeritageDetailPage({ params }: PageProps) {
             resetZoomLabel={copy.resetZoom}
           />
 
-          {hasVideo ? <HeritageVideoArchive item={item} eyebrow={copy.videoEyebrow} title={copy.videoTitle} description={copy.videoDescription} /> : null}
+          {hasVideo ? <HeritageVideoArchive item={detailItem} eyebrow={copy.videoEyebrow} title={copy.videoTitle} description={copy.videoDescription} /> : null}
 
           <section data-section="project-information" className="border-y border-[#31594c]/10 bg-[#fffefa] py-14 md:py-20">
             <div className="museum-container grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:items-end">
@@ -154,8 +155,8 @@ export default async function HeritageDetailPage({ params }: PageProps) {
               </Reveal>
               <Reveal delay={0.06}>
                 <dl className="grid grid-cols-2 gap-px bg-[#31594c]/10">
-                  <div className="bg-[#fffefa] px-5 py-6"><dt className="text-[11px] text-[#7a847e]">{copy.regionLabel}</dt><dd className="mt-2 text-base">{item.region}</dd></div>
-                  <div className="bg-[#fffefa] px-5 py-6"><dt className="text-[11px] text-[#7a847e]">{copy.categoryLabel}</dt><dd className="mt-2 text-base">{item.categoryName}</dd></div>
+                  <div className="bg-[#fffefa] px-5 py-6"><dt className="text-[11px] text-[#7a847e]">{copy.regionLabel}</dt><dd className="mt-2 text-base">{detailItem.region}</dd></div>
+                  <div className="bg-[#fffefa] px-5 py-6"><dt className="text-[11px] text-[#7a847e]">{copy.categoryLabel}</dt><dd className="mt-2 text-base">{detailItem.categoryName}</dd></div>
                 </dl>
               </Reveal>
             </div>

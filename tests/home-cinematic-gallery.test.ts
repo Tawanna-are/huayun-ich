@@ -80,6 +80,24 @@ describe("modern heritage explorer homepage", () => {
 
   it("preserves the inner-page header", () => {
     const siteHeader = readFileSync("components/layout/site-header.tsx", "utf8");
+    const englishMessages = JSON.parse(readFileSync("messages/en.json", "utf8"));
+    const chineseMessages = JSON.parse(readFileSync("messages/zh.json", "utf8"));
+
     expect(siteHeader).toContain('pathname === "/"');
+    for (const key of ["collectionBrand", "register", "signIn", "contactUs"]) {
+      expect(siteHeader).toContain(`t("${key}")`);
+    }
+    expect(englishMessages.Site).toMatchObject({
+      collectionBrand: "Huayun Collection",
+      register: "Register",
+      signIn: "Sign in",
+      contactUs: "Contact us"
+    });
+    expect(chineseMessages.Site).toMatchObject({
+      collectionBrand: "华韵收藏",
+      register: "注册",
+      signIn: "登录",
+      contactUs: "联系我们"
+    });
   });
 });

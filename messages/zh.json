@@ -1,6 +1,10 @@
 {
   "Site": {
     "brandShort": "华韵",
+    "collectionBrand": "华韵收藏",
+    "register": "注册",
+    "signIn": "登录",
+    "contactUs": "联系我们",
     "nav": {
       "home": "首页",
       "heritage": "非遗名录",

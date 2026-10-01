@@ -16,6 +16,9 @@ describe("heritage digital museum detail page", () => {
     expect(page).toContain("BrowsingHistoryTracker");
     expect(page).toContain("FavoriteButton");
     expect(page).toContain("createCreativeWorkJsonLd");
+    expect(page).toContain("localizeHeritageDetailItem(item, currentLocale)");
+    expect(page).toContain("item={detailItem}");
+    expect(page).toContain("images={detailItem.gallery}");
   });
 
   it("uses a CMS cover-first immersive Hero with breadcrumbs and museum metadata", () => {

@@ -1,6 +1,10 @@
 {
   "Site": {
     "brandShort": "Huayun",
+    "collectionBrand": "Huayun Collection",
+    "register": "Register",
+    "signIn": "Sign in",
+    "contactUs": "Contact us",
     "nav": {
       "home": "Home",
       "heritage": "Archive",

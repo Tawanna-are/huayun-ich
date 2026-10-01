@@ -28,7 +28,7 @@ export function SiteHeader() {
           <span className="flex size-9 items-center justify-center rounded-md border border-pine/18 bg-paper shadow-goldline">
             <Landmark className="size-5 text-pine" />
           </span>
-          <span className="serif-title text-lg text-ink">华韵收藏</span>
+          <span className="serif-title text-lg text-ink">{t("collectionBrand")}</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -47,9 +47,9 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button asChild size="sm" variant="ghost" className="text-[#23312d] hover:bg-[#36584e]/10"><Link href="/login">注册</Link></Button>
-          <Button asChild size="sm" variant="ghost" className="text-[#23312d] hover:bg-[#36584e]/10"><Link href="/login">登录</Link></Button>
-          <Button asChild size="sm" variant="outline" className="border-[#36584e]/35 bg-white/70 text-[#23312d] hover:bg-white"><Link href="#contact">联系我们</Link></Button>
+          <Button asChild size="sm" variant="ghost" className="text-[#23312d] hover:bg-[#36584e]/10"><Link href="/login">{t("register")}</Link></Button>
+          <Button asChild size="sm" variant="ghost" className="text-[#23312d] hover:bg-[#36584e]/10"><Link href="/login">{t("signIn")}</Link></Button>
+          <Button asChild size="sm" variant="outline" className="border-[#36584e]/35 bg-white/70 text-[#23312d] hover:bg-white"><Link href="#contact">{t("contactUs")}</Link></Button>
           <Button asChild size="sm" variant="ghost" className="text-[#23312d] hover:bg-[#36584e]/10">
             <Link href={pathname || "/"} locale={alternateLocale} aria-label={t("language")}>{localeMeta[alternateLocale].label}</Link>
           </Button>
@@ -76,9 +76,9 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link href="/login" className="rounded-md px-3 py-3 text-sm text-cinnabar hover:bg-pine/8" onClick={() => setOpen(false)}>注册</Link>
-            <Link href="/login" className="rounded-md px-3 py-3 text-sm text-cinnabar hover:bg-pine/8" onClick={() => setOpen(false)}>登录</Link>
-            <Link href="#contact" className="rounded-md px-3 py-3 text-sm text-cinnabar hover:bg-pine/8" onClick={() => setOpen(false)}>联系我们</Link>
+            <Link href="/login" className="rounded-md px-3 py-3 text-sm text-cinnabar hover:bg-pine/8" onClick={() => setOpen(false)}>{t("register")}</Link>
+            <Link href="/login" className="rounded-md px-3 py-3 text-sm text-cinnabar hover:bg-pine/8" onClick={() => setOpen(false)}>{t("signIn")}</Link>
+            <Link href="#contact" className="rounded-md px-3 py-3 text-sm text-cinnabar hover:bg-pine/8" onClick={() => setOpen(false)}>{t("contactUs")}</Link>
             <Link href={pathname || "/"} locale={alternateLocale} className="rounded-md px-3 py-3 text-sm text-cinnabar hover:bg-pine/8" onClick={() => setOpen(false)}>{localeMeta[alternateLocale].label}</Link>
             <Link href="/profile" className="rounded-md px-3 py-3 text-sm text-cinnabar hover:bg-pine/8" onClick={() => setOpen(false)}>{locale === "en" ? "Profile" : "个人中心"}</Link>
           </nav>
