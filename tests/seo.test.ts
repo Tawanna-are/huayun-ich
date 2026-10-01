@@ -151,9 +151,9 @@ describe("SEO configuration", () => {
     const zhMuseum = result.find((entry) => entry.url === `${siteConfig.url}/zh/museum`);
     const zhMuseumInsights = result.find((entry) => entry.url === `${siteConfig.url}/zh/museum/insights`);
     const zhCampaigns = result.find((entry) => entry.url === `${siteConfig.url}/zh/campaigns`);
-    const zhOperaCampaign = result.find((entry) => entry.url === `${siteConfig.url}/zh/campaigns/traditional-opera`);
+    const retiredCampaign = result.find((entry) => entry.url === `${siteConfig.url}/zh/campaigns/traditional-opera`);
     const zhOffline = result.find((entry) => entry.url === `${siteConfig.url}/zh/offline`);
-    const zhEmbroideryTopic = result.find(
+    const retiredMuseumTopic = result.find(
       (entry) => entry.url === `${siteConfig.url}/zh/museum/topics/four-embroideries`
     );
     const zhAssistant = result.find((entry) => entry.url === `${siteConfig.url}/zh/assistant`);
@@ -179,16 +179,10 @@ describe("SEO configuration", () => {
       "zh-CN": `${siteConfig.url}/zh/campaigns`,
       "en-US": `${siteConfig.url}/en/campaigns`
     });
-    expect(zhOperaCampaign?.alternates?.languages).toMatchObject({
-      "zh-CN": `${siteConfig.url}/zh/campaigns/traditional-opera`,
-      "en-US": `${siteConfig.url}/en/campaigns/traditional-opera`
-    });
+    expect(retiredCampaign).toBeUndefined();
     expect(zhOffline).toBeUndefined();
     expect(result.every((entry) => entry.lastModified === undefined)).toBe(true);
-    expect(zhEmbroideryTopic?.alternates?.languages).toMatchObject({
-      "zh-CN": `${siteConfig.url}/zh/museum/topics/four-embroideries`,
-      "en-US": `${siteConfig.url}/en/museum/topics/four-embroideries`
-    });
+    expect(retiredMuseumTopic).toBeUndefined();
     expect(zhAssistant?.alternates?.languages).toMatchObject({
       "zh-CN": `${siteConfig.url}/zh/assistant`,
       "en-US": `${siteConfig.url}/en/assistant`

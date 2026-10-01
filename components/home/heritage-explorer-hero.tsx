@@ -39,12 +39,7 @@ const copy = {
   }
 } satisfies Record<AppLocale, Record<string, string>>;
 
-const fallbackImages = [
-  "/assets/suzhou-embroidery-hero.png",
-  "/assets/jingdezhen-porcelain-detail.png",
-  "/assets/jingju-hero.png",
-  "/assets/spiral/luodian-dark.webp"
-];
+const fallbackImage = "/assets/hero-museum.png";
 
 function getDisplayImage(item: HeritageExplorerItem | undefined, fallback: string) {
   return item ? item.image || item.heroImage || fallback : fallback;
@@ -81,7 +76,7 @@ export function HeritageExplorerHero({ mainItem, railItems, locale }: HeritageEx
             className="group relative min-w-0 overflow-hidden rounded-[8px] bg-[#cbd4ce] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#9d4b40]"
           >
             <Image
-              src={getDisplayImage(mainItem, fallbackImages[0])}
+              src={getDisplayImage(mainItem, fallbackImage)}
               alt={mainItem ? getHeritageImageAlt(mainItem, locale) : t.imageAlt}
               fill
               priority
@@ -104,7 +99,7 @@ export function HeritageExplorerHero({ mainItem, railItems, locale }: HeritageEx
                 className="group relative z-0 min-w-0 overflow-hidden rounded-[8px] bg-[#cbd4ce] transition-[transform,width,margin] duration-500 ease-out hover:z-10 hover:-ml-[96px] hover:w-[154px] focus-visible:z-10 focus-visible:-ml-[96px] focus-visible:w-[154px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9d4b40] motion-reduce:transition-none sm:hover:-ml-[112px] sm:hover:w-[170px] sm:focus-visible:-ml-[112px] sm:focus-visible:w-[170px] lg:hover:-ml-[124px] lg:hover:w-[190px] lg:focus-visible:-ml-[124px] lg:focus-visible:w-[190px]"
               >
                 <Image
-                  src={getDisplayImage(item, fallbackImages[index + 1])}
+                  src={getDisplayImage(item, fallbackImage)}
                   alt={item ? getHeritageImageAlt(item, locale) : t.imageAlt}
                   fill
                   sizes="190px"

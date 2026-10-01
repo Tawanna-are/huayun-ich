@@ -102,7 +102,7 @@
       "categoryTitle": "Browse by Category",
       "provinceTitle": "{province} Heritage",
       "queryTitle": "Search: {query}",
-      "description": "Browse Peking Opera, Suzhou embroidery, Longquan celadon, Jingdezhen porcelain and molten iron fireworks."
+      "description": "Browse Huayun's Chinese intangible cultural heritage archive and explore the history, materials and techniques of tie-dye."
     },
     "eyebrow": "Archive",
     "title": "Heritage Archive",
@@ -272,14 +272,14 @@
     "panelDescription": "The guide retrieves Huayun website content first, then uses OpenAI to compose a concise museum-style answer when configured.",
     "chatTitle": "Heritage conversation",
     "welcome": "Hello, I can answer questions about Huayun's heritage archive and recommend related projects, inheritors and regions.",
-    "placeholder": "Ask about Peking Opera, Suzhou embroidery, inheritors or regional heritage...",
+    "placeholder": "Ask about the history, materials, techniques or regional context of tie-dye...",
     "send": "Send",
     "thinking": "Searching the archive...",
     "error": "The assistant is temporarily unavailable. Please try again later.",
     "suggestions": {
-      "history": "What is the historical background of Peking Opera?",
-      "inheritor": "Recommend inheritors related to Suzhou embroidery.",
-      "region": "Which heritage items are related to Jiangsu?"
+      "history": "What is the historical background of tie-dye?",
+      "inheritor": "Which materials and techniques are used in tie-dye?",
+      "region": "Which regional traditions are connected with tie-dye?"
     },
     "breadcrumbHome": "Home",
     "breadcrumbAssistant": "AI Heritage Guide"

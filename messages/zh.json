@@ -102,7 +102,7 @@
       "categoryTitle": "分类浏览",
       "provinceTitle": "{province}非遗",
       "queryTitle": "搜索：{query}",
-      "description": "浏览京剧、苏绣、龙泉青瓷、景德镇陶瓷、打铁花等中国非物质文化遗产项目。"
+      "description": "浏览华韵收录的中国非物质文化遗产项目，了解扎染等传统技艺的历史、材料与工艺。"
     },
     "eyebrow": "Archive",
     "title": "非遗名录",
@@ -272,14 +272,14 @@
     "panelDescription": "助手会优先检索华韵站内内容；配置 OpenAI 后，将基于检索结果生成克制清晰的博物馆式回答。",
     "chatTitle": "非遗对话",
     "welcome": "你好，我可以围绕华韵非遗档案回答问题，并推荐相关非遗项目、传承人和地区。",
-    "placeholder": "询问京剧、苏绣、传承人或某个地区的非遗线索...",
+    "placeholder": "询问扎染的历史、材料、工艺或相关非遗线索...",
     "send": "发送",
     "thinking": "正在检索馆藏...",
     "error": "助手暂时不可用，请稍后再试。",
     "suggestions": {
-      "history": "京剧的历史背景是什么？",
-      "inheritor": "推荐与苏绣相关的传承人。",
-      "region": "江苏有哪些相关非遗项目？"
+      "history": "扎染的历史背景是什么？",
+      "inheritor": "扎染使用哪些材料与工艺？",
+      "region": "扎染与哪些地区的文化传统有关？"
     },
     "breadcrumbHome": "首页",
     "breadcrumbAssistant": "AI非遗助手"

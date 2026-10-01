@@ -4,98 +4,59 @@ import type { HeritageItem } from "@/lib/types/heritage";
 
 function makeItem(overrides: Partial<HeritageItem> = {}): HeritageItem {
   return {
-    id: "jingju",
-    slug: "jingju",
-    name: "京剧",
-    englishName: "Peking Opera",
-    categorySlug: "traditional-opera",
-    categoryName: "传统戏曲",
-    summary: "京剧以唱、念、做、打为核心。",
-    region: "北京",
-    province: "北京市",
-    city: "北京",
-    inscriptionYear: 2010,
+    id: "08d7f672-4220-42df-9bd5-7e5bc7aa62d9",
+    slug: "tie-dye",
+    name: "扎染",
+    englishName: "Tie-dye",
+    categorySlug: "traditional-craft",
+    categoryName: "传统工艺",
+    summary: "扎染通过结扎与染色形成独特纹样。",
+    region: "云南大理",
+    province: "云南省",
+    city: "大理",
+    inscriptionYear: 2006,
     featured: false,
-    image: "/assets/jingju.png",
-    heroImage: "/assets/jingju-hero.png",
-    videoPoster: "/assets/jingju-hero.png",
-    videoUrl: "/assets/jingju.mp4",
-    history: ["宫廷与民间戏曲融合。", "现代剧场继续重塑经典。"],
-    gallery: [{ id: "jingju-gallery", src: "/assets/jingju-gallery.png", alt: "京剧身段", caption: "舞台身段与脸谱。" }],
+    image: "/assets/hero-museum.png",
+    heroImage: "/assets/hero-museum.png",
+    videoPoster: "/assets/hero-museum.png",
+    videoUrl: "",
+    history: ["扎染技艺在长期生活实践中传承。"],
+    gallery: [],
     timeline: [{ year: "2010", title: "入选名录", description: "进入代表作名录。" }],
     inheritor: {
-      name: "梅派传承群体",
-      title: "京剧表演艺术传承代表",
-      bio: "持续推动经典剧目传承。",
-      image: "/assets/inheritor-opera.png"
+      name: "扎染传承群体",
+      title: "扎染技艺传承人",
+      bio: "持续传承扎染技艺。",
+      image: "/assets/hero-museum.png"
     },
     location: {
-      lat: 39.9042,
-      lng: 116.4074,
-      mapX: 68,
-      mapY: 31
+      lat: 25.6065,
+      lng: 100.2676,
+      mapX: 46,
+      mapY: 67
     },
-    tags: ["国粹"],
-    relatedSlugs: ["kunqu"],
+    tags: ["扎染", "染色"],
+    relatedSlugs: [],
     ...overrides
   };
 }
 
 describe("museum curation", () => {
-  it("builds curated museum topics with localized exhibition paths", () => {
-    const curation = createMuseumCuration([
-      makeItem(),
-      makeItem({
-        id: "suxiu",
-        slug: "suzhou-embroidery",
-        name: "苏绣",
-        englishName: "Suzhou Embroidery",
-        categorySlug: "traditional-craft",
-        categoryName: "传统工艺",
-        province: "江苏省",
-        region: "江苏苏州",
-        inscriptionYear: 2006
-      })
-    ]);
+  it("does not build retired museum topics for the current tie-dye archive", () => {
+    const curation = createMuseumCuration([makeItem()]);
 
-    expect(curation.featuredTopics).toHaveLength(4);
-    expect(curation.featuredTopics[0]).toEqual(
-      expect.objectContaining({
-        id: "four-embroideries",
-        title: "中国四大名绣",
-        englishTitle: "The Four Great Chinese Embroideries",
-        count: 1,
-        href: "/museum/topics/four-embroideries"
-      })
-    );
-    expect(curation.featuredTopics.map((topic) => topic.href)).toEqual([
-      "/museum/topics/four-embroideries",
-      "/museum/topics/traditional-opera",
-      "/museum/topics/tea-culture",
-      "/museum/topics/traditional-festivals"
-    ]);
+    expect(curation.featuredTopics).toEqual([]);
   });
 
   it("selects annual recommendations by inscription year and creates curatorial stories", () => {
-    const curation = createMuseumCuration([
-      makeItem({ inscriptionYear: 2010 }),
-      makeItem({
-        id: "suxiu",
-        slug: "suzhou-embroidery",
-        name: "苏绣",
-        englishName: "Suzhou Embroidery",
-        categorySlug: "traditional-craft",
-        categoryName: "传统工艺",
-        inscriptionYear: 2006
-      })
-    ]);
+    const curation = createMuseumCuration([makeItem()]);
 
-    expect(curation.annualRecommendations.map((item) => item.slug)).toEqual(["jingju", "suzhou-embroidery"]);
+    expect(curation.annualRecommendations.map((item) => item.slug)).toEqual(["tie-dye"]);
     expect(curation.curatorialStories[0]).toEqual(
       expect.objectContaining({
-        title: "京剧",
-        href: "/heritage/jingju",
-        quote: "宫廷与民间戏曲融合。"
+        title: "扎染",
+        href: "/heritage/tie-dye",
+        quote: "扎染技艺在长期生活实践中传承。"
       })
     );
   });

@@ -666,6 +666,7 @@ with category_map as (
   select id, slug from public.categories
 )
 insert into public.heritage_items (
+  id,
   category_id,
   slug,
   name,
@@ -684,9 +685,13 @@ insert into public.heritage_items (
   map_x,
   map_y,
   sort_order,
-  published
+  published,
+  featured,
+  created_at,
+  updated_at
 )
 select
+  seed.id,
   category_map.id,
   seed.slug,
   seed.name,
@@ -705,253 +710,43 @@ select
   seed.map_x,
   seed.map_y,
   seed.sort_order,
-  true
+  seed.published,
+  seed.featured,
+  seed.created_at,
+  seed.updated_at
 from (
   values
     (
-      'traditional-opera',
-      'jingju',
-      '京剧',
-      'Peking Opera',
-      '京剧以唱、念、做、打为核心，将音乐、身段、脸谱和服饰凝练为高度程式化的东方舞台语言。',
-      '北京',
-      '北京市',
-      '北京',
-      2010,
-      array[
-        '京剧形成于清代中后期，吸收徽班、汉调、昆曲、秦腔等多种声腔与表演传统，在北京的城市文化环境中逐渐成熟。',
-        '它通过行当、程式、脸谱、锣鼓点和舞台调度建立起独特的审美秩序，也让历史故事、伦理观念与人物精神在舞台上被反复讲述。'
-      ]::text[],
-      jsonb_build_array(
-        jsonb_build_object('year', '1790', 'title', '徽班进京', 'description', '徽班入京演出，为京剧日后的融合与形成提供重要基础。'),
-        jsonb_build_object('year', '19 世纪', 'title', '声腔融合', 'description', '多种地方戏曲声腔在北京交汇，表演体系逐渐定型。'),
-        jsonb_build_object('year', '2010', 'title', '入选名录', 'description', '京剧列入人类非物质文化遗产代表作名录。')
-      ),
-      array['国粹', '剧场', '脸谱', '梅派']::text[],
-      array['kunqu', 'datiehua', 'suzhou-embroidery']::text[],
-      39.9042,
-      116.4074,
-      68,
-      31,
-      10
-    ),
-    (
-      'traditional-opera',
-      'kunqu',
-      '昆曲',
-      'Kunqu Opera',
-      '昆曲以细腻曲唱、雅致辞章和水磨腔闻名，被视为中国古典戏曲审美的高峰之一。',
-      '江苏苏州',
-      '江苏省',
-      '苏州',
-      2001,
-      array[
-        '昆曲发源于元末明初的昆山一带，经魏良辅等人的整理革新，形成委婉清丽、节奏舒缓的水磨腔。',
-        '它深刻影响明清传奇创作与戏曲表演传统，《牡丹亭》《长生殿》等经典作品至今仍是东方剧场美学的重要参照。'
-      ]::text[],
-      jsonb_build_array(
-        jsonb_build_object('year', '14 世纪', 'title', '昆山腔兴起', 'description', '昆山一带声腔逐渐形成地方影响。'),
-        jsonb_build_object('year', '16 世纪', 'title', '水磨腔成熟', 'description', '经音乐家整理后，昆曲音乐与表演气质趋于典雅精密。'),
-        jsonb_build_object('year', '2001', 'title', '入选名录', 'description', '昆曲成为首批入选人类非物质文化遗产代表作的中国项目之一。')
-      ),
-      array['水磨腔', '牡丹亭', '雅部', '苏州']::text[],
-      array['jingju', 'suzhou-embroidery', 'jingdezhen-porcelain']::text[],
-      31.2989,
-      120.5853,
-      73,
-      48,
-      20
-    ),
-    (
-      'traditional-craft',
-      'suzhou-embroidery',
-      '苏绣',
-      'Suzhou Embroidery',
-      '苏绣以针法精细、色阶柔和、双面绣巧妙著称，将丝线转化为近似绘画的细密视觉层次。',
-      '江苏苏州',
-      '江苏省',
-      '苏州',
-      2006,
-      array[
-        '苏绣在江南丝织传统中成长，明清时期因文人审美、园林生活和商品经济而不断精进。',
-        '它以平、齐、细、密、匀、顺、和、光为美学标准，既服务于日常服饰，也进入屏风、陈设和当代艺术创作。'
-      ]::text[],
-      jsonb_build_array(
-        jsonb_build_object('year', '宋元', 'title', '丝绣繁盛', 'description', '江南丝织与刺绣生产形成成熟基础。'),
-        jsonb_build_object('year', '明清', 'title', '文人审美介入', 'description', '画绣结合，题材与技法更趋精雅。'),
-        jsonb_build_object('year', '2006', 'title', '入选名录', 'description', '苏绣列入国家级非物质文化遗产代表性项目名录。')
-      ),
-      array['双面绣', '江南', '丝线', '针法']::text[],
-      array['kunqu', 'jingdezhen-porcelain', 'longquan-celadon']::text[],
-      31.2989,
-      120.5853,
-      73,
-      48,
-      30
-    ),
-    (
-      'traditional-craft',
-      'hunan-embroidery',
-      '湘绣',
-      'Hunan Embroidery',
-      '湘绣以写实造型、浓郁色彩和多变针法见长，是湖湘地区代表性的刺绣传统。',
-      '湖南长沙',
-      '湖南省',
-      '长沙',
-      2006,
-      array[
-        '湘绣在长沙及周边地区的民间绣作与画稿传统中成长，题材常见虎、狮、花鸟与人物，强调形神兼备的表现力。',
-        '它通过掺针、鬅毛针等技法呈现毛发、肌理和明暗变化，使丝线具有接近绘画与雕塑的视觉张力。'
-      ]::text[],
-      jsonb_build_array(
-        jsonb_build_object('year', '清代', 'title', '地方绣作成熟', 'description', '长沙绣坊与民间绣作逐渐形成鲜明风格。'),
-        jsonb_build_object('year', '20 世纪', 'title', '题材拓展', 'description', '写实动物、人物与现代画稿推动湘绣表现力扩展。'),
-        jsonb_build_object('year', '2006', 'title', '入选名录', 'description', '湘绣列入国家级非物质文化遗产代表性项目名录。')
-      ),
-      array['刺绣', '湖湘', '丝绸', '针法', '写实']::text[],
-      array['suzhou-embroidery', 'shu-embroidery', 'yue-embroidery']::text[],
-      28.2282,
-      112.9388,
-      64,
-      59,
-      31
-    ),
-    (
-      'traditional-craft',
-      'shu-embroidery',
-      '蜀绣',
-      'Shu Embroidery',
-      '蜀绣以细密针脚、平整光亮和巴蜀丝织传统著称，形成温润而秩序分明的刺绣美学。',
-      '四川成都',
-      '四川省',
-      '成都',
-      2006,
-      array[
-        '蜀绣依托成都平原发达的蚕桑与丝织传统，在服饰、屏风、日用陈设和礼仪用品中延续。',
-        '它讲究针脚整齐、设色雅致和层次细腻，常以花鸟、山水、鱼虫和吉祥纹样表现巴蜀生活情趣。'
-      ]::text[],
-      jsonb_build_array(
-        jsonb_build_object('year', '汉唐', 'title', '蜀地丝织兴盛', 'description', '巴蜀地区丝织生产为刺绣发展提供基础。'),
-        jsonb_build_object('year', '明清', 'title', '技法精进', 'description', '蜀绣在地方手工体系中形成稳定审美与针法规范。'),
-        jsonb_build_object('year', '2006', 'title', '入选名录', 'description', '蜀绣列入国家级非物质文化遗产代表性项目名录。')
-      ),
-      array['刺绣', '巴蜀', '丝线', '针脚', '手工']::text[],
-      array['suzhou-embroidery', 'hunan-embroidery', 'yue-embroidery']::text[],
-      30.5728,
-      104.0668,
-      56,
-      55,
-      32
-    ),
-    (
-      'traditional-craft',
-      'yue-embroidery',
-      '粤绣',
-      'Yue Embroidery',
-      '粤绣包含广绣、潮绣等岭南绣艺，以构图饱满、色彩明快和装饰性强而闻名。',
-      '广东广州、潮州',
-      '广东省',
-      '广州',
-      2006,
-      array[
-        '粤绣在岭南商业、民俗礼仪与外销工艺环境中发展，常用于服饰、戏服、屏风和节庆陈设。',
-        '它重视金银线、垫绣和强烈色彩对比，形成华丽、饱满、富于装饰意味的南方刺绣风格。'
-      ]::text[],
-      jsonb_build_array(
-        jsonb_build_object('year', '明清', 'title', '外销与礼俗推动', 'description', '岭南商贸与民俗活动推动广绣、潮绣成熟。'),
-        jsonb_build_object('year', '近现代', 'title', '工艺体系延续', 'description', '戏服、礼仪用品和陈设绣品持续丰富粤绣面貌。'),
-        jsonb_build_object('year', '2006', 'title', '入选名录', 'description', '粤绣列入国家级非物质文化遗产代表性项目名录。')
-      ),
-      array['刺绣', '粤绣', '广绣', '潮绣', '岭南', '金银线']::text[],
-      array['suzhou-embroidery', 'hunan-embroidery', 'shu-embroidery']::text[],
-      23.1291,
-      113.2644,
-      64,
-      68,
-      33
-    ),
-    (
-      'traditional-craft',
-      'longquan-celadon',
-      '龙泉青瓷',
-      'Longquan Celadon',
-      '龙泉青瓷以温润釉色、厚釉层次和克制器形闻名，呈现东方器物中含蓄而持久的美。',
-      '浙江丽水',
-      '浙江省',
-      '丽水',
-      2009,
-      array[
-        '龙泉青瓷烧制技艺兴盛于宋元时期，依托浙江西南的瓷土、山林燃料与窑炉经验，形成独具辨识度的青釉体系。',
-        '它的美感不依赖繁复纹饰，而在釉色的深浅、器形的比例和火候的微妙变化中呈现。'
-      ]::text[],
-      jsonb_build_array(
-        jsonb_build_object('year', '宋代', 'title', '窑业兴盛', 'description', '龙泉窑成为重要青瓷产地，产品广泛流通。'),
-        jsonb_build_object('year', '元代', 'title', '海上交流', 'description', '青瓷随海上贸易进入更广阔的国际视野。'),
-        jsonb_build_object('year', '2009', 'title', '入选名录', 'description', '龙泉青瓷烧制技艺入选人类非物质文化遗产代表作名录。')
-      ),
-      array['青釉', '宋韵', '窑火', '器物']::text[],
-      array['jingdezhen-porcelain', 'suzhou-embroidery', 'kunqu']::text[],
-      28.0743,
-      119.1417,
-      72,
-      55,
-      40
-    ),
-    (
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9'::uuid,
       'traditional-technique',
-      'jingdezhen-porcelain',
-      '景德镇陶瓷',
-      'Jingdezhen Porcelain',
-      '景德镇陶瓷以制瓷分工、釉彩体系和千年窑火传统构成中国瓷器文化的核心坐标。',
-      '江西景德镇',
-      '江西省',
-      '景德镇',
+      'tie-dye',
+      '扎染',
+      'Tie-dye Craft',
+      E'扎染，古称“绞缬”，是中国一种古老而独特的纺织品染色工艺，与蜡染、夹缬并称“三染”。它起源于秦汉，盛于唐代，如今以云南大理的白族扎染和四川的自贡扎染最具代表性，被列入国家级非物质文化遗产名录。\n    扎染的精髓在于“扎结”与“染色”两道工序。先用棉线、木夹或竹板将织物按设计意图紧密捆扎、折叠或缝绞，再将其浸入板蓝根等天然植物染料中。由于扎结处染料无法渗透，拆线后便形成了自然晕染、深浅不一的纹理。扎染的颜色素雅古朴，以蓝底白花最为经典；每一件作品的纹样都独一无二，晕纹天成，充满“无画笔之画”般的偶发性艺术魅力。',
+      '云南大理',
+      '云南省',
+      '大理',
       2006,
       array[
-        '景德镇因瓷而兴，自宋代以来形成制坯、绘画、施釉、烧成等高度协作的产业体系。',
-        '青花、粉彩、颜色釉等技艺不断丰富瓷器的表现力，也让景德镇成为连接中国工艺与世界贸易的重要地名。'
+        '大理白族扎染以植物染料、手工绞扎和反复浸染延续日常织物传统，纹样承载着地方生活与审美记忆。'
       ]::text[],
       jsonb_build_array(
-        jsonb_build_object('year', '1004', 'title', '景德年号', 'description', '景德镇因宋真宗景德年号而得名，制瓷声名渐盛。'),
-        jsonb_build_object('year', '明清', 'title', '御窑体系', 'description', '官窑与民窑共同推动陶瓷工艺高度成熟。'),
-        jsonb_build_object('year', '2006', 'title', '入选名录', 'description', '景德镇手工制瓷技艺列入国家级非物质文化遗产代表性项目名录。')
+        jsonb_build_object('year', '2006', 'title', '列入国家级名录', 'description', '白族扎染技艺列入第一批国家级非物质文化遗产代表性项目名录。')
       ),
-      array['青花', '御窑', '制瓷', '釉彩']::text[],
-      array['longquan-celadon', 'suzhou-embroidery', 'datiehua']::text[],
-      29.2688,
-      117.1784,
-      67,
-      55,
-      50
-    ),
-    (
-      'folk-activity',
-      'datiehua',
-      '打铁花',
-      'Datiehua Iron Flower',
-      '打铁花把熔化铁水击向空中，化成漫天火雨，是力量、节庆与民间想象共同完成的夜色仪式。',
-      '河南、河北等地',
-      '河南省',
-      '开封',
-      2008,
-      array[
-        '打铁花源于冶铁、铸造和节庆习俗的结合，匠人将高温铁水击打成火花，以震撼的视觉场面祝愿丰收、平安与兴旺。',
-        '这一活动对经验、胆识和协作要求极高，既是民俗展演，也是金属工艺与身体技术在夜晚留下的光痕。'
-      ]::text[],
-      jsonb_build_array(
-        jsonb_build_object('year', '宋金', 'title', '冶铁习俗基础', 'description', '金属冶炼和民间节庆活动形成早期文化土壤。'),
-        jsonb_build_object('year', '明清', 'title', '节庆展演', 'description', '打铁花逐渐成为地方节日与庙会中的重要场面。'),
-        jsonb_build_object('year', '2008', 'title', '入选名录', 'description', '打铁花列入国家级非物质文化遗产代表性项目名录。')
-      ),
-      array['火雨', '节庆', '冶铁', '民俗']::text[],
-      array['jingju', 'jingdezhen-porcelain', 'longquan-celadon']::text[],
-      34.7973,
-      114.3076,
-      61,
-      45,
-      60
+      array['扎染', '蓝染', '白族', '手工染色']::text[],
+      array[]::text[],
+      25.6065,
+      100.2676,
+      27,
+      63,
+      50,
+      true,
+      true,
+      '2026-07-12T08:18:18.466619+00:00'::timestamptz,
+      '2026-07-25T08:56:33.498753+00:00'::timestamptz
     )
 ) as seed(
+  id,
   category_slug,
   slug,
   name,
@@ -969,7 +764,11 @@ from (
   longitude,
   map_x,
   map_y,
-  sort_order
+  sort_order,
+  published,
+  featured,
+  created_at,
+  updated_at
 )
 join category_map on category_map.slug = seed.category_slug
 on conflict (slug) do update
@@ -990,78 +789,328 @@ set category_id = excluded.category_id,
     map_x = excluded.map_x,
     map_y = excluded.map_y,
     sort_order = excluded.sort_order,
-    published = true;
+    published = excluded.published,
+    featured = excluded.featured,
+    updated_at = excluded.updated_at;
 
 with heritage_map as (
   select id, slug from public.heritage_items
 )
-insert into public.inheritors (heritage_item_id, name, title, bio, image_url, sort_order)
-select heritage_map.id, seed.name, seed.title, seed.bio, seed.image_url, seed.sort_order
-from (
-  values
-    ('jingju', '梅派传承群体', '京剧表演艺术传承代表', '以梅派为代表的传承群体持续推动经典剧目整理、舞台表演训练和青年演员培养，使京剧在剧场、影像与国际交流中保持新的生命力。', '/assets/inheritor-opera.png', 0),
-    ('kunqu', '苏州昆剧院传承群体', '昆曲表演与剧目整理传承代表', '传承群体通过经典剧目复排、曲牌训练和跨界展演，让昆曲从专业剧场延伸到校园、园林和国际艺术节。', '/assets/inheritor-opera.png', 0),
-    ('suzhou-embroidery', '姚建萍', '苏绣代表性传承人', '长期从事苏绣创作、教学与国际展示，以肖像绣、双面绣和现代题材推动传统针法进入更广阔的视觉语境。', '/assets/inheritor-craft.png', 0),
-    ('longquan-celadon', '龙泉青瓷烧制传承群体', '青瓷烧制技艺传承代表', '当代传承群体在矿料选择、拉坯修坯、素烧施釉与窑火控制中延续传统，也通过现代器形设计回应新的生活空间。', '/assets/inheritor-craft.png', 0),
-    ('jingdezhen-porcelain', '景德镇手工制瓷传承群体', '陶瓷制作技艺传承代表', '从拉坯、利坯到画坯、烧窑，传承群体保存了复杂分工体系，也持续吸引当代艺术家和设计师进入陶瓷创作。', '/assets/inheritor-craft.png', 0),
-    ('datiehua', '王德安', '打铁花代表性传承人', '长期参与打铁花展演、教学和安全规范整理，在保留民俗震撼力的同时，让这项高风险技艺以更稳定的方式进入公共文化空间。', '/assets/inheritor-ritual.png', 0)
-) as seed(slug, name, title, bio, image_url, sort_order)
-join heritage_map on heritage_map.slug = seed.slug
-on conflict (heritage_item_id, name) do update
-set title = excluded.title,
-    bio = excluded.bio,
-    image_url = excluded.image_url,
-    sort_order = excluded.sort_order;
-
-with heritage_map as (
-  select id, slug from public.heritage_items
+insert into public.heritage_media (
+  id,
+  heritage_item_id,
+  media_type,
+  role,
+  url,
+  alt,
+  caption,
+  file_name,
+  file_size,
+  mime_type,
+  storage_path,
+  thumbnail_url,
+  thumbnail_storage_path,
+  original_file_name,
+  width,
+  height,
+  sort_order,
+  created_at
 )
-insert into public.heritage_media (heritage_item_id, media_type, role, url, alt, caption, sort_order)
-select heritage_map.id, seed.media_type, seed.role, seed.url, seed.alt, seed.caption, seed.sort_order
+select
+  seed.id,
+  heritage_map.id,
+  seed.media_type,
+  seed.role,
+  seed.url,
+  seed.alt,
+  seed.caption,
+  seed.file_name,
+  seed.file_size,
+  seed.mime_type,
+  seed.storage_path,
+  seed.thumbnail_url,
+  seed.thumbnail_storage_path,
+  seed.original_file_name,
+  seed.width,
+  seed.height,
+  seed.sort_order,
+  seed.created_at
 from (
   values
-    ('jingju', 'image', 'cover', '/assets/jingju.png', '京剧脸谱意象', '脸谱与色彩秩序', 0),
-    ('jingju', 'image', 'hero', '/assets/jingju-hero.png', '京剧展陈影像', '剧场光影档案', 1),
-    ('jingju', 'image', 'gallery', '/assets/jingju.png', '京剧脸谱意象', '脸谱与色彩秩序', 10),
-    ('jingju', 'image', 'gallery', '/assets/jingju-detail.png', '京剧舞台身段', '程式化舞台身段', 11),
-    ('jingju', 'image', 'gallery', '/assets/jingju-hero.png', '京剧展陈影像', '剧场光影档案', 12),
-    ('jingju', 'video', 'video', 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', '京剧影像档案', '影像档案', 100),
-    ('kunqu', 'image', 'cover', '/assets/kunqu.png', '昆曲水袖意象', '水袖与雅部声腔', 0),
-    ('kunqu', 'image', 'hero', '/assets/kunqu-hero.png', '昆曲影像展陈', '慢声与留白', 1),
-    ('kunqu', 'image', 'gallery', '/assets/kunqu.png', '昆曲水袖意象', '水袖与雅部声腔', 10),
-    ('kunqu', 'image', 'gallery', '/assets/kunqu-detail.png', '昆曲园林舞台', '园林中的曲唱', 11),
-    ('kunqu', 'image', 'gallery', '/assets/kunqu-hero.png', '昆曲影像展陈', '慢声与留白', 12),
-    ('kunqu', 'video', 'video', 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', '昆曲影像档案', '影像档案', 100),
-    ('suzhou-embroidery', 'image', 'cover', '/assets/suzhou-embroidery.png', '苏绣丝线', '丝线的色阶', 0),
-    ('suzhou-embroidery', 'image', 'hero', '/assets/suzhou-embroidery-hero.png', '苏绣展陈', '双面绣意象', 1),
-    ('suzhou-embroidery', 'image', 'gallery', '/assets/suzhou-embroidery.png', '苏绣丝线', '丝线的色阶', 10),
-    ('suzhou-embroidery', 'image', 'gallery', '/assets/suzhou-embroidery-detail.png', '苏绣针脚', '细密针法', 11),
-    ('suzhou-embroidery', 'image', 'gallery', '/assets/suzhou-embroidery-hero.png', '苏绣展陈', '双面绣意象', 12),
-    ('suzhou-embroidery', 'video', 'video', 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', '苏绣影像档案', '影像档案', 100),
-    ('longquan-celadon', 'image', 'cover', '/assets/longquan-celadon.png', '龙泉青瓷器形', '温润青釉', 0),
-    ('longquan-celadon', 'image', 'hero', '/assets/longquan-celadon-hero.png', '龙泉青瓷展陈', '器物的沉静', 1),
-    ('longquan-celadon', 'image', 'gallery', '/assets/longquan-celadon.png', '龙泉青瓷器形', '温润青釉', 10),
-    ('longquan-celadon', 'image', 'gallery', '/assets/longquan-celadon-detail.png', '龙泉青瓷釉色', '厚釉与火候', 11),
-    ('longquan-celadon', 'image', 'gallery', '/assets/longquan-celadon-hero.png', '龙泉青瓷展陈', '器物的沉静', 12),
-    ('longquan-celadon', 'video', 'video', 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', '龙泉青瓷影像档案', '影像档案', 100),
-    ('jingdezhen-porcelain', 'image', 'cover', '/assets/jingdezhen-porcelain.png', '景德镇青花瓷', '青花与白瓷', 0),
-    ('jingdezhen-porcelain', 'image', 'hero', '/assets/jingdezhen-porcelain-hero.png', '景德镇陶瓷展陈', '千年窑火', 1),
-    ('jingdezhen-porcelain', 'image', 'gallery', '/assets/jingdezhen-porcelain.png', '景德镇青花瓷', '青花与白瓷', 10),
-    ('jingdezhen-porcelain', 'image', 'gallery', '/assets/jingdezhen-porcelain-detail.png', '景德镇瓷器绘制', '釉彩与笔触', 11),
-    ('jingdezhen-porcelain', 'image', 'gallery', '/assets/jingdezhen-porcelain-hero.png', '景德镇陶瓷展陈', '千年窑火', 12),
-    ('jingdezhen-porcelain', 'video', 'video', 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', '景德镇陶瓷影像档案', '影像档案', 100),
-    ('datiehua', 'image', 'cover', '/assets/datiehua.png', '打铁花火雨', '夜色中的火雨', 0),
-    ('datiehua', 'image', 'hero', '/assets/datiehua-hero.png', '打铁花展演', '节庆仪式', 1),
-    ('datiehua', 'image', 'gallery', '/assets/datiehua.png', '打铁花火雨', '夜色中的火雨', 10),
-    ('datiehua', 'image', 'gallery', '/assets/datiehua-detail.png', '打铁花火花细节', '铁水与瞬间', 11),
-    ('datiehua', 'image', 'gallery', '/assets/datiehua-hero.png', '打铁花展演', '节庆仪式', 12),
-    ('datiehua', 'video', 'video', 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', '打铁花影像档案', '影像档案', 100)
-) as seed(slug, media_type, role, url, alt, caption, sort_order)
+    (
+      'cf4e2ffd-ef1e-4ef1-874e-392e4d17c025'::uuid,
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784250859124-1.webp',
+      '扎染',
+      '扎染包包',
+      '1.webp',
+      293634,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784250859124-1.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784250859124-1.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784250859124-1.webp',
+      '1.png',
+      1238,
+      2200,
+      0,
+      '2026-07-17T01:14:21.118271+00:00'::timestamptz
+    ),
+    (
+      '59e2e5bf-c6b8-4774-9790-43b0e99c86cd',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784250869915-5.webp',
+      '扎染',
+      '扎染包包',
+      '5.webp',
+      235246,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784250869915-5.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784250869915-5.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784250869915-5.webp',
+      '5.png',
+      941,
+      1672,
+      0,
+      '2026-07-17T01:14:31.656527+00:00'
+    ),
+    (
+      '760db850-5e21-4b04-b1de-9dac47536b88',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784250890037-12.webp',
+      '扎染',
+      '扎染包包',
+      '12.webp',
+      244608,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784250890037-12.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784250890037-12.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784250890037-12.webp',
+      '12.png',
+      941,
+      1672,
+      0,
+      '2026-07-17T01:14:51.666622+00:00'
+    ),
+    (
+      '2b28b0b9-8191-488f-813b-8b72c0669227',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784250905339-18.webp',
+      '扎染',
+      '扎染包包',
+      '18.webp',
+      280856,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784250905339-18.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784250905339-18.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784250905339-18.webp',
+      '18.png',
+      941,
+      1672,
+      0,
+      '2026-07-17T01:15:06.874991+00:00'
+    ),
+    (
+      '03e199ac-da2c-4902-8890-bec860514a97',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251293434-2.webp',
+      '扎染',
+      '扎染玩偶',
+      '2.webp',
+      382050,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251293434-2.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251293434-2.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251293434-2.webp',
+      '2.png',
+      1238,
+      2200,
+      0,
+      '2026-07-17T01:21:35.198478+00:00'
+    ),
+    (
+      '34c3b677-4351-4be7-8f45-38aea8019aba',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251008498-8862b638703bb1cd5325c1b8befa8996.webp',
+      '蜡染',
+      '蜡染包包',
+      '8862b638703bb1cd5325c1b8befa8996.webp',
+      137636,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251008498-8862b638703bb1cd5325c1b8befa8996.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251008498-8862b638703bb1cd5325c1b8befa8996.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251008498-8862b638703bb1cd5325c1b8befa8996.webp',
+      '8862b638703bb1cd5325c1b8befa8996.jpg',
+      828,
+      1792,
+      0,
+      '2026-07-17T01:16:49.878166+00:00'
+    ),
+    (
+      '7fd8ac11-1c4d-4cbd-b185-b636935a0307',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251010584-d0ce2d29d0d9186c6211d55e85ffd1f1.webp',
+      '蜡染',
+      '蜡染包包',
+      'd0ce2d29d0d9186c6211d55e85ffd1f1.webp',
+      94400,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251010584-d0ce2d29d0d9186c6211d55e85ffd1f1.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251010584-d0ce2d29d0d9186c6211d55e85ffd1f1.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251010584-d0ce2d29d0d9186c6211d55e85ffd1f1.webp',
+      'd0ce2d29d0d9186c6211d55e85ffd1f1.jpg',
+      828,
+      1792,
+      0,
+      '2026-07-17T01:16:51.9464+00:00'
+    ),
+    (
+      '5a6484e4-be87-42d7-bdf3-0f0de36ab7c8',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251094346-5.webp',
+      '扎染',
+      '扎染饰品',
+      '5.webp',
+      494600,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251094346-5.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251094346-5.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251094346-5.webp',
+      '5.png',
+      1238,
+      2200,
+      0,
+      '2026-07-17T01:18:16.154673+00:00'
+    ),
+    (
+      '250fb464-7209-4206-b093-6c33b6cd2192',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251098144-6.webp',
+      '扎染',
+      '扎染饰品',
+      '6.webp',
+      682078,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251098144-6.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251098144-6.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251098144-6.webp',
+      '6.png',
+      1238,
+      2200,
+      0,
+      '2026-07-17T01:18:20.345815+00:00'
+    ),
+    (
+      '3fb47212-fa65-489c-9c4a-628e1f8aee1e',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251286660-7.webp',
+      '扎染',
+      '扎染玩偶',
+      '7.webp',
+      296440,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251286660-7.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251286660-7.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251286660-7.webp',
+      '7.png',
+      1238,
+      2200,
+      0,
+      '2026-07-17T01:21:28.969368+00:00'
+    ),
+    (
+      'dd9b76b1-6b15-44cb-b654-e303051dff2f',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251296191-3.webp',
+      '扎染',
+      '扎染玩偶',
+      '3.webp',
+      294186,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251296191-3.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251296191-3.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251296191-3.webp',
+      '3.png',
+      941,
+      1672,
+      0,
+      '2026-07-17T01:21:37.731739+00:00'
+    ),
+    (
+      'd03183e5-6f56-4a13-aefd-5b8e1241d884',
+      'tie-dye',
+      'image',
+      'gallery',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251012760-d9269ea831f94602e83600f1600ea7db.webp',
+      '蜡染',
+      '蜡染包包',
+      'd9269ea831f94602e83600f1600ea7db.webp',
+      130342,
+      'image/webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/1784251012760-d9269ea831f94602e83600f1600ea7db.webp',
+      'https://mmmmicpckawafgxfzbaw.supabase.co/storage/v1/object/public/heritage-media/08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251012760-d9269ea831f94602e83600f1600ea7db.webp',
+      '08d7f672-4220-42df-9bd5-7e5bc7aa62d9/thumbnails/1784251012760-d9269ea831f94602e83600f1600ea7db.webp',
+      'd9269ea831f94602e83600f1600ea7db.jpg',
+      828,
+      1792,
+      0,
+      '2026-07-17T01:16:54.207892+00:00'
+    )
+) as seed(
+  id,
+  slug,
+  media_type,
+  role,
+  url,
+  alt,
+  caption,
+  file_name,
+  file_size,
+  mime_type,
+  storage_path,
+  thumbnail_url,
+  thumbnail_storage_path,
+  original_file_name,
+  width,
+  height,
+  sort_order,
+  created_at
+)
 join heritage_map on heritage_map.slug = seed.slug
 on conflict (heritage_item_id, role, url) do update
 set media_type = excluded.media_type,
     alt = excluded.alt,
     caption = excluded.caption,
+    file_name = excluded.file_name,
+    file_size = excluded.file_size,
+    mime_type = excluded.mime_type,
+    storage_path = excluded.storage_path,
+    thumbnail_url = excluded.thumbnail_url,
+    thumbnail_storage_path = excluded.thumbnail_storage_path,
+    original_file_name = excluded.original_file_name,
+    width = excluded.width,
+    height = excluded.height,
     sort_order = excluded.sort_order;
 
 create table if not exists public.feishu_sync_sources (

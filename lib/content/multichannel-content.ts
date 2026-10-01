@@ -89,7 +89,7 @@ export type OfflineContentPayload = {
   routes: string[];
 };
 
-export const campaignDefinitions: CampaignDefinition[] = [
+const campaignDefinitionCatalog: CampaignDefinition[] = [
   {
     slug: "four-embroideries",
     title: "中国四大名绣",
@@ -158,6 +158,12 @@ export const campaignDefinitions: CampaignDefinition[] = [
   }
 ];
 
+const activeCampaignSlugs = new Set<CampaignSlug>();
+
+export const campaignDefinitions = campaignDefinitionCatalog.filter((campaign) =>
+  activeCampaignSlugs.has(campaign.slug)
+);
+
 export const campaignSlugs = campaignDefinitions.map((campaign) => campaign.slug);
 
 function normalizeText(item: HeritageItem) {
@@ -223,25 +229,29 @@ function toHeritageCard(item: HeritageItem): MultichannelHeritageCard {
 }
 
 export function createCampaignCollection(items: HeritageItem[]): CampaignCard[] {
-  return campaignDefinitions.map((campaign) => {
+  return campaignDefinitions.flatMap((campaign) => {
     const campaignItems = sortCampaignItems(
       campaign,
       items.filter((item) => matchesCampaign(campaign, item))
     );
     const lead = campaignItems[0];
 
-    return {
+    if (!lead) {
+      return [];
+    }
+
+    return [{
       slug: campaign.slug,
       title: campaign.title,
       englishTitle: campaign.englishTitle,
       summary: campaign.summary,
       englishSummary: campaign.englishSummary,
-      heroImage: lead?.heroImage || lead?.image || campaign.heroImage,
+      heroImage: lead.heroImage || lead.image,
       accent: campaign.accent,
       href: campaign.href,
       itemCount: campaignItems.length,
       featuredSlugs: campaignItems.slice(0, 4).map((item) => item.slug)
-    };
+    }];
   });
 }
 

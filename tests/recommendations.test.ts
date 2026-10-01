@@ -136,9 +136,19 @@ describe("heritage recommendations", () => {
     expect(recommendations[0]?.item.categorySlug).toBe("traditional-opera");
   });
 
-  it("uses curated museum topic favorites as representative item signals", () => {
+  it("does not restore retired museum topic content from an old favorite", () => {
+    const currentItems = [
+      createItem({
+        id: "08d7f672-4220-42df-9bd5-7e5bc7aa62d9",
+        slug: "tie-dye",
+        name: "扎染",
+        categorySlug: "traditional-craft",
+        tags: ["扎染", "染色"],
+        province: "云南省"
+      })
+    ];
     const recommendations = createHeritageRecommendations({
-      items,
+      items: currentItems,
       favorites: [
         {
           target_type: "museum_topic",
@@ -152,10 +162,7 @@ describe("heritage recommendations", () => {
       limit: 2
     });
 
-    expect(recommendations.map((recommendation) => recommendation.item.slug)).toEqual([
-      "suzhou-embroidery",
-      "hunan-embroidery"
-    ]);
-    expect(recommendations[0]?.reasons).toContain("shared_tag");
+    expect(recommendations.map((recommendation) => recommendation.item.slug)).toEqual(["tie-dye"]);
+    expect(recommendations[0]?.reasons).toEqual(["curated"]);
   });
 });

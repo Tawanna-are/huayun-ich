@@ -7,7 +7,7 @@ import type {
   ResolvedMuseumTopicDetail
 } from "@/lib/types/museum";
 
-export const curatedMuseumTopics = [
+const museumTopicDefinitions = [
   {
     slug: "four-embroideries",
     title: "中国四大名绣",
@@ -163,6 +163,12 @@ export const curatedMuseumTopics = [
   }
 ] as const satisfies readonly MuseumTopicDefinition[];
 
+const activeMuseumTopicSlugs = new Set<MuseumTopicSlug>();
+
+export const curatedMuseumTopics: readonly MuseumTopicDefinition[] = museumTopicDefinitions.filter((topic) =>
+  activeMuseumTopicSlugs.has(topic.slug)
+);
+
 export const curatedMuseumTopicSlugs = curatedMuseumTopics.map((topic) => topic.slug);
 
 function itemText(item: HeritageItem) {
@@ -231,19 +237,23 @@ export function getRepresentativeItemsForTopic(topic: MuseumTopicDefinition, ite
 }
 
 export function createMuseumTopicSummaries(items: HeritageItem[]): MuseumFeaturedTopic[] {
-  return curatedMuseumTopics.map((topic) => {
+  return curatedMuseumTopics.flatMap((topic) => {
     const representativeItems = getRepresentativeItemsForTopic(topic, items);
     const lead = representativeItems[0];
 
-    return {
+    if (!lead) {
+      return [];
+    }
+
+    return [{
       id: topic.slug,
       title: topic.title,
       englishTitle: topic.englishTitle,
       summary: topic.summary,
       count: representativeItems.length,
-      image: lead?.heroImage || lead?.image || topic.heroImage,
+      image: lead.heroImage || lead.image,
       href: topic.href
-    };
+    }];
   });
 }
 
@@ -259,6 +269,11 @@ export function resolveMuseumTopicDetail(
   }
 
   const representativeItems = getRepresentativeItemsForTopic(topic, items);
+
+  if (representativeItems.length === 0) {
+    return undefined;
+  }
+
   const representativeSlugs = new Set(representativeItems.map((item) => item.slug));
   const recommendedItems = sortRecommendations(items.filter((item) => !representativeSlugs.has(item.slug))).slice(0, 3);
   const lead = representativeItems[0];
