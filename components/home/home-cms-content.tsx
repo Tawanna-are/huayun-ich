@@ -19,12 +19,12 @@ export async function HomeCmsContent({ itemsPromise, locale }: HomeCmsContentPro
     (item, index, source) =>
       Boolean(item.image || item.heroImage) && source.findIndex((candidate) => candidate.id === item.id) === index
   );
-  const [mainItem, ...railCandidates] = imageItems;
+  const [mainItem] = imageItems;
 
   return (
     <>
       <HomeHeader />
-      <HeritageExplorerHero mainItem={mainItem} railItems={railCandidates.slice(0, 3)} locale={locale} />
+      <HeritageExplorerHero mainItem={mainItem} locale={locale} />
       <HomePromotions placement="top" locale={locale} />
       {imageItems.length > 0 && (
         <section aria-label={locale === "zh" ? "非遗作品" : "Heritage works"} className="bg-[#f7f5f0] px-5 py-12 lg:px-12 lg:py-16">

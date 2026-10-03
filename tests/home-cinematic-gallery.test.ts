@@ -30,17 +30,18 @@ describe("modern heritage explorer homepage", () => {
     expect(explorer).not.toContain("支持传承");
   });
 
-  it("uses one fixed main visual and three metadata-free visual rails", () => {
+  it("uses one full-width fixed main visual without visual rails", () => {
     const path = "components/home/heritage-explorer-hero.tsx";
     expect(existsSync(path)).toBe(true);
     if (!existsSync(path)) return;
 
     const explorer = readFileSync(path, "utf8");
     expect(explorer).toContain('data-heritage-main-visual="true"');
-    expect(explorer).toContain('data-heritage-visual-rail="true"');
-    expect(explorer).toContain("railItems.slice(0, 3)");
+    expect(explorer).toContain("block h-full w-full");
+    expect(explorer).not.toContain('data-heritage-visual-rail="true"');
+    expect(explorer).not.toContain("railItems");
     expect(explorer).toContain("item.image || item.heroImage");
-    expect(explorer).toContain("`/heritage/${item.slug}`");
+    expect(explorer).toContain("`/heritage/${mainItem.slug}`");
     expect(explorer).not.toContain("item.name");
     expect(explorer).not.toContain("item.region");
     expect(explorer).not.toContain("item.categoryName");
