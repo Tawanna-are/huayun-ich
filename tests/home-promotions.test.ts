@@ -2,18 +2,16 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("homepage promotions", () => {
-  it("renders the works grid between the unchanged top and bottom banners", () => {
+  it("renders the works grid before the paired bottom promotion videos", () => {
     const source = readFileSync("components/home/home-cms-content.tsx", "utf8");
 
     const hero = source.indexOf("<HeritageExplorerHero");
-    const top = source.indexOf('<HomePromotions placement="top"');
     const works = source.indexOf("{imageItems.length > 0");
     const contact = source.indexOf("<HomeContactEntry");
     const bottom = source.indexOf('<HomePromotions placement="bottom"');
 
     expect(hero).toBeGreaterThan(-1);
-    expect(top).toBeGreaterThan(hero);
-    expect(works).toBeGreaterThan(top);
+    expect(source).not.toContain('<HomePromotions placement="top"');
     expect(bottom).toBeGreaterThan(works);
     expect(contact).toBeGreaterThan(bottom);
   });
@@ -38,6 +36,8 @@ describe("homepage promotions", () => {
     const source = readFileSync("components/home/home-promotions.tsx", "utf8");
 
     expect(source).toContain('eq("published",true)');
+    expect(source).toContain('bottom: ["top_banner", "bottom_banner"]');
+    expect(source).toContain('md:grid-cols-2');
     expect(source).toContain("title_zh");
     expect(source).toContain("title_en");
     expect(source).toContain("media_alt_zh");
