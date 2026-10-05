@@ -53,6 +53,7 @@ export type HeritageItem = {
   videos?: HeritageVideo[];
   history: string[];
   gallery: HeritageGalleryImage[];
+  homeGallery?: HeritageGalleryImage[];
   timeline: HeritageTimelineEvent[];
   inheritor: {
     name: string;

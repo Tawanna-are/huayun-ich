@@ -85,6 +85,36 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     const { supabase, rows } = await getProjectMediaRows(id);
 
+    if (validation.action === "set-home-featured") {
+      const selected = rows.find((row) => row.id === id);
+      if (!selected || selected.media_type !== "image" || selected.role !== "gallery") {
+        return NextResponse.json({ error: "Only gallery images can appear on the homepage." }, { status: 422 });
+      }
+
+      const { data: assets, error: assetError } = await supabase
+        .from("media_assets")
+        .select("id, asset_role, file_type")
+        .eq("heritage_id", selected.heritage_item_id)
+        .eq(selected.storage_path ? "storage_path" : "file_url", selected.storage_path ?? selected.url)
+        .limit(2);
+      if (assetError) throw new Error(assetError.message);
+      if (assets?.length !== 1 || assets[0].asset_role !== "gallery" || assets[0].file_type !== "image") {
+        return NextResponse.json({ error: "Matching gallery media asset not found." }, { status: 409 });
+      }
+
+      const { data: updated, error } = await supabase
+        .from("media_assets")
+        .update({ featured_on_home: validation.featured })
+        .eq("id", assets[0].id)
+        .eq("heritage_id", selected.heritage_item_id)
+        .eq("asset_role", "gallery")
+        .eq("file_type", "image")
+        .select("id")
+        .single();
+      if (error || !updated) throw new Error(error?.message ?? "Failed to update homepage display.");
+      return NextResponse.json({ ok: true, updated: 1 });
+    }
+
     if (validation.action === "update-metadata") {
       const selected = rows.find((row) => row.id === id);
 

@@ -40,7 +40,8 @@ export function isPublicHeritageSlug(slug: string) {
   return !hiddenPublicHeritageSlugs.has(slug);
 }
 
-export const heritageSelect = `
+function buildHeritageSelect(includeHomeFeatured: boolean) {
+  return `
   *,
   category:categories (
     id,
@@ -88,6 +89,7 @@ export const heritageSelect = `
     storage_path,
     thumbnail_storage_path,
     sort_order,
+    ${includeHomeFeatured ? "featured_on_home," : ""}
     created_at
   ),
   inheritors (
@@ -101,6 +103,14 @@ export const heritageSelect = `
     created_at
   )
 `;
+}
+
+export const heritageSelect = buildHeritageSelect(true);
+export const legacyHeritageSelect = buildHeritageSelect(false);
+
+export function missingHomeFeaturedColumn(error: { message: string } | null) {
+  return Boolean(error?.message.includes("featured_on_home") && error.message.includes("does not exist"));
+}
 
 function hasSupabaseConfig() {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -228,6 +238,9 @@ export function mapHeritageItemRow(row: HeritageItemSelectRow): HeritageItem {
     ?? findMedia(sortedMedia, "video", "video")
     ?? sortedMedia.find((item) => item.media_type === "video");
   const galleryImages = sortedMedia.filter((item) => item.media_type === "image" && item.role === "gallery");
+  const homeGalleryIds = new Set(mediaAssets
+    .filter((asset) => asset.file_type === "image" && asset.asset_role === "gallery" && asset.featured_on_home === true)
+    .map((asset) => asset.id));
   const videoItems = sortedMedia.filter((item) => item.media_type === "video");
   const inheritor = sortBySortOrder(row.inheritors)[0];
 
@@ -256,6 +269,12 @@ export function mapHeritageItemRow(row: HeritageItemSelectRow): HeritageItem {
     })),
     history: row.history ?? [],
     gallery: galleryImages.map((image) => ({
+      id: image.id,
+      src: image.url,
+      alt: image.alt ?? row.name,
+      caption: image.caption ?? row.name
+    })),
+    homeGallery: galleryImages.filter((image) => homeGalleryIds.has(image.id)).map((image) => ({
       id: image.id,
       src: image.url,
       alt: image.alt ?? row.name,
@@ -316,16 +335,18 @@ async function fetchHeritageRows({ includeUnpublished = false }: { includeUnpubl
     return [];
   }
 
-  let query = supabase
-    .from("heritage_items")
-    .select(heritageSelect)
-    .order("sort_order", { ascending: true });
-
-  if (!includeUnpublished) {
-    query = query.eq("published", true);
+  const selectRows = (selection: string) => {
+    let query = supabase
+      .from("heritage_items")
+      .select(selection)
+      .order("sort_order", { ascending: true });
+    if (!includeUnpublished) query = query.eq("published", true);
+    return query;
+  };
+  let { data, error } = await selectRows(heritageSelect);
+  if (missingHomeFeaturedColumn(error)) {
+    ({ data, error } = await selectRows(legacyHeritageSelect));
   }
-
-  const { data, error } = await query;
 
   if (error) {
     captureAppException(error, {
@@ -416,12 +437,16 @@ export async function getHeritageBySlug(slug: string) {
     return undefined;
   }
 
-  const { data, error } = await supabase
+  const selectItem = (selection: string) => supabase
     .from("heritage_items")
-    .select(heritageSelect)
+    .select(selection)
     .eq("published", true)
     .eq("slug", slug)
     .limit(1);
+  let { data, error } = await selectItem(heritageSelect);
+  if (missingHomeFeaturedColumn(error)) {
+    ({ data, error } = await selectItem(legacyHeritageSelect));
+  }
 
   if (error) {
     captureAppException(error, {

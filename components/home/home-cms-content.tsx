@@ -4,6 +4,7 @@ import { HeritageExplorerHero } from "@/components/home/heritage-explorer-hero";
 import { HomeContactEntry } from "@/components/home/home-contact-entry";
 import { HomeHeader } from "@/components/home/home-header";
 import { HomePromotions } from "@/components/home/home-promotions";
+import { createHomeHeritageCards } from "@/lib/content/home-heritage-cards";
 import type { HeritageItem } from "@/lib/types/heritage";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -20,6 +21,7 @@ export async function HomeCmsContent({ itemsPromise, locale }: HomeCmsContentPro
       Boolean(item.image || item.heroImage) && source.findIndex((candidate) => candidate.id === item.id) === index
   );
   const [mainItem] = imageItems;
+  const cards = createHomeHeritageCards(imageItems);
 
   return (
     <>
@@ -28,17 +30,17 @@ export async function HomeCmsContent({ itemsPromise, locale }: HomeCmsContentPro
       {imageItems.length > 0 && (
         <section aria-label={locale === "zh" ? "非遗作品" : "Heritage works"} className="bg-[#f7f5f0] px-5 py-12 lg:px-12 lg:py-16">
           <div className="mx-auto grid max-w-[1500px] grid-cols-2 gap-x-4 gap-y-6 md:gap-6 lg:grid-cols-4">
-            {imageItems.map((item) => (
+            {cards.map((item) => (
               <Link
-                key={item.id}
+                key={item.key}
                 href={`/heritage/${item.slug}`}
                 locale={locale}
                 className="group block min-w-0 overflow-hidden rounded-[6px] border border-[#24483c]/10 bg-[#fffefa] transition-shadow hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#24483c]"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image
-                    src={item.image || item.heroImage}
-                    alt={item.name}
+                    src={item.image}
+                    alt={item.alt}
                     fill
                     sizes="(min-width: 1440px) 432px, (min-width: 768px) 33vw, 50vw"
                     className="object-contain p-3 motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.02]"

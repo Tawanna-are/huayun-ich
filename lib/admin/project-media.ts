@@ -1,6 +1,6 @@
 import type { HeritageMediaRole, HeritageMediaRow, HeritageMediaType } from "@/lib/types/database";
 
-export type ProjectMediaAction = "set-cover" | "set-main-video" | "move" | "update-metadata";
+export type ProjectMediaAction = "set-cover" | "set-main-video" | "move" | "update-metadata" | "set-home-featured";
 export type ProjectMediaMoveDirection = "up" | "down";
 
 export type ProjectMediaUpdate = {
@@ -24,6 +24,11 @@ type ProjectMediaActionValidationResult =
       action: "update-metadata";
       caption: string;
       alt: string;
+    }
+  | {
+      ok: true;
+      action: "set-home-featured";
+      featured: boolean;
     }
   | {
       ok: false;
@@ -125,6 +130,13 @@ export function moveProjectMedia(
 
 export function validateProjectMediaActionPayload(body: unknown): ProjectMediaActionValidationResult {
   const action = (body as { action?: unknown }).action;
+
+  if (action === "set-home-featured") {
+    const featured = (body as { featured?: unknown }).featured;
+    return typeof featured === "boolean"
+      ? { ok: true, action, featured }
+      : { ok: false, error: "Invalid homepage featured value." };
+  }
 
   if (action === "set-cover" || action === "set-main-video") {
     return { ok: true, action };

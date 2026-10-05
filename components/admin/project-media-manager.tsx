@@ -30,7 +30,7 @@ import {
   IMAGE_THUMBNAIL_MAX_DIMENSION,
   IMAGE_THUMBNAIL_WEBP_QUALITY
 } from "@/lib/admin/media-performance";
-import type { HeritageItemSelectRow, HeritageMediaRole, HeritageMediaRow } from "@/lib/types/database";
+import type { HeritageItemSelectRow, HeritageMediaRole, HeritageMediaRow, MediaAssetRow } from "@/lib/types/database";
 
 type ProjectMediaManagerProps = {
   locale: AppLocale;
@@ -60,6 +60,15 @@ function sortMedia(rows: HeritageMediaRow[]) {
 
     return a.created_at.localeCompare(b.created_at);
   });
+}
+
+function findMediaAsset(media: HeritageMediaRow, assets: MediaAssetRow[] | null | undefined) {
+  return assets?.find((asset) =>
+    asset.heritage_id === media.heritage_item_id &&
+    asset.file_type === "image" &&
+    asset.asset_role === "gallery" &&
+    (media.storage_path ? asset.storage_path === media.storage_path : asset.file_url === media.url)
+  );
 }
 
 function formatMediaFileSize(size: number | null | undefined) {
@@ -189,7 +198,11 @@ function MediaCard({
   isBusy,
   onAction,
   onDelete,
-  onMetadataSave
+  onMetadataSave,
+  onHomeFeatured,
+  featuredOnHome,
+  hasMediaAsset,
+  locale
 }: {
   media: HeritageMediaRow;
   isFirst: boolean;
@@ -198,6 +211,10 @@ function MediaCard({
   onAction: (mediaId: string, action: "set-cover" | "set-main-video" | "move", direction?: "up" | "down") => void;
   onDelete: (mediaId: string) => void;
   onMetadataSave: (mediaId: string, values: { caption: string; alt: string }) => Promise<boolean>;
+  onHomeFeatured: (mediaId: string, featured: boolean) => void;
+  featuredOnHome: boolean;
+  hasMediaAsset: boolean;
+  locale: AppLocale;
 }) {
   const isImage = media.media_type === "image";
   const fileName = media.file_name ?? media.original_file_name ?? media.url.split("/").pop() ?? "media";
@@ -243,6 +260,19 @@ function MediaCard({
             </p>
           </div>
         </div>
+
+        {media.media_type === "image" && media.role === "gallery" ? (
+          <label className="flex items-center gap-2 text-sm text-rice">
+            <input
+              type="checkbox"
+              checked={featuredOnHome}
+              onChange={(event) => onHomeFeatured(media.id, event.target.checked)}
+              disabled={isBusy || !hasMediaAsset}
+              className="size-4 accent-museumGold"
+            />
+            {locale === "zh" ? "首页展示" : "Show on Home"}
+          </label>
+        ) : null}
 
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" size="sm" variant="ghost" onClick={() => onAction(media.id, "move", "up")} disabled={isBusy || isFirst}>
@@ -491,6 +521,33 @@ export function ProjectMediaManager({
     await onChanged();
   }
 
+  async function setHomeFeatured(mediaId: string, featured: boolean) {
+    if (!isAuthenticated) {
+      setStatus("Sign in before editing media.");
+      return;
+    }
+
+    setBusyMediaId(mediaId);
+    try {
+      const response = await fetch(`/api/admin/media/${encodeURIComponent(mediaId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+        body: JSON.stringify({ action: "set-home-featured", featured })
+      });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        setStatus(payload.error ?? "Failed to update homepage display.");
+        return;
+      }
+      await onChanged();
+      setStatus("Homepage display updated.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Failed to update homepage display.");
+    } finally {
+      setBusyMediaId(null);
+    }
+  }
+
   async function saveMediaMetadata(mediaId: string, values: { caption: string; alt: string }) {
     if (!isAuthenticated) {
       setStatus("Sign in before editing media.");
@@ -686,6 +743,10 @@ export function ProjectMediaManager({
                 onAction={runMediaAction}
                 onDelete={deleteMedia}
                 onMetadataSave={saveMediaMetadata}
+                onHomeFeatured={setHomeFeatured}
+                featuredOnHome={findMediaAsset(media, selectedRow?.media_assets)?.featured_on_home === true}
+                hasMediaAsset={typeof findMediaAsset(media, selectedRow?.media_assets)?.featured_on_home === "boolean"}
+                locale={locale}
               />
             ))}
             {images.length === 0 ? <p className="py-6 text-sm text-rice/42">No images for this item yet.</p> : null}
@@ -721,6 +782,10 @@ export function ProjectMediaManager({
                 onAction={runMediaAction}
                 onDelete={deleteMedia}
                 onMetadataSave={saveMediaMetadata}
+                onHomeFeatured={setHomeFeatured}
+                featuredOnHome={false}
+                hasMediaAsset={false}
+                locale={locale}
               />
             ))}
             {videos.length === 0 ? <p className="py-6 text-sm text-rice/42">No videos for this item yet.</p> : null}

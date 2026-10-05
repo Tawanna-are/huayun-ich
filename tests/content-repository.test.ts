@@ -5,7 +5,8 @@ import {
   groupHeritageByProvince,
   localizeHeritageDetailItem,
   mapCategoryRow,
-  mapHeritageItemRow
+  mapHeritageItemRow,
+  missingHomeFeaturedColumn
 } from "@/lib/content/heritage-repository";
 import type { CategoryRow, HeritageItemSelectRow, HeritageMediaRow, MediaAssetRow } from "@/lib/types/database";
 
@@ -143,6 +144,10 @@ const baseRow: HeritageItemSelectRow = {
 };
 
 describe("Supabase heritage repository mapping", () => {
+  it("uses the legacy select only when the new homepage flag column is absent", () => {
+    expect(missingHomeFeaturedColumn({ message: "column media_assets_1.featured_on_home does not exist" })).toBe(true);
+    expect(missingHomeFeaturedColumn({ message: "permission denied" })).toBe(false);
+  });
   it("hides Yue embroidery and Kunqu from every public repository entry point", () => {
     const repository = readFileSync("lib/content/heritage-repository.ts", "utf8");
 
@@ -250,6 +255,23 @@ describe("Supabase heritage repository mapping", () => {
     });
 
     expect(coverOnly.heroImage).toBe("/assets/cover-only.webp");
+  });
+
+  it("selects only explicitly featured gallery assets without changing detail gallery or cover", () => {
+    const row = {
+      ...baseRow,
+      media_assets: [
+        mediaAssetRow({ id: "cover", title: "Cover", file_type: "image", file_url: "/cover.webp", asset_role: "cover" }),
+        mediaAssetRow({ id: "unselected", title: "One", file_type: "image", file_url: "/one.webp" }),
+        mediaAssetRow({ id: "selected", title: "Two", file_type: "image", file_url: "/two.webp", featured_on_home: true }),
+        mediaAssetRow({ id: "poster", title: "Poster", file_type: "image", file_url: "/poster.webp", asset_role: "poster", featured_on_home: true })
+      ]
+    };
+    const item = mapHeritageItemRow(row);
+
+    expect(item.image).toBe("/cover.webp");
+    expect(item.gallery.map((image) => image.src)).toEqual(["/one.webp", "/two.webp"]);
+    expect(item.homeGallery?.map((image) => image.src)).toEqual(["/two.webp"]);
   });
 
   it("prioritizes media_assets so newly uploaded project images and videos auto-render on detail pages", () => {
@@ -376,6 +398,7 @@ function mediaAssetRow(patch: Partial<MediaAssetRow> & Pick<MediaAssetRow, "id" 
     duration: null,
     heritage_id: "heritage-suxiu",
     asset_role: "gallery",
+    featured_on_home: false,
     alt: null,
     caption: null,
     mime_type: null,

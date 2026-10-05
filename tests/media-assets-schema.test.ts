@@ -45,9 +45,18 @@ describe("media assets schema", () => {
       storage_path: "heritage-1/gallery.webp",
       thumbnail_storage_path: "heritage-1/thumbnails/gallery.webp",
       sort_order: 10,
+      featured_on_home: false,
       created_at: "2026-06-07T00:00:00.000Z"
     } satisfies MediaAssetRow;
 
     expect(row.file_type).toBe("image");
+  });
+
+  it("defaults gallery homepage selection off in both schema and migration", () => {
+    const schema = readFileSync("supabase/schema.sql", "utf8");
+    const migration = readFileSync("supabase/migrations/20261005_media_assets_featured_on_home.sql", "utf8");
+
+    expect(schema).toContain("featured_on_home boolean not null default false");
+    expect(migration).toContain("add column if not exists featured_on_home boolean not null default false");
   });
 });

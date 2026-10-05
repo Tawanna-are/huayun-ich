@@ -114,6 +114,27 @@ describe("admin project media management", () => {
       ok: false,
       error: "Invalid project media action."
     });
+    expect(validateProjectMediaActionPayload({ action: "set-home-featured", featured: true })).toEqual({
+      ok: true,
+      action: "set-home-featured",
+      featured: true
+    });
+    expect(validateProjectMediaActionPayload({ action: "set-home-featured", featured: "true" })).toEqual({
+      ok: false,
+      error: "Invalid homepage featured value."
+    });
+  });
+
+  it("offers a gallery-only home switch backed by the media asset flag", () => {
+    const manager = readFileSync("components/admin/project-media-manager.tsx", "utf8");
+    const route = readFileSync("app/api/admin/media/[id]/route.ts", "utf8");
+
+    expect(manager).toContain('media.role === "gallery"');
+    expect(manager).toContain('action: "set-home-featured"');
+    expect(manager).toContain("首页展示");
+    expect(manager).toContain("Show on Home");
+    expect(route).toContain('validation.action === "set-home-featured"');
+    expect(route).toContain('featured_on_home: validation.featured');
   });
 
   it("normalizes valid image metadata updates", () => {

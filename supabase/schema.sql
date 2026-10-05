@@ -103,6 +103,7 @@ create table if not exists public.media_assets (
   storage_path text,
   thumbnail_storage_path text,
   sort_order integer not null default 0,
+  featured_on_home boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -126,6 +127,9 @@ alter table public.media_assets
 
 alter table public.media_assets
   add column if not exists sort_order integer not null default 0;
+
+alter table public.media_assets
+  add column if not exists featured_on_home boolean not null default false;
 
 alter table public.media_assets
   drop constraint if exists media_assets_asset_role_check;

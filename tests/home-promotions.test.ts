@@ -19,12 +19,13 @@ describe("homepage promotions", () => {
   it("reuses homepage works with portrait images and localized detail links", () => {
     const source = readFileSync("components/home/home-cms-content.tsx", "utf8");
 
-    expect(source).toContain("imageItems.map((item)");
+    expect(source).toContain("createHomeHeritageCards(imageItems)");
+    expect(source).toContain("cards.map((item)");
     expect(source).toContain("grid-cols-2");
     expect(source).toContain("lg:grid-cols-4");
     expect(source).toContain("aspect-[4/5]");
     expect(source).toContain("object-contain");
-    expect(source).toContain("src={item.image || item.heroImage}");
+    expect(source).toContain("src={item.image}");
     expect(source).toContain("{item.name}");
     expect(source).toContain("item.englishName &&");
     expect(source).toContain("href={`/heritage/${item.slug}`}");

@@ -53,6 +53,7 @@ export type MediaAssetRow = {
   storage_path: string | null;
   thumbnail_storage_path: string | null;
   sort_order: number;
+  featured_on_home: boolean;
   created_at: string;
 };
 
