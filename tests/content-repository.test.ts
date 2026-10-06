@@ -274,6 +274,22 @@ describe("Supabase heritage repository mapping", () => {
     expect(item.homeGallery?.map((image) => image.src)).toEqual(["/two.webp"]);
   });
 
+  it("keeps each homepage description tied to its own stored image alt", () => {
+    const row = {
+      ...baseRow,
+      media_assets: [
+        mediaAssetRow({ id: "cover", title: "Cover", file_type: "image", file_url: "/cover.webp", asset_role: "cover", alt: "Cover description" }),
+        mediaAssetRow({ id: "first", title: "First", file_type: "image", file_url: "/first.webp", featured_on_home: true, alt: null }),
+        mediaAssetRow({ id: "default", title: "Default", file_type: "image", file_url: "/default.webp", featured_on_home: true, alt: baseRow.name }),
+        mediaAssetRow({ id: "second", title: "Second", file_type: "image", file_url: "/second.webp", featured_on_home: true, alt: "Second description" })
+      ]
+    };
+    const item = mapHeritageItemRow(row);
+
+    expect(item.homeImageDescription).toBe("Cover description");
+    expect(item.homeGallery?.map((image) => image.description)).toEqual([undefined, undefined, "Second description"]);
+  });
+
   it("prioritizes media_assets so newly uploaded project images and videos auto-render on detail pages", () => {
     const mediaAssets: MediaAssetRow[] = [
       mediaAssetRow({

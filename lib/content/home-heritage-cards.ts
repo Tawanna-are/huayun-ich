@@ -8,7 +8,8 @@ export function createHomeHeritageCards(items: HeritageItem[]) {
       name: item.name,
       englishName: item.englishName,
       image: item.image || item.heroImage,
-      alt: item.name
+      alt: item.name,
+      description: item.homeImageDescription
     },
     ...(item.homeGallery ?? []).map((image) => ({
       key: `${item.id}:${image.id}`,
@@ -16,7 +17,8 @@ export function createHomeHeritageCards(items: HeritageItem[]) {
       name: item.name,
       englishName: item.englishName,
       image: image.src,
-      alt: image.alt
+      alt: image.alt,
+      description: image.description
     }))
   ]);
 }

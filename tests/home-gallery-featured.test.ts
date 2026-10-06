@@ -9,13 +9,14 @@ const item = {
   name: "绒花",
   englishName: "Velvet Flowers",
   image: "/cover.webp",
+  homeImageDescription: "Cover description",
   heroImage: "/hero.webp",
   featured: false,
   gallery: [
     { id: "a", src: "/a.webp", alt: "A", caption: "A" },
     { id: "b", src: "/b.webp", alt: "B", caption: "B" }
   ],
-  homeGallery: [{ id: "b", src: "/b.webp", alt: "B", caption: "B" }]
+  homeGallery: [{ id: "b", src: "/b.webp", alt: "B", caption: "B", description: "Gallery B description" }]
 } as HeritageItem;
 
 describe("homepage gallery selection", () => {
@@ -24,12 +25,20 @@ describe("homepage gallery selection", () => {
 
     expect(cards.map((card) => card.image)).toEqual(["/cover.webp", "/b.webp"]);
     expect(cards.map((card) => card.slug)).toEqual(["ronghua", "ronghua"]);
+    expect(cards.map((card) => card.description)).toEqual(["Cover description", "Gallery B description"]);
     expect(new Set(cards.map((card) => card.key)).size).toBe(2);
     expect(item.gallery).toHaveLength(2);
   });
 
   it("keeps existing homepage behavior when no gallery image is selected", () => {
     expect(createHomeHeritageCards([{ ...item, homeGallery: [] }]).map((card) => card.image)).toEqual(["/cover.webp"]);
+  });
+
+  it("does not substitute a different image's description for an empty one", () => {
+    const cards = createHomeHeritageCards([{ ...item, homeImageDescription: undefined }]);
+    expect(cards.map((card) => card.description)).toEqual([undefined, "Gallery B description"]);
+    const source = readFileSync("components/home/home-cms-content.tsx", "utf8");
+    expect(source).toContain("item.description &&");
   });
 
   it("renders each card at the existing detail URL and grid breakpoints", () => {

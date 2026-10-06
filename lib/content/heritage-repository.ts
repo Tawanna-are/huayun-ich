@@ -241,6 +241,14 @@ export function mapHeritageItemRow(row: HeritageItemSelectRow): HeritageItem {
   const homeGalleryIds = new Set(mediaAssets
     .filter((asset) => asset.file_type === "image" && asset.asset_role === "gallery" && asset.featured_on_home === true)
     .map((asset) => asset.id));
+  const homeDescription = (image: HeritageMediaRow | undefined) => {
+    if (!image) return undefined;
+    const value = mediaFromAssets.length > 0
+      ? mediaAssets.find((asset) => asset.id === image.id)?.alt
+      : image.alt;
+    const description = value?.trim();
+    return description && description !== row.name.trim() ? description : undefined;
+  };
   const videoItems = sortedMedia.filter((item) => item.media_type === "video");
   const inheritor = sortBySortOrder(row.inheritors)[0];
 
@@ -259,6 +267,7 @@ export function mapHeritageItemRow(row: HeritageItemSelectRow): HeritageItem {
     inscriptionYear: row.inscription_year ?? 0,
     featured: row.featured ?? row.tags?.includes("homepage-featured") ?? false,
     image: coverImage?.url ?? heroImage?.url ?? defaultImage,
+    homeImageDescription: homeDescription(coverImage ?? heroImage),
     heroImage: heroImage?.url ?? coverImage?.url ?? defaultImage,
     videoPoster: video?.thumbnail_url ?? posterImage?.thumbnail_url ?? posterImage?.url ?? heroImage?.url ?? coverImage?.url ?? defaultImage,
     videoUrl: video?.url ?? "",
@@ -278,7 +287,8 @@ export function mapHeritageItemRow(row: HeritageItemSelectRow): HeritageItem {
       id: image.id,
       src: image.url,
       alt: image.alt ?? row.name,
-      caption: image.caption ?? row.name
+      caption: image.caption ?? row.name,
+      description: homeDescription(image)
     })),
     timeline: normalizeTimeline(row.timeline),
     inheritor: {

@@ -47,6 +47,7 @@ export async function HomeCmsContent({ itemsPromise, locale }: HomeCmsContentPro
                   />
                 </div>
                 <div className="px-3 pb-5 pt-3 sm:px-5">
+                  {item.description && <p className="mb-2 break-words text-sm leading-relaxed text-[#65716b]">{item.description}</p>}
                   <h2 lang="zh" className="serif-title break-words text-base font-normal leading-snug text-[#191f1c] sm:text-xl">{item.name}</h2>
                   {item.englishName && <p lang="en" className="mt-2 break-words text-xs leading-relaxed text-[#65716b] sm:text-sm">{item.englishName}</p>}
                 </div>

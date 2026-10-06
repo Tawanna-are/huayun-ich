@@ -24,6 +24,7 @@ export type HeritageGalleryImage = {
   src: string;
   alt: string;
   caption: string;
+  description?: string;
 };
 
 export type HeritageVideo = {
@@ -47,6 +48,7 @@ export type HeritageItem = {
   inscriptionYear: number;
   featured: boolean;
   image: string;
+  homeImageDescription?: string;
   heroImage: string;
   videoPoster: string;
   videoUrl: string;
