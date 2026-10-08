@@ -368,6 +368,7 @@ export function HeritageAdminClient({
 
   async function refreshContent(key = adminKey) {
     const response = await fetch("/api/admin/content", {
+      cache: "no-store",
       headers: {
         "x-admin-key": key
       }
@@ -380,6 +381,17 @@ export function HeritageAdminClient({
 
     setRows(payload.items ?? []);
     setCategoryRows(payload.categories ?? []);
+  }
+
+  async function selectTab(nextTab: AdminTab) {
+    setTab(nextTab);
+    if (nextTab !== "media" || !isAuthenticated) return;
+
+    try {
+      await refreshContent();
+    } catch (error) {
+      setStatus(error instanceof Error ? `媒体列表刷新失败：${error.message}` : "媒体列表刷新失败。");
+    }
   }
 
   async function login(event: FormEvent<HTMLFormElement>) {
@@ -725,7 +737,7 @@ export function HeritageAdminClient({
                     type="button"
                     variant={tab === item.id ? "secondary" : "ghost"}
                     size="sm"
-                    onClick={() => setTab(item.id)}
+                    onClick={() => void selectTab(item.id)}
                   >
                     <Icon className="size-4" />
                     {item.label}
